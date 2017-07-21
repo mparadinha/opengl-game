@@ -44,7 +44,7 @@ int main() {
     input.init(screen.window, &camera, &msg_bus);
 
     // entities
-    Quad terrain(10, 10);
+    Terrain terrain;
 
     CubeMap skybox = CubeMap("res/skybox/skybox", "jpg");
 
@@ -80,6 +80,7 @@ int main() {
         msg_bus.add_message(new_frame_msg, PRIORITY_NOW);
         
         // draw objects
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         sun_shader.use();
         camera.set_all_uniforms(sun_shader);
 
@@ -93,6 +94,7 @@ int main() {
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible at most times
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         cubemap_shader.use();
         skybox.set_uniforms(cubemap_shader, camera);
         skybox.render();

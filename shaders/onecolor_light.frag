@@ -28,5 +28,5 @@ void main() {
     vec3 diffuse = angle_diff * (light.diffuse * diffuse_color);
 
     vec3 final_color = (diffuse + ambient);
-    FragColor = vec4(final_color, 1.0);
+    FragColor = vec4(final_color, 0.8);
 }

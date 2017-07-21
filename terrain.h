@@ -6,19 +6,25 @@
 #include <glm/gtx/string_cast.hpp>
 #include <GL/glew.h>
 
-#include "shader.h"
-#include "mesh.h"
+#include "quad.h"
 
 class Terrain {
 public:
-    Terrain(float size, unsigned int density);
+    Terrain() {
+        quads.push_back(Quad(50, 50));
+        quads.push_back(Quad(50, 50, -50, -50));
+        quads.push_back(Quad(50, 50, -50, 0));
+        quads.push_back(Quad(50, 50, 0, -50));
+    }
 
-    void render();
+    void render() {
+        for(Quad quad : quads) quad.render();
+    }
 
     ~Terrain() {};
 
 private:
-    std::vector<Mesh> meshes;
+    std::vector<Quad> quads;
 };
 
 #endif // include guard
