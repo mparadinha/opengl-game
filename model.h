@@ -18,9 +18,10 @@ public:
     void render();
 
     ~Model() {};
-    std::vector<Mesh> meshes;
 
 private:
+    std::vector<Mesh> meshes;
+    std::vector<texture_t> textures;
     std::string directory;
 
     unsigned int load_texture(aiString filename);

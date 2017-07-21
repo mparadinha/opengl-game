@@ -89,8 +89,7 @@ int main() {
         terrain.render();
 
         sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
-        dude.set_model_uniform(sun_shader);
-        dude.render();
+        dude.render(sun_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible at most times

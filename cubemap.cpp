@@ -5,6 +5,7 @@
 #include "stb_image.h"
 
 #include "cubemap.h"
+#include "texture.h"
 
 float skybox_vertices[] = {
     // positions          
@@ -60,24 +61,13 @@ CubeMap::CubeMap(std::string path, std::string extension) {
     // load all 6 textures (1 for each side)
     std::string str[] = {"rt", "lf", "up", "dn", "bk", "ft"};
     std::vector<std::string> faces(str, str + (sizeof(str) / sizeof(std::string)));
-    int w, h, colors;
-    GLenum format;
-    unsigned char* data;
     for(unsigned int i = 0; i < faces.size(); i++) {
         std::string file = path + "_" + faces[i] + "." + extension;
-        data = stbi_load(file.c_str(), &w, &h, &colors, 0);
-        if(!data) {
-            std::cerr << "[CUBEMAP] Error loading texture: " << file << std::endl;
-        }
-        if(colors == 1) format = GL_LUMINANCE; // greyscale image
-        else if(colors == 3) format = GL_RGB; // normal 3 color channels
-        else if(colors == 4) format = GL_RGBA; // normal 3 + alpha
+        Texture tex = Texture(file);
 
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-            0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+            0, tex.format, tex.w, tex.h, 0, tex.format, GL_UNSIGNED_BYTE, tex.data);
     }
-
-    stbi_image_free(data); // dont forget to free memory, or else we'll leak
 
     // options for wrapping texture
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -1,5 +1,6 @@
 CC = g++
-FLAGS = -I/usr/include -I./include -Wall -pedantic
+INCLUDE_DIRS = -I/usr/include -I./include
+FLAGS = $(INCLUDE_DIRS) -Wall -pedantic
 LIBS = -lGL -lglfw -lGLEW -lassimp
 
 BUILD_DIR = build

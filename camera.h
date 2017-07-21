@@ -56,7 +56,7 @@ private:
     glm::vec3 pos, front, up, right;
     glm::vec4 direction; // front, back, right, left
     float fov;
-    float speed = 2.3f;
+    float speed = 5.0f;
     float sensitivity = 0.2f;
     float yaw, pitch;
 };

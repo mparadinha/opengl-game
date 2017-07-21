@@ -7,6 +7,7 @@
 #include "stb_image.h"
 
 #include "model.h"
+#include "texture.h"
 
 #include <glm/gtx/string_cast.hpp>
 
@@ -112,21 +113,11 @@ unsigned int Model::load_texture(aiString filename) {
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_2D, texture_id);
 
-    int w, h, colors;
-    unsigned char* data = stbi_load(path.c_str(), &w, &h, &colors, 0);
-    if(!data) {
-        std::cerr << "[MODEL] Error loading texture: " << path << std::endl;
-    }
+    Texture tex = Texture(path);
 
-    GLenum format;
-    if(colors == 1) format = GL_LUMINANCE; // greyscale image
-    else if(colors == 3) format = GL_RGB; // normal 3 color channels
-    else if(colors == 4) format = GL_RGBA; // normal 3 + alpha
-
-    glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, tex.format, tex.w, tex.h, 0,
+        tex.format, GL_UNSIGNED_BYTE, tex.data);
     glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
 
     return texture_id;
 }
