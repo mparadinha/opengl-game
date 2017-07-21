@@ -1,0 +1,106 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+
+#include "shader.h"
+
+Shader::Shader(std::string vertex_file, std::string frag_file, std::string dir) {
+    v_shader = compile(dir + "/" + vertex_file, GL_VERTEX_SHADER);
+    f_shader = compile(dir + "/" + frag_file, GL_FRAGMENT_SHADER);
+
+    // link shaders together
+    program = glCreateProgram();
+    glAttachShader(program, v_shader);
+    glAttachShader(program, f_shader);
+    glLinkProgram(program); // TODO: check for link errors
+
+    // dont need the shader objs in memory after the linking the program
+    glDeleteShader(v_shader);
+    glDeleteShader(f_shader);
+
+    use(); // select the current program
+
+    // because the diffuse and specular textures are always (at least so far)
+    // we can set these here
+    // TODO: kinda hardcoded, change it
+
+    // tell the shader program what to what texture unit each sampler2D corresponds
+    set_uniform("diffuse", 0);
+    set_uniform("specular", 0);
+}
+
+void Shader::use() {
+    glUseProgram(program);
+}
+
+// set uniform for 4x4 matrix
+void Shader::set_uniform(std::string identifier, float* matrix) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
+}
+// set uniform for vec3
+void Shader::set_uniform(std::string identifier, glm::vec3 vector) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniform3f(location, vector.x, vector.y, vector.z);
+}
+// set uniform for 1 float
+void Shader::set_uniform(std::string identifier, float f) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniform1f(location, f);
+}
+// set uniform for 1 int
+void Shader::set_uniform(std::string identifier, int i) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniform1i(location, i);
+}
+// set uniform for 1 unsigned int
+void Shader::set_uniform(std::string identifier, unsigned int i) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniform1i(location, i);
+}
+
+GLuint Shader::compile(std::string filename, GLenum type) {
+    std::string shader_str = read_file(filename);
+    const char* shader_cstr = shader_str.c_str();
+    const int shader_len = shader_str.length();
+
+    GLuint shader = glCreateShader(type); // create space in GPU
+    glShaderSource(shader, 1, &shader_cstr, &shader_len);
+    std::cout << "compiling " << filename << std::endl;
+    glCompileShader(shader);
+    check_error(shader, GL_COMPILE_STATUS);
+
+    return shader;
+}
+
+void Shader::check_error(GLuint shader, GLuint flag) {
+    GLint success = 0;
+    GLchar error[1024] = {};
+
+    glGetShaderiv(shader, flag, &success);
+    if(success == GL_FALSE) {
+        glGetShaderInfoLog(shader, sizeof(error), NULL, error);
+        std::cerr << "[SHADER ERROR] - " << error << std::endl;
+    }
+}
+
+std::string read_file(std::string filename) {
+    std::ifstream file;
+    file.open(filename.c_str());
+
+    std::string out, line;
+    if(file.is_open()) {
+        while(file.good()) {
+            getline(file, line);
+            out.append(line + "\n");
+        }
+    }
+    else {
+        std::cerr << "Unable to open file: " << filename << std::endl;
+    }
+
+    return out;
+}
