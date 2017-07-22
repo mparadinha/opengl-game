@@ -39,9 +39,13 @@ public:
     static void glfw_mouse_callback(GLFWwindow* window, double x, double y) {
         Input::get_instance().mouse_callback(x, y);
     }
+    static void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+        Input::get_instance().scroll_callback(xoffset, yoffset);
+    }
     // actual callback implementations are member functions (no need for globals)
     void key_callback(int key, int code, int action, int mods);
     void mouse_callback(double x, double y);
+    void scroll_callback(double x, double y);
 
     void poll_events();
     void poll_mouse();

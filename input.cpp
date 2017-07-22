@@ -66,6 +66,11 @@ void Input::key_callback(int keycode, int code, int action, int mods) {
             case GLFW_KEY_D:
                 signal = STOP_MOVE_RIGHT;
                 break;
+
+            case GLFW_KEY_F:
+                signal = SWITCH_CAMERA_STYLE;
+                break;
+
             default:
                 return; // best to leave here, or it might send a weird signal
         }
@@ -84,6 +89,11 @@ void Input::mouse_callback(double x, double y) {
 
     // broadcast message
     message_t msg = {MOUSE_MOVE, {xoff, yoff}};
+    msg_bus->add_message(msg, PRIORITY_NORMAL);
+}
+
+void Input::scroll_callback(double x, double y) {
+    message_t msg = {MOUSE_SCROLL, {(float) x, (float) y}};
     msg_bus->add_message(msg, PRIORITY_NORMAL);
 }
 

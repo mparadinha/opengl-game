@@ -49,6 +49,13 @@ void Camera::handle_message(message_t msg) {
         case MOUSE_MOVE:
             mouse_move(msg.data.x, msg.data.y); break;
 
+        case MOUSE_SCROLL:
+            // nothing yet
+            break;
+
+        case SWITCH_CAMERA_STYLE:
+            fps_style = !fps_style; std::cerr << "switching camera style...\n"; break;
+
         case NEW_FRAME:
             update(msg.data.x); break;
     }

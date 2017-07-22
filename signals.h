@@ -12,6 +12,9 @@ enum {
     STOP_MOVE_RIGHT,
 
     MOUSE_MOVE,
+    MOUSE_SCROLL,
+
+    SWITCH_CAMERA_STYLE,
 
     NEW_FRAME
 };

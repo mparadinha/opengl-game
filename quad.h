@@ -22,7 +22,7 @@ private:
                 vertex_t vertice = {
                     glm::vec3(startx + x * diff, 0, startz + z * diff), // position
                     glm::vec3(0, 1, 0), // normal
-                    glm::vec2(size / (x * diff), size / (z * diff)), // tex coordinates
+                    glm::vec2(z / (float)(density - 1), x / (float) density - 1), // texture coordinates
                 };
                 verts.push_back(vertice);
             }

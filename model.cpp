@@ -108,16 +108,6 @@ Mesh Model::convert_to_mesh(aiMesh* mesh, const aiScene* scene) {
 unsigned int Model::load_texture(aiString filename) {
     // fix filename with the path to the folder where models was located
     std::string path = directory + std::string(filename.C_Str());
-
-    unsigned int texture_id;
-    glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-
     Texture tex = Texture(path);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, tex.format, tex.w, tex.h, 0,
-        tex.format, GL_UNSIGNED_BYTE, tex.data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    return texture_id;
+    return tex.load();
 }

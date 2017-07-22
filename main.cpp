@@ -27,6 +27,9 @@ int main() {
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
     // shaders
+    Shader terrain_shader = Shader("terrain.vert", "terrain.frag");
+    terrain_shader.set_uniform("diffuse", 0);
+
     Shader cubemap_shader = Shader("cubemap.vert", "cubemap.frag");
     cubemap_shader.set_uniform("skybox", 0);
 
@@ -44,6 +47,7 @@ int main() {
     input.init(screen.window, &camera, &msg_bus);
 
     // entities
+    glBindVertexArray(0);
     Terrain terrain;
 
     CubeMap skybox = CubeMap("res/skybox/skybox", "jpg");
@@ -80,19 +84,19 @@ int main() {
         msg_bus.add_message(new_frame_msg, PRIORITY_NOW);
         
         // draw objects
+        terrain_shader.use();
+        camera.set_all_uniforms(terrain_shader);
+        terrain.render();
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         sun_shader.use();
         camera.set_all_uniforms(sun_shader);
-
-        sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
-        sun_shader.set_uniform("model", &glm::mat4(1)[0][0]);
-        terrain.render();
 
         sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
         dude.render(sun_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
-        // since most of the skybox wont be visible at most times
+        // since most of the skybox wont be visible most of the time
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         cubemap_shader.use();
         skybox.set_uniforms(cubemap_shader, camera);
@@ -101,6 +105,8 @@ int main() {
         msg_bus.process();
 
         screen.swap_buffers();
+
+        // TODO: max frame rate. if there is still time in this frame use a wait function here
     }
 
     return 0;

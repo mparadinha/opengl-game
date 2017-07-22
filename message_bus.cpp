@@ -9,7 +9,7 @@ void MessageBus::add_system(System* system) {
     systems.push_back(sys);
 }
 
-void MessageBus::add_message(message_t message, int priority) {
+void MessageBus::add_message(message_t message, int priority = PRIORITY_NORMAL) {
     if(priority == PRIORITY_NOW) { // message is critical and needs processing right now
         process_message(message);
     }
