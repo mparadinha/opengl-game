@@ -4,7 +4,11 @@
 #include <iostream>
 
 #include <glm/gtx/string_cast.hpp>
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
 
 #include "quad.h"
 #include "texture.h"

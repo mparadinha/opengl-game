@@ -3,7 +3,11 @@
 
 #include <string>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
 #include <glm/glm.hpp>
 
 class Shader {

@@ -1,7 +1,12 @@
 #include <string>
 #include <iostream>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
 #include "display.h"

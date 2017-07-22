@@ -1,7 +1,11 @@
 #include <cstddef> // for using intermidiate vars of size_t type
 #include <iostream>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
 
 #include "mesh.h"
 

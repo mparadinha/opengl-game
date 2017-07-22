@@ -4,7 +4,11 @@
 #include <iostream>
 #include <string>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
 
 #include "stb_image.h"
 

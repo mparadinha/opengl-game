@@ -1,6 +1,11 @@
 #include <iostream>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -19,7 +24,7 @@
 #include "terrain.h"
 #include "quad.h"
 
-static const unsigned int WINDOW_WIDTH = 1200;
+static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
 
 int main() {
@@ -41,7 +46,7 @@ int main() {
     // systems
     Camera camera = Camera(
         glm::vec3(0.0f, 1.8f, 0.0f), 90.0f, -25.0f,
-        55.0f, WINDOW_WIDTH / (float) WINDOW_HEIGHT, 0.1f, 100.0f); // start camera looking at -z direction
+        55.0f, WINDOW_WIDTH / (float) WINDOW_HEIGHT, 0.1f, 1000.0f); // start camera looking at -z direction
 
     Input& input = Input::get_instance();
     input.init(screen.window, &camera, &msg_bus);

@@ -1,7 +1,12 @@
 #include <string>
 #include <vector>
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
+
 #include "stb_image.h"
 
 #include "cubemap.h"
