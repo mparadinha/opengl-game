@@ -3,7 +3,7 @@
 #include <fstream>
 
 #if __APPLE__
-#include <OpenGL/gl.h>
+#include <OpenGL/OpenGL.h>
 #else
 #include <GL/glew.h>
 #endif
@@ -31,7 +31,6 @@ Shader::Shader(std::string vertex_file, std::string frag_file, std::string dir) 
     // because the diffuse and specular textures are always (at least so far)
     // we can set these here
     // TODO: kinda hardcoded, change it
-
     // tell the shader program what to what texture unit each sampler2D corresponds
     set_uniform("diffuse", 0);
     set_uniform("specular", 0);

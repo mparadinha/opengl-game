@@ -30,7 +30,7 @@ public:
 
 typedef struct {
     System* system;
-    //std::vector<int> codes; // event codes that system cares about <- TODO: use later for optimizing
+    //std::vector<int> codes; event codes that system cares about <- TODO: use later for optimizing
 } system_t;
 
 

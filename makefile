@@ -9,9 +9,10 @@ DEPS = $(wildcard *.h)
 SRC_FILES = $(wildcard *.cpp)
 OBJS_FILES = $(SRC_FILES:.cpp=.o)
 
-OBJS = $(addprefix build/, $(OBJS_FILES))
+OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS_FILES))
 
 $(BUILD_DIR)/%.o: %.cpp $(DEPS)
+	mkdir -p $(BUILD_DIR)
 	$(CC) -c -o $@ $< $(FLAGS) $(LIBS)
 
 thingy: $(OBJS)

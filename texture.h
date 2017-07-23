@@ -5,7 +5,7 @@
 #include <string>
 
 #if __APPLE__
-#include <OpenGL/gl.h>
+#include <OpenGL/OpenGL.h>
 #else
 #include <GL/glew.h>
 #endif
