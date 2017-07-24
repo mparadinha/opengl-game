@@ -2,11 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
 #include "glad.h"
-#endif
 
 #include <glm/glm.hpp>
 

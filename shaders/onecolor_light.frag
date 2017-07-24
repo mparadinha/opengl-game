@@ -1,4 +1,4 @@
-#version 320 es
+#version 330 core
 
 // in opengl ES we need to specify a precision for types
 precision mediump float;

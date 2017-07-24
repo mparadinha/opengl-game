@@ -7,7 +7,13 @@
 
 #include "display.h"
 
+void error_call(int code, char* error_msg) {
+    std::cerr << "[GLFWerror] - " << error_msg << std::endl;
+}
+
 Display::Display(int w, int h, std::string title) {
+    glfwSetErrorCallback((GLFWerrorfun) error_call);
+
     // init the glfw library and check for errors
     if(!glfwInit())
         std::cerr << "Error start GLFW lib." << std::endl;
@@ -16,6 +22,7 @@ Display::Display(int w, int h, std::string title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // create a window and openGL context
     window = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
