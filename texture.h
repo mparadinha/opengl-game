@@ -7,7 +7,7 @@
 #if __APPLE__
 #include <OpenGL/OpenGL.h>
 #else
-#include <GL/glew.h>
+#include "glad.h"
 #endif
 
 #include "stb_image.h"

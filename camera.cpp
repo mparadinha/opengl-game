@@ -1,10 +1,6 @@
 #include <iostream>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
-#include <GL/glew.h>
-#endif
+#include "glad.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

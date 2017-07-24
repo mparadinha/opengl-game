@@ -1,11 +1,7 @@
 #include <string>
 #include <iostream>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
-#include <GL/glew.h>
-#endif
+#include "glad.h"
 
 #include <GLFW/glfw3.h>
 
@@ -14,7 +10,12 @@
 Display::Display(int w, int h, std::string title) {
     // init the glfw library and check for errors
     if(!glfwInit())
-        std::cout << "Error start GLFW lib." << std::endl;
+        std::cerr << "Error start GLFW lib." << std::endl;
+
+    // opengl version hints for creating the context below
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // create a window and openGL context
     window = glfwCreateWindow(w, h, title.c_str(), NULL, NULL);
@@ -24,12 +25,12 @@ Display::Display(int w, int h, std::string title) {
     // we need to set the context being used to the one we just created
     glfwMakeContextCurrent(window);
 
+    // laod all the GL functions with glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+
     // capture mouse movement and hide the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    // we already create the GL context here so i'll also init GLEW
-    if(glewInit() != GLEW_OK)
-        std::cerr << "Error initializing glew." << std::endl;
 
     set_clear_color(0.0f, 0.0f, 0.0f, 1.0f);
 

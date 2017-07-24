@@ -1,7 +1,7 @@
 CC = g++
 INCLUDE_DIRS = -I/usr/include -I./include
 FLAGS = $(INCLUDE_DIRS) -Wall -pedantic
-LIBS = -lGL -lglfw -lGLEW -lassimp
+LIBS = -lGL -ldl -lglfw -lassimp
 
 BUILD_DIR = build
 
@@ -11,14 +11,16 @@ OBJS_FILES = $(SRC_FILES:.cpp=.o)
 
 OBJS = $(addprefix $(BUILD_DIR)/, $(OBJS_FILES))
 
-$(BUILD_DIR)/%.o: %.cpp $(DEPS)
-	mkdir -p $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.cpp $(DEPS) make_build_dir
 	$(CC) -c -o $@ $< $(FLAGS) $(LIBS)
 
 thingy: $(OBJS)
 	$(CC) -o $@ $^ $(FLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean make_build_dir
 
 clean:
 	rm -r $(BUILD_DIR)/*.o
+
+make_build_dir:
+	mkdir -p $(BUILD_DIR)

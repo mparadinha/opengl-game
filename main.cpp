@@ -1,17 +1,13 @@
 #include <iostream>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
-#include <GL/glew.h>
-#endif
+#include "glad.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "display.h"
 
+#include "display.h"
 #include "input.h"
 #include "shader.h"
 #include "game_object.h"
@@ -24,7 +20,7 @@
 #include "terrain.h"
 #include "quad.h"
 
-static const unsigned int WINDOW_WIDTH = 1600;
+static const unsigned int WINDOW_WIDTH = 1200;
 static const unsigned int WINDOW_HEIGHT = 900;
 
 int main() {
