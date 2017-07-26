@@ -15,7 +15,6 @@ public:
     Shader(std::string vertex_file, std::string frag_file, std::string dir="shaders");
 
     void use(); // select this shader's program to use in openGL
-    GLuint get_program() { return program; };
 
     void set_uniform(std::string name, float* matrix);
     void set_uniform(std::string name, glm::vec3 vector);
@@ -23,7 +22,7 @@ public:
     void set_uniform(std::string name, unsigned int i);
     void set_uniform(std::string name, float f);
 
-    ~Shader() {};
+    ~Shader();
 
     GLuint program;
 

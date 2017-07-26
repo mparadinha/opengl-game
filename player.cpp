@@ -4,6 +4,12 @@
 #include "shader.h"
 #include "player.h"
 
+Player::Player(MessageBus* msg_bus, std::string model_path, Camera* camera)
+    : System(msg_bus), model(Model(model_path)), camera(camera) {
+}
+
+Player::~Player() {}
+
 void Player::render(Shader shader) {
     shader.set_uniform("model", glm::value_ptr(model_matrix));
     model.render();
@@ -15,7 +21,7 @@ void Player::handle_message(message_t msg) {
     case PLAYER_MOVE:
         //TODO: rotate the vector
         // update velocity vector
-        velocity = glm::vec3(msg.data[0], 0, 0);
+        velocity = speed * glm::vec3(0, 0, -msg.data[0]);
     }
 }
     

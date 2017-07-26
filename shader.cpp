@@ -32,6 +32,8 @@ Shader::Shader(std::string vertex_file, std::string frag_file, std::string dir) 
     set_uniform("specular", 0);
 }
 
+Shader::~Shader() {}
+
 void Shader::use() {
     glUseProgram(program);
 }

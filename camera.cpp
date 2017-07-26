@@ -1,4 +1,5 @@
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "signals.h"
@@ -10,7 +11,10 @@ Camera::Camera(MessageBus* msg_bus, float ratio) : System(msg_bus) {
     codes.push_back(MOUSE_MOVE);
     codes.push_back(MOUSE_SCROLL);
 
-    update(0, 0); // to correctly create the up vector
+    player_pos = glm::vec3(0);
+    update(0, 0); // initialize vectors
+    std::cerr << "position: " << glm::to_string(position) << std::endl;
+    std::cerr << "up: " << glm::to_string(up) << std::endl;
 }
 
 Camera::~Camera() {
@@ -29,7 +33,13 @@ void Camera::update(float dx, float dy) {
     pitch += sensitivity * dy;
     rotation += sensitivity * dx;
     if(pitch > 89.0f) pitch = 89.0f;
-    if(pitch < -0.0f) pitch = 0.0f;
+    if(pitch < 0.0f) pitch = 0.0f;
+
+    up = glm::normalize(glm::vec3(
+        -sin(glm::radians(rotation)),
+        sin(glm::radians(90 - pitch)),
+        -cos(glm::radians(rotation))
+    ));
 
     // change the position
     position = distance * glm::normalize(glm::vec3(
@@ -37,10 +47,10 @@ void Camera::update(float dx, float dy) {
         sin(glm::radians(pitch)),
         cos(glm::radians(rotation))
     ));
-    position += player_pos;
+    position += player_pos + glm::vec3(0, 3.6f, 0);
 
     // update view mat using glm::lookAt
-    view = glm::lookAt(position, player_pos, glm::vec3(0, 1, 0));
+    view = glm::lookAt(position, player_pos, up);
 }
 
 void Camera::set_uniforms(Shader& shader) {

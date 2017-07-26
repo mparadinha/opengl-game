@@ -12,13 +12,11 @@
 #include "shader.h"
 #include "game_object.h"
 #include "camera.h"
-#include "light.h"
 #include "model.h"
 #include "signals.h"
 #include "message_bus.h"
 #include "cubemap.h"
 #include "terrain.h"
-#include "quad.h"
 #include "player.h"
 
 static const unsigned int WINDOW_WIDTH = 1200;
@@ -29,11 +27,14 @@ int main() {
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
     // shaders
-    Shader terrain_shader = Shader("terrain.vert", "terrain.frag");
+    Shader terrain_shader("terrain.vert", "terrain.frag");
     terrain_shader.set_uniform("diffuse", 0);
 
-    Shader cubemap_shader = Shader("cubemap.vert", "cubemap.frag");
+    Shader cubemap_shader("cubemap.vert", "cubemap.frag");
     cubemap_shader.set_uniform("skybox", 0);
+
+    Shader color("single_color.vert", "single_color.frag");
+    color.set_uniform("color", glm::vec3(1, 0, 0));
 
     Shader sun_shader = Shader("onecolor_light.vert", "onecolor_light.frag");
     sun_shader.set_uniform("light.direction", glm::vec3(-1));
@@ -42,15 +43,13 @@ int main() {
 
     // systems
     Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
-
     Input input(screen.window, &msg_bus);
 
     // entities
     Terrain terrain;
     CubeMap skybox("res/skybox/skybox", "jpg");
     Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
-    GameObject scooter("res/scooter/scooter.obj");
-    scooter.translate(glm::vec3(0, 2, 0));
+    GameObject axis("res/arrow/arrow.obj");
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
@@ -82,9 +81,13 @@ int main() {
         camera.set_uniforms(terrain_shader);
         terrain.render();
 
+        sun_shader.use();
         camera.set_uniforms(sun_shader);
+        sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0)); 
         player.render(sun_shader);
-        scooter.render(sun_shader);
+
+        sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
+        axis.render(sun_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

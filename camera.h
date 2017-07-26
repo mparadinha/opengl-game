@@ -33,14 +33,15 @@ private:
     glm::mat4 view, projection;
 
     glm::vec3 position; // relative to player
-    float distance = 50.0f; // to player
+    glm::vec3 up;
+    float distance = 18.0f; // to player
 
     float sensitivity = 0.1f;
 
     float fov = 60.0f;
     float near = 1.0f, far = 1000.0f;
 
-    float pitch = 20.0f; // angle between floor and camera
+    float pitch = 30.0f; // angle between floor and camera
     float rotation = 0.0f; // sideways rotation relative to player
 };
 

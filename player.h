@@ -8,12 +8,12 @@
 
 class Player : public System {
 public:
-    Player(MessageBus* msg_bus, std::string model_path, Camera* camera) : System(msg_bus), model(Model(model_path)), camera(camera) {};
+    Player(MessageBus* msg_bus, std::string model_path, Camera* camera);
 
     void handle_message(message_t msg);
     void render(Shader shader);
 
-    ~Player() {};
+    ~Player();
 
 private:
     void update(float dt);
@@ -21,6 +21,8 @@ private:
     glm::vec3 velocity;
     glm::vec3 position;
     glm::mat4 model_matrix;
+
+    float speed = 2.0f;
 
     Model model;
     Camera* camera;
