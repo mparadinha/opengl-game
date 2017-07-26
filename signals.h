@@ -2,6 +2,8 @@
 #define SIGNALS_H
 
 enum {
+    PLAYER_MOVE,
+    //TODO: only use one signal for moving, message arguments for which direction and stuff like that
     MOVE_FRONT,
     MOVE_BACK,
     MOVE_LEFT,

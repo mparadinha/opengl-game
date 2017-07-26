@@ -4,11 +4,7 @@
 #include <iostream>
 #include <string>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
 #include "glad.h"
-#endif
 
 #include "stb_image.h"
 
