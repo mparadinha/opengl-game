@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
+#include "message_bus.h"
 #include "shader.h"
 #include "model.h"
 
@@ -55,6 +56,7 @@ public:
 private:
     glm::mat4 model_matrix;
     Model model;
+    std::vector<GameObject> children;
 };
 
 #endif // include guard 

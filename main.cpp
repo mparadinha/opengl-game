@@ -19,6 +19,7 @@
 #include "cubemap.h"
 #include "terrain.h"
 #include "quad.h"
+#include "player.h"
 
 static const unsigned int WINDOW_WIDTH = 1200;
 static const unsigned int WINDOW_HEIGHT = 900;
@@ -40,32 +41,24 @@ int main() {
     sun_shader.set_uniform("light.ambient", glm::vec3(0.3f));
 
     // systems
-    Camera camera = Camera(
-        glm::vec3(0.0f, 1.8f, 0.0f), 90.0f, -25.0f,
-        55.0f, WINDOW_WIDTH / (float) WINDOW_HEIGHT, 0.1f, 1000.0f); // start camera looking at -z direction
+    Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
 
-    Input& input = Input::get_instance();
-    input.init(screen.window, &camera, &msg_bus);
+    Input input(screen.window, &msg_bus);
 
     // entities
-    glBindVertexArray(0);
     Terrain terrain;
-
-    CubeMap skybox = CubeMap("res/skybox/skybox", "jpg");
-
-    GameObject dude("res/nanosuit/nanosuit.obj");
-    dude.scale(glm::vec3(0.2f));
-
-    // add systems to the message bus list
-    msg_bus.add_system(&camera);
-    msg_bus.add_system(&input);
-
+    CubeMap skybox("res/skybox/skybox", "jpg");
+    Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
+    GameObject scooter("res/scooter/scooter.obj");
+    scooter.translate(glm::vec3(0, 2, 0));
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
     bool show_fps = false;
     int frames_passed = 0;
     while(!input.should_close()) {
+        glfwPollEvents();
+
         // calculate delta time for this frame
         time = glfwGetTime();
         dt = time - last_time;
@@ -81,24 +74,20 @@ int main() {
         screen.clear();
 
         // post message to all systems that a new frame has started
-        new_frame_msg.data.x = dt;
+        new_frame_msg.data[0] = dt;
         msg_bus.add_message(new_frame_msg, PRIORITY_NOW);
         
         // draw objects
         terrain_shader.use();
-        camera.set_all_uniforms(terrain_shader);
+        camera.set_uniforms(terrain_shader);
         terrain.render();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        sun_shader.use();
-        camera.set_all_uniforms(sun_shader);
-
-        sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
-        dude.render(sun_shader);
+        camera.set_uniforms(sun_shader);
+        player.render(sun_shader);
+        scooter.render(sun_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         cubemap_shader.use();
         skybox.set_uniforms(cubemap_shader, camera);
         skybox.render();
