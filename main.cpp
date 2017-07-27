@@ -17,10 +17,7 @@
 #include "message_bus.h"
 #include "cubemap.h"
 #include "terrain.h"
-<<<<<<< HEAD
-=======
 #include "quad.h"
->>>>>>> b5c8cdb2c781d3ccbaaee45fd1b9b17e34a3ff31
 #include "player.h"
 
 static const unsigned int WINDOW_WIDTH = 1200;
@@ -47,22 +44,13 @@ int main() {
 
     // systems
     Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
-<<<<<<< HEAD
-=======
-
->>>>>>> b5c8cdb2c781d3ccbaaee45fd1b9b17e34a3ff31
     Input input(screen.window, &msg_bus);
 
     // entities
     Terrain terrain;
     CubeMap skybox("res/skybox/skybox", "jpg");
     Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
-<<<<<<< HEAD
     GameObject axis("res/arrow/arrow.obj");
-=======
-    GameObject scooter("res/scooter/scooter.obj");
-    scooter.translate(glm::vec3(0, 2, 0));
->>>>>>> b5c8cdb2c781d3ccbaaee45fd1b9b17e34a3ff31
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
@@ -94,7 +82,6 @@ int main() {
         camera.set_uniforms(terrain_shader);
         terrain.render();
 
-<<<<<<< HEAD
         sun_shader.use();
         camera.set_uniforms(sun_shader);
         sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0)); 
@@ -102,11 +89,6 @@ int main() {
 
         sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
         axis.render(sun_shader);
-=======
-        camera.set_uniforms(sun_shader);
-        player.render(sun_shader);
-        scooter.render(sun_shader);
->>>>>>> b5c8cdb2c781d3ccbaaee45fd1b9b17e34a3ff31
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time
