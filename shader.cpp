@@ -29,7 +29,7 @@ Shader::Shader(std::string vertex_file, std::string frag_file, std::string dir) 
     // TODO: kinda hardcoded, change it
     // tell the shader program what to what texture unit each sampler2D corresponds
     set_uniform("diffuse", 0);
-    set_uniform("specular", 0);
+    set_uniform("specular", 1);
 }
 
 Shader::~Shader() {}
@@ -65,7 +65,7 @@ void Shader::set_uniform(std::string identifier, unsigned int i) {
 }
 
 GLuint Shader::compile(std::string filename, GLenum type) {
-    std::string shader_str = read_file(filename);
+    std::string shader_str = read_shader(filename);
     const char* shader_cstr = shader_str.c_str();
     const int shader_len = shader_str.length();
 
@@ -89,19 +89,30 @@ void Shader::check_error(GLuint shader, GLuint flag) {
     }
 }
 
-std::string read_file(std::string filename) {
+std::string Shader::read_shader(std::string path) {
+    std::string directory = path.substr(0, path.find_last_of("/") + 1);
+
     std::ifstream file;
-    file.open(filename.c_str());
+    file.open(path.c_str());
 
     std::string out, line;
     if(file.is_open()) {
         while(file.good()) {
             getline(file, line);
-            out.append(line + "\n");
+
+            // check for pre compile includes
+            if(line.find("#include") != std::string::npos) {
+                std::string include = line.substr(10,
+                     line.find_last_of("\"") - line.find_first_of("\"") - 1);
+                out.append(read_shader(directory + include) + "\n");
+            }
+            else {
+                out.append(line + "\n");
+            }
         }
     }
     else {
-        std::cerr << "Unable to open file: " << filename << std::endl;
+        std::cerr << "Unable to open file: " << path << std::endl;
     }
 
     return out;

@@ -29,10 +29,9 @@ public:
 private:
     void check_error(GLuint shader, GLuint flag);
     GLuint compile(std::string filename, GLenum type);
+    std::string read_shader(std::string filename);
 
     GLuint v_shader, f_shader;
 };
-
-std::string read_file(std::string filename);
 
 #endif // SHADER_H
