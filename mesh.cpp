@@ -5,7 +5,8 @@
 
 #include "mesh.h"
 
-void Mesh::setup() {
+Mesh::Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices)
+: vertices(vertices), indices(indices) {
     // create all the buffers for vertices and stuff
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -28,15 +29,10 @@ void Mesh::setup() {
     set_vertex_attribute(2, 2, offsetof(vertex_t, texcoords)); // texture coords
 }
 
-void Mesh::render() {
-    for(unsigned int i = 0; i < textures.size(); i++) {
-        // specify what texture unit we are using (one for each texture)
-        // and then just "sync" the shader uniform and bind the gl "object"
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    }
+Mesh::~Mesh() {}
 
-    // finaly tell opengl to actually call the shaders to draw everything
+void Mesh::render() {
+    // tell opengl to actually call the shaders to draw everything
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     //glBindVertexArray(0); <- its just a waste of bind calls since every other

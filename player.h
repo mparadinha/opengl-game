@@ -19,10 +19,11 @@ private:
     void update(float dt);
 
     glm::vec3 velocity;
+    glm::vec3 vel_dir;
     glm::vec3 position;
-    glm::mat4 model_matrix;
+    glm::mat4 rot, model_matrix;
 
-    float speed = 2.0f;
+    float speed = 10.0f;
 
     Model model;
     Camera* camera;

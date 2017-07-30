@@ -7,7 +7,7 @@ class Quad : public Mesh {
 public:
     // TODO: allow for non square quad
     Quad(float size, unsigned int density, float startx = 0, float startz = 0) :
-        Mesh(get_vertices(size, density, startx, startz), get_indices(density), std::vector<texture_t>()) {};
+        Mesh(get_vertices(size, density, startx, startz), get_indices(density)) {};
 
     ~Quad() {};
 

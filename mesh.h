@@ -23,23 +23,18 @@ typedef struct {
 // mesh is only the geometry
 class Mesh {
 public:
-    Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices,
-        std::vector<texture_t> textures)
-    : vertices(vertices), indices(indices), textures(textures) {
-        setup();
-    }
+    Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices);
 
     void render();
 
-    ~Mesh() {};
-
-    std::vector<vertex_t> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<texture_t> textures;
+    ~Mesh();
 
 private:
     void setup();
     void set_vertex_attribute(int index, int size, size_t stride);
+
+    std::vector<vertex_t> vertices; // might need it for later
+    std::vector<unsigned int> indices;
 
     unsigned int vao, vbo, ebo;
 };

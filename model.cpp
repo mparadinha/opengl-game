@@ -32,14 +32,23 @@ Model::Model(std::string path) {
 }
 
 void Model::render() {
-    for(Mesh mesh : meshes) mesh.render();
+    for(model_node_t node : nodes) {
+        for(unsigned int i = 0; i < node.textures.size(); i++) {
+            // specify what texture unit we are using (one for each texture)
+            // and then just "sync" the shader uniform and bind the gl "object"
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, node.textures[i].id);
+        }
+
+        node.mesh.render();
+    }
 }
 
 void Model::process_node(aiNode* node, const aiScene* scene) {
     // put these node's meshes into the class vector
     for(unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(convert_to_mesh(mesh, scene));
+        nodes.push_back(convert_to_node(mesh, scene));
     }
 
     // do same for each of node's children
@@ -48,7 +57,7 @@ void Model::process_node(aiNode* node, const aiScene* scene) {
     }
 }
 
-Mesh Model::convert_to_mesh(aiMesh* mesh, const aiScene* scene) {
+model_node_t Model::convert_to_node(aiMesh* mesh, const aiScene* scene) {
     std::vector<vertex_t> vertices;
     std::vector<unsigned int> indices;
     std::vector<texture_t> textures;
@@ -102,7 +111,8 @@ Mesh Model::convert_to_mesh(aiMesh* mesh, const aiScene* scene) {
     textures.push_back(texture);
 
     // build the actual mesh object
-    return Mesh(vertices, indices, textures);
+    model_node_t node = {Mesh(vertices, indices), textures};
+    return node;
 }
 
 // create and load texture into GPU 

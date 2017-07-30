@@ -27,7 +27,7 @@ void Input::handle_message(message_t msg) {
 void Input::poll_keys() {
     message_t msg = {PLAYER_MOVE,
         {pressed(GLFW_KEY_W) - pressed(GLFW_KEY_S), // forward/backward movement
-         pressed(GLFW_KEY_A) - pressed(GLFW_KEY_D)} // left/right movement
+         pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // left/right movement
     };
 
     send_msg(msg);

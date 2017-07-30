@@ -11,6 +11,11 @@
 #include "mesh.h"
 #include "shader.h"
 
+typedef struct {
+    Mesh mesh;
+    std::vector<texture_t> textures;
+} model_node_t;
+
 class Model {
 public:
     Model(std::string path);
@@ -20,12 +25,11 @@ public:
     ~Model() {};
 
 private:
-    std::vector<Mesh> meshes;
-    std::vector<texture_t> textures;
+    std::vector<model_node_t> nodes;
     std::string directory;
 
     unsigned int load_texture(aiString filename);
-    Mesh convert_to_mesh(aiMesh* mesh, const aiScene* scene);
+    model_node_t convert_to_node(aiMesh* mesh, const aiScene* scene);
 
     void process_node(aiNode* node, const aiScene* scene);
 };

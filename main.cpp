@@ -51,6 +51,7 @@ int main() {
     CubeMap skybox("res/skybox/skybox", "jpg");
     Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
     GameObject axis("res/arrow/arrow.obj");
+    GameObject nanodude("res/nanosuit/nanosuit.obj");
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
