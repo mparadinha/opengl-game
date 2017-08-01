@@ -8,9 +8,10 @@
 
 #include "shader.h"
 
-Shader::Shader(std::string vertex_file, std::string frag_file, std::string dir) {
-    v_shader = compile(dir + "/" + vertex_file, GL_VERTEX_SHADER);
-    f_shader = compile(dir + "/" + frag_file, GL_FRAGMENT_SHADER);
+Shader::Shader(std::string filename, std::string dir) {
+    GLuint v_shader = compile(dir + "/" + filename + ".vert" , GL_VERTEX_SHADER);
+    GLuint f_shader = compile(dir + "/" + filename + ".frag", GL_FRAGMENT_SHADER);
+    // TODO: allow for compute shaders and other types
 
     // link shaders together
     program = glCreateProgram();

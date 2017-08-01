@@ -37,7 +37,6 @@ private:
 };
 
 // base class for all systems that use the messaging system
-// this only exists because we need to store pointers to arbitrary systems
 class System {
 public:
     System(MessageBus* msg_bus) {
@@ -49,6 +48,7 @@ public:
 
 protected:
     std::function<void (message_t)> get_handle_func() {
+        // create a lambda function for the handler
         auto message_listener = [=](message_t msg) -> void {
             this->handle_message(msg);
         };

@@ -23,21 +23,22 @@
 static const unsigned int WINDOW_WIDTH = 1200;
 static const unsigned int WINDOW_HEIGHT = 900;
 
+void display_fps(float dt);
+
 int main() {
     MessageBus msg_bus = MessageBus();
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
     // shaders
-    Shader terrain_shader("terrain.vert", "terrain.frag");
-    terrain_shader.set_uniform("diffuse", 0);
+    Shader terrain_shader("terrain");
 
-    Shader cubemap_shader("cubemap.vert", "cubemap.frag");
+    Shader cubemap_shader("cubemap");
     cubemap_shader.set_uniform("skybox", 0);
 
-    Shader color("single_color.vert", "single_color.frag");
+    Shader color("single_color");
     color.set_uniform("color", glm::vec3(1, 0, 0));
 
-    Shader sun_shader = Shader("onecolor_light.vert", "onecolor_light.frag");
+    Shader sun_shader = Shader("onecolor_light");
     sun_shader.set_uniform("light.direction", glm::vec3(-1));
     sun_shader.set_uniform("light.diffuse", glm::vec3(0.7f));
     sun_shader.set_uniform("light.ambient", glm::vec3(0.3f));
@@ -56,21 +57,14 @@ int main() {
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
     bool show_fps = false;
-    int frames_passed = 0;
     while(!input.should_close()) {
-        glfwPollEvents();
-
         // calculate delta time for this frame
         time = glfwGetTime();
         dt = time - last_time;
         last_time = time;
 
         // TODO: make this appear as text on screen
-        frames_passed++;
-        if(show_fps && frames_passed == 100) {
-            std::cout << "FPS: " << 1/dt << std::endl;
-            frames_passed = 0;
-        }
+        if(show_fps) display_fps(dt);
 
         screen.clear();
 
@@ -105,4 +99,18 @@ int main() {
     }
 
     return 0;
+}
+
+void display_fps(float dt) {
+    static int frames = 0;
+    static float time = 0;
+    if(frames == 100) {
+        std::cout << "FPS: " << frames / time << std::endl;
+        frames = 0;
+        time = 0;
+    }
+    else {
+        frames++;
+        time += dt;
+    }
 }

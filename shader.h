@@ -3,16 +3,12 @@
 
 #include <string>
 
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
 #include "glad.h"
-#endif
 #include <glm/glm.hpp>
 
 class Shader {
 public:
-    Shader(std::string vertex_file, std::string frag_file, std::string dir="shaders");
+    Shader(std::string filename, std::string dir="shaders");
 
     void use(); // select this shader's program to use in openGL
 
@@ -30,8 +26,6 @@ private:
     void check_error(GLuint shader, GLuint flag);
     GLuint compile(std::string filename, GLenum type);
     std::string read_shader(std::string filename);
-
-    GLuint v_shader, f_shader;
 };
 
 #endif // SHADER_H
