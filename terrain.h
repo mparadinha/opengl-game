@@ -3,12 +3,9 @@
 
 #include <iostream>
 
-#include <glm/gtx/string_cast.hpp>
-#if __APPLE__
-#include <OpenGL/OpenGL.h>
-#else
 #include "glad.h"
-#endif
+
+#include <glm/gtx/string_cast.hpp>
 
 #include "quad.h"
 #include "texture.h"

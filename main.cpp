@@ -11,7 +11,7 @@
 #include "input.h"
 #include "shader.h"
 #include "game_object.h"
-#include "camera.h"
+#include "fps_camera.h"
 #include "model.h"
 #include "signals.h"
 #include "message_bus.h"
@@ -50,7 +50,7 @@ int main() {
     // entities
     Terrain terrain;
     CubeMap skybox("res/skybox/skybox", "jpg");
-    Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
+    //Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
     GameObject axis("res/arrow/arrow.obj");
     GameObject nanodude("res/nanosuit/nanosuit.obj");
 
@@ -80,7 +80,7 @@ int main() {
         sun_shader.use();
         camera.set_uniforms(sun_shader);
         sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0)); 
-        player.render(sun_shader);
+        //player.render(sun_shader);
 
         sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
         axis.render(sun_shader);

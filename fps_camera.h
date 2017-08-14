@@ -17,9 +17,9 @@ typedef struct {
     glm::vec3 x, y, z;
 } axis_system;
 
-class CameraFPS {
+class FPSCamera {
 public:
-    CameraFPS(glm::vec3 pos, float pitch, float yaw, float fov, float ratio, float near, float far);
+    FPSCamera(glm::vec3 pos, float ratio);
 
     void move(mov_enum direction);
     void move(float x, float y);
@@ -39,10 +39,9 @@ public:
 
     void update(float dt);
 
-    glm::vec3 get_pos() { return pos; }
     glm::mat4 get_view() { return view; }
 
-    ~CameraFPS();
+    ~FPSCamera();
 
 private:
     void update_vectors();
@@ -53,7 +52,8 @@ private:
     glm::mat4 view, projection;
     glm::vec3 pos, front, up, right;
     glm::vec4 direction; // front, back, right, left
-    float fov;
+    float fov = 60.0f;
+    float near = 1.0f, far = 1000.0f;
     float speed = 10.0f;
     float sensitivity = 0.2f;
     float yaw, pitch;

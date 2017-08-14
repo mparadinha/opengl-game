@@ -11,23 +11,23 @@
 #include "message_bus.h"
 #include "signals.h"
 
-CameraFPS::CameraFPS(glm::vec3 position, float yaw, float pitch, float fov, float ratio, float near, float far) : yaw(yaw), pitch(pitch) {
+FPSCamera::FPSCamera(glm::vec3 position, float ratio) {
     pos = position;
     projection = glm::perspective(glm::radians(fov), ratio, near, far);
 
     update_vectors(); update_view();
 }
 
-CameraFPS::~CameraFPS() {
+FPSCamera::~FPSCamera() {
 }
 
-void CameraFPS::set_all_uniforms(Shader& shader) {
+void FPSCamera::set_all_uniforms(Shader& shader) {
     shader.set_uniform("projection", &projection[0][0]);
     shader.set_uniform("view", &view[0][0]);
     shader.set_uniform("view_pos", pos);
 }
 
-void CameraFPS::handle_message(message_t msg) {
+void FPSCamera::handle_message(message_t msg) {
     switch(msg.code) {
         case MOVE_FRONT:
             direction.x = 1; break;
@@ -61,7 +61,7 @@ void CameraFPS::handle_message(message_t msg) {
     }
 }
 
-void CameraFPS::mouse_move(float xdiff, float ydiff) {
+void FPSCamera::mouse_move(float xdiff, float ydiff) {
     xdiff *= sensitivity;    
     ydiff *= sensitivity;    
 
@@ -75,7 +75,7 @@ void CameraFPS::mouse_move(float xdiff, float ydiff) {
     update_view();
 }
 
-void CameraFPS::update_vectors() {
+void FPSCamera::update_vectors() {
     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     front.y = sin(glm::radians(pitch));
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -85,11 +85,11 @@ void CameraFPS::update_vectors() {
     up = glm::normalize(glm::cross(right, front));
 }
 
-void CameraFPS::update_view() {
+void FPSCamera::update_view() {
     view = glm::lookAt(pos, pos + front, up);
 }
 
-void CameraFPS::update(float dt) {
+void FPSCamera::update(float dt) {
     // direction of where camera will travel
     glm::vec3 dir = front * direction.x - front * direction.y + right * direction.z - right * direction.w;
 
