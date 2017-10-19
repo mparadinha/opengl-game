@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "glad.h"
+#include <glad.h>
 
 #include "stb_image.h"
 

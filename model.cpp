@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdlib>
 
-#include "glad.h"
+#include <glad.h>
 
 #include "stb_image.h"
 

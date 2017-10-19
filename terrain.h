@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "glad.h"
+#include <glad.h>
 
 #include <glm/gtx/string_cast.hpp>
 

@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "glad.h"
+#include <glad.h>
 
 #include <GLFW/glfw3.h>
 

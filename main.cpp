@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "glad.h"
+#include <glad.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,6 +31,8 @@ int main() {
 
     // shaders
     Shader terrain_shader("terrain");
+
+    Shader default_shader("default");
 
     Shader cubemap_shader("cubemap");
     cubemap_shader.set_uniform("skybox", 0);
@@ -76,6 +78,8 @@ int main() {
         terrain_shader.use();
         camera.set_uniforms(terrain_shader);
         terrain.render();
+
+        nanodude.render(default_shader);
 
         sun_shader.use();
         camera.set_uniforms(sun_shader);

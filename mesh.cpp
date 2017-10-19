@@ -1,7 +1,7 @@
 #include <cstddef> // for using intermidiate vars of size_t type
 #include <iostream>
 
-#include "glad.h"
+#include <glad.h>
 
 #include "mesh.h"
 

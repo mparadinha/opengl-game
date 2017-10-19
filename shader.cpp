@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "glad.h"
+#include <glad.h>
 
 #include <glm/glm.hpp>
 
