@@ -5,8 +5,7 @@
 #include <string>
 
 #include <glad.h>
-
-#include "stb_image.h"
+#include <stb_image.h>
 
 typedef struct Texture {
     int w, h, colors;

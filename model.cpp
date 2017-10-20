@@ -4,8 +4,7 @@
 #include <cstdlib>
 
 #include <glad.h>
-
-#include "stb_image.h"
+#include <stb_image.h>
 
 #include "model.h"
 #include "texture.h"

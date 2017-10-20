@@ -2,8 +2,7 @@
 #include <vector>
 
 #include <glad.h>
-
-#include "stb_image.h"
+#include <stb_image.h>
 
 #include "cubemap.h"
 #include "texture.h"
