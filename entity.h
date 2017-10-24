@@ -1,16 +1,18 @@
-#ifndef COMPONENTS_H
-#define COMPONENTS_H
+#ifndef ENTITY_H
+#define ENTITY_H
 
 #include <map>
+#include <vector>
 
 #include "components.h"
 
 class Entity {
 public:
-    Entity();
-    Entity(std::map<std::string, Component*> comp_list);
+    Entity(std::vector<Component*> comp_list);
 
     void add_component(std::string handle, Component* comp);
+
+    ~Entity();
 
 private:
     std::map<std::string, Component*> components;
