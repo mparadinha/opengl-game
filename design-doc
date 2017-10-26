@@ -1,0 +1,3 @@
+Entity -> collection of components
+* components shouldn't have much logic (only helper functions)
+* data is changed/used by systems such as a physics engine or a renderer
