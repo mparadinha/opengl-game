@@ -33,6 +33,7 @@ public:
         set_normal_uniform(shader);
     }
     void set_model_uniform(Shader shader) {
+        model_matrix = rotation * translation * scaling;
         shader.set_uniform("model", &model_matrix[0][0]);
     }
     void set_normal_uniform(Shader shader) {
@@ -42,18 +43,22 @@ public:
 
     // transformation functions
     void rotate(float angle, glm::vec3 axis) {
-        model_matrix = glm::rotate(model_matrix, glm::radians(angle), axis);
+        rotation = glm::rotate(rotation, glm::radians(angle), axis);
     }
     void translate(glm::vec3 diff) {
-        model_matrix = glm::translate(model_matrix, diff);
+        translation = glm::translate(translation, diff);
     }
     void scale(glm::vec3 scalar) {
-        model_matrix = glm::scale(model_matrix, scalar);
+        scaling = glm::scale(scaling, scalar);
+    }
+    void scale(float scalar) {
+        scaling = glm::scale(scaling, glm::vec3(scalar));
     }
 
     ~GameObject() {};
 
 private:
+    glm::mat4 rotation, translation, scaling;
     glm::mat4 model_matrix;
     Model model;
     std::vector<GameObject> children;

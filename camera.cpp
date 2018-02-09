@@ -11,11 +11,8 @@ Camera::Camera(MessageBus* msg_bus, float ratio) : System(msg_bus) {
     codes.push_back(MOUSE_MOVE);
     codes.push_back(MOUSE_SCROLL);
 
-    player_pos = glm::vec3(0);
+    player_pos = glm::vec3(0, 2.f, 0);
     update(0, 0); // initialize vectors
-    std::cerr << "position: " << glm::to_string(position) << std::endl;
-    std::cerr << "up: " << glm::to_string(up) << std::endl;
-    update(0, 0); // to correctly create the up vector
 }
 
 Camera::~Camera() {
@@ -35,25 +32,24 @@ void Camera::update(float dx, float dy) {
     rotation += sensitivity * dx;
     if(pitch > 89.0f) pitch = 89.0f;
     if(pitch < 0.0f) pitch = 0.0f;
+    rotation = fmod(rotation, 360);
 
     up = glm::normalize(glm::vec3(
         -sin(glm::radians(rotation)),
-        sin(glm::radians(90 - pitch)),
+        sqrt(2) * sin(glm::radians(90 - pitch)),
         -cos(glm::radians(rotation))
     ));
-    if(pitch < -0.0f) pitch = 0.0f;
 
     // change the position
-    position = distance * glm::normalize(glm::vec3(
-        sin(glm::radians(rotation)),
-        sin(glm::radians(pitch)),
-        cos(glm::radians(rotation))
-    ));
-    position += player_pos + glm::vec3(0, 3.6f, 0);
+    auto diff = glm::vec3(0); // diff from focus point of camera (player) to camera
+    diff.y = distance * sin(glm::radians(pitch));
+    auto hyp = distance * cos(glm::radians(pitch));
+    diff.z = hyp * cos(glm::radians(rotation));
+    diff.x = hyp * sin(glm::radians(rotation));
+    position = player_pos + diff;
 
     // update view mat using glm::lookAt
     view = glm::lookAt(position, player_pos, up);
-    position += player_pos;
 }
 
 void Camera::set_uniforms(Shader& shader) {

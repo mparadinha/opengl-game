@@ -31,15 +31,15 @@ private:
 
     glm::vec3 position; // relative to player
     glm::vec3 up;
-    float distance = 18.0f; // to player
+    float distance = 5.0f; // to player
 
-    float sensitivity = 0.1f;
+    float sensitivity = 0.01f;
 
     float fov = 60.0f;
     float near = 1.0f, far = 1000.0f;
 
     float pitch = 30.0f; // angle between floor and camera
-    float rotation = 0.0f; // sideways rotation relative to player
+    float rotation = 180.0f; // sideways rotation relative to player
 };
 
 #endif // include guard

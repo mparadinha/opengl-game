@@ -1,16 +1,28 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "fps_camera.h"
+#include "game_object.h"
+#include "camera.h"
+#include "message_bus.h"
 
-class Player : public FPSCamera {
+class Player : public System {
 public:
-    Player(float ratio) : FPSCamera(glm::vec3(0), ratio) {};
+    Player(MessageBus* msg_bus, GameObject* player_obj, Camera* camera, glm::vec3 position) :
+        System(msg_bus), player_obj(player_obj), camera(camera), position(position) {};
 
     ~Player() {};
 
+    void handle_message(message_t msg);
+
 private:
-    glm::vec3 pos;
+    void move(float forward, float right);
+
+    GameObject* player_obj;
+    Camera* camera;
+    glm::vec3 position;
+    float dt;
+
+    float speed = 3.0f;
 };
 
 #endif // include guard

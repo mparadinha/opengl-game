@@ -19,9 +19,10 @@
 #include "terrain.h"
 #include "quad.h"
 #include "player.h"
+#include "entity.h"
 
 static const unsigned int WINDOW_WIDTH = 1200;
-static const unsigned int WINDOW_HEIGHT = 900;
+static const unsigned int WINDOW_HEIGHT = 700;
 
 void display_fps(float dt);
 
@@ -48,19 +49,20 @@ int main() {
     // systems
     Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
     Input input(screen.window, &msg_bus);
+    //Renderer renderer(&msg_bus);
 
     // entities
     Terrain terrain;
     CubeMap skybox("res/skybox/skybox", "jpg");
-    //Player player(&msg_bus, "res/scooter/scooter.obj", &camera);
-    GameObject axis("res/arrow/arrow.obj");
     GameObject nanodude("res/nanosuit/nanosuit.obj");
+    nanodude.scale(0.2f);
+    Player player(&msg_bus, &nanodude, &camera, glm::vec3(0));
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
     bool show_fps = false;
     while(!input.should_close()) {
-        // calculate delta time for this frame
+        // calculate delta time (in seconds) for this frame
         time = glfwGetTime();
         dt = time - last_time;
         last_time = time;
@@ -79,15 +81,12 @@ int main() {
         camera.set_uniforms(terrain_shader);
         terrain.render();
 
+        default_shader.use();
+        camera.set_uniforms(default_shader);
         nanodude.render(default_shader);
 
-        sun_shader.use();
-        camera.set_uniforms(sun_shader);
-        sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0)); 
-        //player.render(sun_shader);
-
-        sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
-        axis.render(sun_shader);
+        //sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
+        //axis.render(sun_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

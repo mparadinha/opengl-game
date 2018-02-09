@@ -6,15 +6,13 @@
 
 #include "components.h"
 
-class Entity {
-public:
+struct Entity {
     Entity(std::vector<Component*> comp_list);
+    ~Entity();
 
     void add_component(std::string handle, Component* comp);
 
-    ~Entity();
 
-private:
     std::map<std::string, Component*> components;
 };
 

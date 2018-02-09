@@ -27,7 +27,7 @@ void Input::handle_message(message_t msg) {
 void Input::poll_keys() {
     message_t msg = {PLAYER_MOVE,
         {pressed(GLFW_KEY_W) - pressed(GLFW_KEY_S), // forward/backward movement
-         pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // left/right movement
+         pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // right/left movement
     };
 
     send_msg(msg);
@@ -45,7 +45,7 @@ void Input::poll_mouse() {
 
     // post to the message bus
     message_t msg = {MOUSE_MOVE, {diffx, diffy}};
-    msg_bus->add_message(msg);
+    send_msg(msg);
 
     // save x and y for next call
     lastx = x; lasty = y;
