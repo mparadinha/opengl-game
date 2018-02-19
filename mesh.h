@@ -8,10 +8,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <glad.h>
+
 typedef struct {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texcoords;
+    glm::vec3 bone_ids; // bones that affect this vertex
+    glm::vec3 weights; // the weight each bone has on the vertex
 } vertex_t;
 
 typedef struct {
@@ -19,8 +23,6 @@ typedef struct {
     std::string type;
 } texture_t;
 
-// TODO: move the textures parts to the model class
-// mesh is only the geometry
 class Mesh {
 public:
     Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices);
@@ -31,7 +33,7 @@ public:
 
 private:
     void setup();
-    void set_vertex_attribute(int index, int size, size_t stride);
+    void set_vertex_attribute(int index, int size, size_t stride, GLenum type = GL_FLOAT);
 
     std::vector<vertex_t> vertices; // might need it for later
     std::vector<unsigned int> indices;

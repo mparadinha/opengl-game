@@ -44,6 +44,11 @@ void Shader::set_uniform(std::string identifier, float* matrix) {
     GLuint location = glGetUniformLocation(program, identifier.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
 }
+// set uniform for 4x4 matrix (glm version)
+void Shader::set_uniform(std::string identifier, glm::mat4 matrix) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
+}
 // set uniform for vec3
 void Shader::set_uniform(std::string identifier, glm::vec3 vector) {
     GLuint location = glGetUniformLocation(program, identifier.c_str());

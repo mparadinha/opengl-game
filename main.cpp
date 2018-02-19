@@ -20,9 +20,10 @@
 #include "quad.h"
 #include "player.h"
 #include "entity.h"
+#include "basic_geom.h"
 
-static const unsigned int WINDOW_WIDTH = 1200;
-static const unsigned int WINDOW_HEIGHT = 700;
+static const unsigned int WINDOW_WIDTH = 1600;
+static const unsigned int WINDOW_HEIGHT = 900;
 
 void display_fps(float dt);
 
@@ -54,9 +55,12 @@ int main() {
     // entities
     Terrain terrain;
     CubeMap skybox("res/skybox/skybox", "jpg");
-    GameObject nanodude("res/nanosuit/nanosuit.obj");
-    nanodude.scale(0.2f);
-    Player player(&msg_bus, &nanodude, &camera, glm::vec3(0));
+    //GameObject nanodude("res/nanosuit/nanosuit.obj");
+    GameObject thot("res/thot_dab.dae");
+    thot.rotate(-90, glm::vec3(1, 0, 0));
+    //nanodude.scale(0.2f);
+    Player player(&msg_bus, &thot, &camera, glm::vec3(0));
+    Mesh cube = make_cube();
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
@@ -81,12 +85,21 @@ int main() {
         camera.set_uniforms(terrain_shader);
         terrain.render();
 
-        default_shader.use();
-        camera.set_uniforms(default_shader);
-        nanodude.render(default_shader);
+        sun_shader.use();
+        sun_shader.set_uniform("diffuse_color", glm::vec3(0.2f));
+        camera.set_uniforms(sun_shader);
+        player.render(sun_shader);
 
-        //sun_shader.set_uniform("diffuse_color", glm::vec3(0, 1, 0));
-        //axis.render(sun_shader);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        sun_shader.use();
+        camera.set_uniforms(sun_shader);
+        auto m = glm::translate(glm::mat4(1), glm::vec3(1, 1, 0));
+        sun_shader.set_uniform("model", m);
+        sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
+        cube.render();
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

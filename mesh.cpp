@@ -27,6 +27,8 @@ Mesh::Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices)
     set_vertex_attribute(0, 3, offsetof(vertex_t, position)); // positions
     set_vertex_attribute(1, 3, offsetof(vertex_t, normal)); // normals
     set_vertex_attribute(2, 2, offsetof(vertex_t, texcoords)); // texture coords
+    set_vertex_attribute(3, 3, offsetof(vertex_t, bone_ids));
+    set_vertex_attribute(4, 3, offsetof(vertex_t, weights));
 }
 
 Mesh::~Mesh() {}
@@ -39,8 +41,14 @@ void Mesh::render() {
     // function that draw should call its respective bind before
 }
 
-void Mesh::set_vertex_attribute(int index, int size, size_t stride) {
+void Mesh::set_vertex_attribute(int index, int size, size_t stride, GLenum type) {
     glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
-        (void*) stride);
+    if(type == GL_FLOAT) {
+        glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
+            (void*) stride);
+    }
+    else if(type == GL_INT) { 
+        glVertexAttribIPointer(index, size, GL_INT, sizeof(vertex_t),
+            (void*) stride);
+    }
 }

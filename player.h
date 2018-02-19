@@ -10,6 +10,10 @@ public:
     Player(MessageBus* msg_bus, GameObject* player_obj, Camera* camera, glm::vec3 position) :
         System(msg_bus), player_obj(player_obj), camera(camera), position(position) {};
 
+    void render(Shader shader) {
+        player_obj->render(shader);
+    }
+
     ~Player() {};
 
     void handle_message(message_t msg);

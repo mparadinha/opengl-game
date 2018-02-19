@@ -24,6 +24,29 @@ Model::Model(std::string path) {
             << importer.GetErrorString() << std::endl;
     }
 
+    std::cout << "aiScene loaded (file: " << path << ") with\n"
+        << "animations: " << scene->HasAnimations() << " (" << scene->mNumAnimations << ")\n"
+        << "NumMeshes: " << scene->mNumMeshes << "\n";
+
+    // load all the bone data
+    for(unsigned int i = 0; i < scene->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[i];
+        for(unsigned int j = 0; j < mesh->mNumBones; j++) {
+            aiBone* ai_bone = mesh->mBones[j];
+            bone_t bone;
+
+            bone.name = ai_bone->mName.C_Str();
+            for(unsigned int w = 0; w < ai_bone->mNumWeights; w++) {
+                aiVertexWeight weight = ai_bone->mWeights[w];
+                bone.weights.push_back({weight.mVertexId, weight.mWeight});
+            }
+            bone.transform = ai_to_glm(ai_bone->mOffsetMatrix);
+
+            bones.push_back(bone);
+            bone_map[bone.name] = bone;
+        }
+    }
+
     // TIP: using this recursive nature might be usefull if we want the
     // parent/child relations between meshes
     // process_node is recursive so calling on the root node takes care of all
@@ -44,6 +67,8 @@ void Model::render() {
 }
 
 void Model::process_node(aiNode* node, const aiScene* scene) {
+    /*std::cout << "*** processing node '" << node->mName.C_Str() << "' ***\n"
+        << "->mNumChildren: " << node->mNumChildren << "\n";*/
     // put these node's meshes into the class vector
     for(unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -54,6 +79,15 @@ void Model::process_node(aiNode* node, const aiScene* scene) {
     for(unsigned int i = 0; i < node->mNumChildren; i++) {
         process_node(node->mChildren[i], scene);
     }
+}
+
+int Model::find_bone(std::string name) {
+    for(unsigned int i = 0; i < bones.size(); i++) {
+        if(bones[i].name == name) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 model_node_t Model::convert_to_node(aiMesh* mesh, const aiScene* scene) {
@@ -69,7 +103,7 @@ model_node_t Model::convert_to_node(aiMesh* mesh, const aiScene* scene) {
         vertex.position = glm::vec3(pos.x, pos.y, pos.z);
 
         aiVector3D norm = mesh->mNormals[i];
-        vertex.normal = glm::vec3(norm.x, norm.y, norm.z);
+        vertex.normal = glm::vec3(norm.x, norm.y, norm.z);   
 
 
         // assimps mesh might have up to 8 texture coords per vertex
@@ -81,6 +115,26 @@ model_node_t Model::convert_to_node(aiMesh* mesh, const aiScene* scene) {
         else { // mesh might not have texture coords. we'll fill them in
             vertex.texcoords = glm::vec2(0.0f);
         }
+
+        // search for all the bones affecting this vertex
+        vertex.weights = glm::vec3(0);
+        unsigned int bones_found = 0;
+        for(unsigned int j = 0; j < bones.size(); j++) {
+            for(unsigned int w = 0; w < mesh->mNumBones; w++) {
+                aiBone* bone = mesh->mBones[w];
+                for(unsigned int k = 0; k < bone->mNumWeights; k++) {
+                    aiVertexWeight weight = bone->mWeights[k];
+                    if(bones_found == 3) break;
+                    if(weight.mVertexId == i) {
+                        int bone_index = find_bone(bone->mName.C_Str());
+                        vertex.bone_ids[bones_found] = bone_index;
+                        vertex.weights[bones_found] = weight.mWeight;
+                        bones_found++;
+                    }
+                }
+            }
+        }
+        vertex.weights = glm::normalize(vertex.weights);
 
         // finally put the vertex in the array
         vertices.push_back(vertex);
@@ -120,4 +174,14 @@ unsigned int Model::load_texture(aiString filename) {
     std::string path = directory + std::string(filename.C_Str());
     Texture tex = Texture(path);
     return tex.load();
+}
+
+glm::mat4 ai_to_glm(aiMatrix4x4 m) {
+    glm::mat4 ret;
+    ret[0][0] = m.a1; ret[0][1] = m.a2; ret[0][2] = m.a3; ret[0][3] = m.a4;
+    ret[1][0] = m.b1; ret[1][1] = m.b2; ret[1][2] = m.b3; ret[1][3] = m.b4;
+    ret[2][0] = m.c1; ret[2][1] = m.c2; ret[2][2] = m.c3; ret[2][3] = m.c4;
+    ret[3][0] = m.d1; ret[3][1] = m.d2; ret[3][2] = m.d3; ret[3][3] = m.d4;
+
+    return ret;
 }

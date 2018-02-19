@@ -13,6 +13,7 @@ public:
     void use(); // select this shader's program to use in openGL
 
     void set_uniform(std::string name, float* matrix);
+    void set_uniform(std::string name, glm::mat4 matrix);
     void set_uniform(std::string name, glm::vec3 vector);
     void set_uniform(std::string name, int i);
     void set_uniform(std::string name, unsigned int i);

@@ -15,7 +15,7 @@ void Player::handle_message(message_t msg) {
 }
 
 void Player::move(float forward, float right) {
-    auto diff = dt * speed * (forward * glm::vec3(0, 0, -1) + right * glm::vec3(1, 0, 0));
+    auto diff = dt * speed * (forward * glm::vec3(0, 0, 1) + right * glm::vec3(-1, 0, 0));
     position += diff;
     player_obj->translate(diff);
     camera->player_pos = position + glm::vec3(0, 2, 0);
