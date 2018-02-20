@@ -19,8 +19,10 @@
 #include "terrain.h"
 #include "quad.h"
 #include "player.h"
-#include "entity.h"
 #include "basic_geom.h"
+
+#include "systems/renderer.h"
+#include "systems/loader.h"
 
 static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
@@ -30,6 +32,9 @@ void display_fps(float dt);
 int main() {
     MessageBus msg_bus = MessageBus();
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
+
+    Renderer renderer(&msg_bus);
+    Loader loader(&msg_bus);
 
     // shaders
     Shader terrain_shader("terrain");

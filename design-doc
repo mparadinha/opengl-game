@@ -1,5 +1,14 @@
 Entity -> collection of components
+* contains bitset which says what components it has
 * components shouldn't have much logic (only helper functions)
 * data is changed/used by systems such as a physics engine or a renderer
 
-Camera should be just a normal entity with a camera component. Renderer requests for it when drawing
+EntityPool:
+* contains all the entities
+* can be queried for specific entities or groups
+* returns handles (prob. just the index of that entity)
+* everyone has access to this pool
+
+Input (system):
+* translates inputs into game specific events and sends them to the msg_bus
+* could be with some sort of table that changes depending on the current game state
