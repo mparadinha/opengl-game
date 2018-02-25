@@ -4,9 +4,11 @@
 #include "../entity_pool.h"
 #include "component_enum.h"
 
-struct mesh_t : public Component {
-    const ComponentType type = MESH;
+struct mesh_t {
+    const static ComponentType type = MESH;
 
     unsigned int vao, vbo, ebo;
+    unsigned int num_indices;
 };
+
 #endif // include guard

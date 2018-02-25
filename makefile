@@ -19,6 +19,9 @@ $(BUILD_DIR)/%.o: %.cpp $(DEPS) make_build_dir
 all:
 	python build.py
 
+run: all
+	./thingy
+
 clean:
 	python build.py clean
 

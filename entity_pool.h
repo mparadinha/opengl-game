@@ -6,11 +6,9 @@
 
 #include "components/component_enum.h"
 
-struct Component;
-
 struct Entity {
     unsigned int bitset;
-    std::map<ComponentType, Component> components;
+    std::map<ComponentType, void*> components;
 };
 
 class EntityPool {

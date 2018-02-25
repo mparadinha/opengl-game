@@ -23,6 +23,11 @@
 
 #include "systems/renderer.h"
 #include "systems/loader.h"
+#include "systems/animator.h"
+
+#include "components/component_enum.h"
+#include "components/transformation.h"
+#include "components/mesh.h"
 
 static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
@@ -35,6 +40,19 @@ int main() {
 
     Renderer renderer(&msg_bus);
     Loader loader(&msg_bus);
+    Animator animator(&msg_bus);
+
+    mesh_t thot_mesh = loader.load_mesh("res/thot_dab.gltf");
+    //loader.load_animation("res/thot_dab.gltf");
+
+    transformation_t transform;
+    transform.scaling = glm::mat4(1);
+    transform.rotation = glm::mat4(1);
+    transform.translation = glm::mat4(1);
+    Entity thot_e;
+    thot_e.components[TRANSFORMATION] = &transform;
+    thot_e.components[MESH] = &thot_mesh;
+    
 
     // shaders
     Shader terrain_shader("terrain");
@@ -55,7 +73,6 @@ int main() {
     // systems
     Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
     Input input(screen.window, &msg_bus);
-    //Renderer renderer(&msg_bus);
 
     // entities
     Terrain terrain;
@@ -63,6 +80,7 @@ int main() {
     //GameObject nanodude("res/nanosuit/nanosuit.obj");
     GameObject thot("res/thot_dab.dae");
     thot.rotate(-90, glm::vec3(1, 0, 0));
+    thot.translate(glm::vec3(5, 0, 0));
     //nanodude.scale(0.2f);
     Player player(&msg_bus, &thot, &camera, glm::vec3(0));
     Mesh cube = make_cube();
@@ -89,6 +107,8 @@ int main() {
         terrain_shader.use();
         camera.set_uniforms(terrain_shader);
         terrain.render();
+
+        renderer.render(camera, thot_e);
 
         sun_shader.use();
         sun_shader.set_uniform("diffuse_color", glm::vec3(0.2f));

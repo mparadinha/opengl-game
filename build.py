@@ -24,14 +24,16 @@ script_timestamp = os.path.getmtime(__file__)
 
 def run_cmd(args, show=True): 
     if show: print(" ".join(args))
-    result = subprocess.run(
-        args,
-        stderr=subprocess.PIPE, stdout=subprocess.PIPE,
-        universal_newlines=True
-    )
-    if result.stdout: print(result.stdout, file=sys.stdout)
-    if result.stderr: print(result.stderr, file=sys.stderr)
+    return os.system(" ".join(args))
 
+# decorator for having static local vars in functions
+def static_var(name, value):
+    def decorate(func):
+        setattr(func, name, value)
+        return func
+    return decorate
+
+@static_var("failed", False)
 def build_obj(source_file, directory, force=False):
     src = os.path.join(directory, source_file)
     obj = os.path.join(directory, build_folder, source_file.replace(".cpp", ".o"))
@@ -41,17 +43,21 @@ def build_obj(source_file, directory, force=False):
     if os.path.getmtime(src) < script_timestamp and os.path.exists(obj) and not force:
         return # no need to compile this one
 
-    run_cmd(
+    ret_code = run_cmd(
         ["g++", "-c", "-o", obj, src, *flags, *include_flags, *lib_flags]
     )
+    if ret_code != 0: build_obj.failed = True
 
     # touch the file to update the timestamp (so we can check on the next build)
-    run_cmd(["touch", src], show=False)
+    # only, of course, if there were no compilation errors
+    if ret_code == 0: run_cmd(["touch", src], show=False)
 
+@static_var("failed", False)
 def build_exe(executable):
-    run_cmd(
+    ret_code = run_cmd(
         ["g++", "-o", executable, *tuple(objs), *flags, *include_flags, *lib_flags]
     )
+    if ret_code != 0: build_exe.failed = True
 
 def clean():
     for src_dir in src_dirs:
@@ -79,9 +85,10 @@ def main(args):
     # link final executable
     build_exe("thingy")
 
+    build_success = not(build_obj.failed or build_exe.failed)
     # touch this script at the end of compilation so that any file with a later
-    # stamp indicates it was changed
-    run_cmd(["touch", __file__], show=False)
+    # stamp indicates it was changed (only if there were no compilation errors)
+    if build_success: run_cmd(["touch", __file__], show=False)
 
 if __name__ == "__main__":
     main(sys.argv)
