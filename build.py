@@ -4,12 +4,13 @@ import shutil
 import glob
 import subprocess
 
-flags = ("-Wall", "-pedantic")
+flags = ("Wall", "pedantic")
 include_dirs = ("./include", "/usr/include")
 libs = ("dl", "glfw", "assimp")
 src_dirs = (".", "./systems")
 build_folder = "build"
 
+flags = tuple("-" + f for f in flags)
 include_flags = tuple("-I" + i for i in include_dirs)
 lib_flags = tuple("-l" + l for l in libs)
 
@@ -39,18 +40,14 @@ def build_obj(source_file, directory, force=False):
     obj = os.path.join(directory, build_folder, source_file.replace(".cpp", ".o"))
     objs.append(obj)
 
-    # check if files was altered since last build
-    if os.path.getmtime(src) < script_timestamp and os.path.exists(obj) and not force:
+    # check if files was altered since last build (or if its a new file)
+    if os.path.getmtime(src) < os.path.getmtime(obj) and os.path.exists(obj) and not force:
         return # no need to compile this one
 
     ret_code = run_cmd(
         ["g++", "-c", "-o", obj, src, *flags, *include_flags, *lib_flags]
     )
     if ret_code != 0: build_obj.failed = True
-
-    # touch the file to update the timestamp (so we can check on the next build)
-    # only, of course, if there were no compilation errors
-    if ret_code == 0: run_cmd(["touch", src], show=False)
 
 @static_var("failed", False)
 def build_exe(executable):
@@ -84,11 +81,6 @@ def main(args):
 
     # link final executable
     build_exe("thingy")
-
-    build_success = not(build_obj.failed or build_exe.failed)
-    # touch this script at the end of compilation so that any file with a later
-    # stamp indicates it was changed (only if there were no compilation errors)
-    if build_success: run_cmd(["touch", __file__], show=False)
 
 if __name__ == "__main__":
     main(sys.argv)
