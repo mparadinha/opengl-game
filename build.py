@@ -41,7 +41,7 @@ def build_obj(source_file, directory, force=False):
     objs.append(obj)
 
     # check if files was altered since last build (or if its a new file)
-    if os.path.getmtime(src) < os.path.getmtime(obj) and os.path.exists(obj) and not force:
+    if os.path.exists(obj) and os.path.getmtime(src) < os.path.getmtime(obj) and not force:
         return # no need to compile this one
 
     ret_code = run_cmd(

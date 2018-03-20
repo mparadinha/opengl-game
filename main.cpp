@@ -36,9 +36,6 @@ static const unsigned int WINDOW_HEIGHT = 900;
 void display_fps(float dt);
 
 int main() {
-    gltf_test();
-    return 0;
-
     MessageBus msg_bus = MessageBus();
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
