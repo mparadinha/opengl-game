@@ -4,6 +4,9 @@ import shutil
 import glob
 import subprocess
 
+#TODO: translation units whose included headers have been changed
+# might need to be recompiled
+
 flags = ("Wall", "pedantic")
 include_dirs = ("./include", "/usr/include")
 libs = ("dl", "glfw", "assimp")

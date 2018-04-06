@@ -33,7 +33,7 @@ private:
     glm::vec3 up;
     float distance = 5.0f; // to player
 
-    float sensitivity = 0.01f;
+    float sensitivity = 0.05f;
 
     float fov = 60.0f;
     float near = 1.0f, far = 1000.0f;

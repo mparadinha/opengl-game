@@ -41,10 +41,14 @@ int main() {
 
     Renderer renderer(&msg_bus);
     Loader loader(&msg_bus);
-    Animator animator(&msg_bus);
+    //Animator animator(&msg_bus);
 
     mesh_t thot_mesh = loader.load_mesh("res/thot_dab.gltf");
+    //transformation_t thot_transform;
     //loader.load_animation("res/thot_dab.gltf");
+
+    mesh_t test_cube = loader.load_mesh("res/cube.gltf");
+    Shader test_shader("test_cube");
 
     transformation_t transform;
     transform.scaling = glm::mat4(1);
@@ -62,6 +66,7 @@ int main() {
 
     Shader cubemap_shader("cubemap");
     cubemap_shader.set_uniform("skybox", 0);
+    CubeMap skybox("res/skybox/skybox", "jpg");
 
     Shader color("single_color");
     color.set_uniform("color", glm::vec3(1, 0, 0));
@@ -77,7 +82,6 @@ int main() {
 
     // entities
     Terrain terrain;
-    CubeMap skybox("res/skybox/skybox", "jpg");
     //GameObject nanodude("res/nanosuit/nanosuit.obj");
     GameObject thot("res/thot_dab.dae");
     thot.rotate(-90, glm::vec3(1, 0, 0));
@@ -116,15 +120,23 @@ int main() {
         camera.set_uniforms(sun_shader);
         player.render(sun_shader);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+     //   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        test_shader.use();
+        camera.set_uniforms(test_shader);
+        auto m = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
+        test_shader.set_uniform("model", m);
+        //test_cube.render();
+        glBindVertexArray(test_cube.vao);
+        glDrawElements(GL_TRIANGLES, test_cube.num_indices, GL_UNSIGNED_BYTE, NULL);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+        // render cube in wireframe mode 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         sun_shader.use();
         camera.set_uniforms(sun_shader);
-        auto m = glm::translate(glm::mat4(1), glm::vec3(1, 1, 0));
         sun_shader.set_uniform("model", m);
         sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
         cube.render();
-
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
@@ -138,6 +150,8 @@ int main() {
         screen.swap_buffers();
 
         // TODO: max frame rate. if there is still time in this frame use a wait function here
+
+        //return 0; // for testing
     }
 
     return 0;

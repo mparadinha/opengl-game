@@ -4,11 +4,17 @@
 #include "../entity_pool.h"
 #include "component_enum.h"
 
+#define MAX_VBOS 5
+
 struct mesh_t {
     const static ComponentType type = MESH;
 
-    unsigned int vao, vbo, ebo;
+    // only the vao and num_indices need to be stored
+    // in order to render the mesh, but we need to keep
+    // all the allocated GPU buffers to clean them later
+    unsigned int vao, vbos[MAX_VBOS], ebo;
     unsigned int num_indices;
+    unsigned int index_data_type; // in case they're not simple uints
 };
 
 #endif // include guard

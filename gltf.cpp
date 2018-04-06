@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdlib> // for str to number conversions
+#include <stdio.h> // for c file reading function (for binary file)
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -14,6 +15,50 @@ using namespace gltf;
 //TODO: use the bottom function to make this whole parsing better and more
 // understandable. (read_obj and read_obj_list)
 //TODO: use a macro for this huge if-else
+
+uri_file_t::uri_file_t(std::string filepath, unsigned int bytes) {
+    file = fopen(filepath.c_str(), "rb");
+    if(file == NULL) {
+        std::cout << "ERROR: couldn't open binary file: " << filepath << std::endl;
+    }
+}
+
+uri_file_t::~uri_file_t() {
+    std::cout << "closing uri!\n";
+    fclose(file);
+}
+
+void uri_file_t::seek(unsigned int offset) {
+    fseek(file, offset, SEEK_SET);
+}
+
+template<typename T>
+std::vector<T> uri_file_t::read(unsigned int offset, unsigned int count) {
+    std::cout << "read(" << offset << ", " << count << ")" << std::endl;
+
+    seek(offset); // set file pointer to the offset position
+
+    T* data = new T[count];
+    if(!data) {
+        std::cout << "ERROR: couldn't create array for " << count * sizeof(T)
+            << " bytes" << std::endl;
+    }
+
+    fread(data, sizeof(T), count, file);
+
+    // convert c style array to c++ std::vector
+    std::vector<T> vec(data, data + count);
+
+    delete data;
+
+    return vec;
+}
+// instanciate various types of call to templated functions
+// has to be exist else compiler would give "undefined reference"
+template std::vector<unsigned short> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<unsigned char> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<unsigned int> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<float> uri_file_t::read(unsigned int offset, unsigned count);
 
 file_t::file_t(std::string filepath) {
     std::ifstream in(filepath);
@@ -26,7 +71,7 @@ file_t::file_t(std::string filepath) {
     std::string name;
     while(true) {
         name = read_string(in);
-        std::cout << "file_t::name: " << name << std::endl;
+        //std::cout << "file_t::name: " << name << std::endl;
         if(name == "accessors") {
             while(in >> ch && ch != ']') {
                 accessors.push_back(accessor_t(in));
@@ -36,32 +81,31 @@ file_t::file_t(std::string filepath) {
             while(in >> ch && ch != ']') {
                 buffer_views.push_back(buffer_view_t(in));
             }
-            std::cout << "buffer_views.size(): " << buffer_views.size() << std::endl;
+            //std::cout << "buffer_views.size(): " << buffer_views.size() << std::endl;
         }
         else if(name == "animations") {
             while(in >> ch && ch != ']') {
-                std::cout << "file_t::read_char = " << ch << std::endl;
                 animations.push_back(animation_t(in));
             }
-            std::cout << "animations.size(): " << animations.size() << std::endl;
+            //std::cout << "animations.size(): " << animations.size() << std::endl;
         }
         else if(name == "buffers") {
             while(in >> ch && ch != ']') {
                 buffers.push_back(buffer_t(in));
             }
-            std::cout << "buffers.size(): " << buffers.size() << std::endl;
+            //std::cout << "buffers.size(): " << buffers.size() << std::endl;
         }
         else if(name == "skins") {
             while(in >> ch && ch != ']') {
                 skins.push_back(skin_t(in));
             }
-            std::cout << "skins.size(): " << skins.size() << std::endl;
+            //std::cout << "skins.size(): " << skins.size() << std::endl;
         }
         else if(name == "nodes") {
             while(in >> ch && ch != ']') {
                 nodes.push_back(node_t(in));
             }
-            std::cout << "nodes.size(): " << nodes.size() << std::endl;
+            //std::cout << "nodes.size(): " << nodes.size() << std::endl;
         }
         else if(name == "asset") {
             asset.init(in);
@@ -70,7 +114,7 @@ file_t::file_t(std::string filepath) {
             while(in >> ch && ch != ']') {
                 materials.push_back(material_t(in));
             }
-            std::cout << "materials.size(): " << materials.size() << std::endl;
+            //std::cout << "materials.size(): " << materials.size() << std::endl;
         }
         else if(name == "scene") {
             std::string number;
@@ -81,14 +125,13 @@ file_t::file_t(std::string filepath) {
             while(in >> ch && ch != ']') {
                 scenes.push_back(scene_t(in));
             }
-            std::cout << "scenes.size(): " << scenes.size() << std::endl;
+            //std::cout << "scenes.size(): " << scenes.size() << std::endl;
         }
         else if(name == "meshes") {
             while(in >> ch && ch != ']') {
-                std::cout << "read_ch: " << ch << std::endl;
                 meshes.push_back(mesh_t(in));
             }
-            std::cout << "meshes.size(): " << meshes.size() << std::endl;
+            //std::cout << "meshes.size(): " << meshes.size() << std::endl;
         }
         else {
             std::cout << "something else found: " << name << std::endl;

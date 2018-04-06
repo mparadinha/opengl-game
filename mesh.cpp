@@ -14,7 +14,7 @@ Mesh::Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices)
 
     glBindVertexArray(vao);
 
-    // setup the vbo for later filling
+    // setup and fill the vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertex_t),
         &vertices[0], GL_STATIC_DRAW);
@@ -23,7 +23,7 @@ Mesh::Mesh(std::vector<vertex_t> vertices, std::vector<unsigned int> indices)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
         &indices[0], GL_STATIC_DRAW);
 
-    // now fill in the vertex data in the GPU
+    // now tell the GPU what data represents what
     set_vertex_attribute(0, 3, offsetof(vertex_t, position)); // positions
     set_vertex_attribute(1, 3, offsetof(vertex_t, normal)); // normals
     set_vertex_attribute(2, 2, offsetof(vertex_t, texcoords)); // texture coords

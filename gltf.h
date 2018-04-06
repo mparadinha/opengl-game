@@ -150,6 +150,17 @@ struct file_t {
     std::vector<scene_t> scenes;
 };
 
+struct uri_file_t {
+    uri_file_t(std::string filepath, unsigned int bytes);
+    ~uri_file_t();
+
+    FILE* file;
+
+    void seek(unsigned int offset);
+    template<typename T>
+    std::vector<T> read(unsigned int offset, unsigned int count);
+};
+
 } // end of gltf namespace
 
 /* convenience functions */
