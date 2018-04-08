@@ -6,6 +6,8 @@ import subprocess
 
 #TODO: translation units whose included headers have been changed
 # might need to be recompiled
+#TODO: add option to pass a list of files to be recompiled
+# with the "force" option
 
 flags = ("Wall", "pedantic")
 include_dirs = ("./include", "/usr/include")

@@ -48,16 +48,14 @@ int main() {
     //loader.load_animation("res/thot_dab.gltf");
 
     mesh_t test_cube = loader.load_mesh("res/cube.gltf");
+    transformation_t _t = {glm::mat4(1), glm::mat4(1), glm::mat4(1)};
+    Entity test_cube_e; test_cube_e.components[TRANSFORMATION] = &_t; test_cube_e.components[MESH] = &test_cube;
     Shader test_shader("test_cube");
 
-    transformation_t transform;
-    transform.scaling = glm::mat4(1);
-    transform.rotation = glm::mat4(1);
-    transform.translation = glm::mat4(1);
+    transformation_t transform = {glm::mat4(1), glm::mat4(1), glm::mat4(1)};
     Entity thot_e;
     thot_e.components[TRANSFORMATION] = &transform;
-    thot_e.components[MESH] = &thot_mesh;
-    
+    thot_e.components[MESH] = &thot_mesh; 
 
     // shaders
     Shader terrain_shader("terrain");
@@ -76,7 +74,7 @@ int main() {
     sun_shader.set_uniform("light.diffuse", glm::vec3(0.7f));
     sun_shader.set_uniform("light.ambient", glm::vec3(0.3f));
 
-    // systems
+    // init systems
     Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
     Input input(screen.window, &msg_bus);
 
@@ -114,30 +112,12 @@ int main() {
         terrain.render();
 
         renderer.render(camera, thot_e);
+        renderer.render(camera, test_cube_e);
 
         sun_shader.use();
         sun_shader.set_uniform("diffuse_color", glm::vec3(0.2f));
         camera.set_uniforms(sun_shader);
         player.render(sun_shader);
-
-     //   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        test_shader.use();
-        camera.set_uniforms(test_shader);
-        auto m = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
-        test_shader.set_uniform("model", m);
-        //test_cube.render();
-        glBindVertexArray(test_cube.vao);
-        glDrawElements(GL_TRIANGLES, test_cube.num_indices, GL_UNSIGNED_BYTE, NULL);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        // render cube in wireframe mode 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        sun_shader.use();
-        camera.set_uniforms(sun_shader);
-        sun_shader.set_uniform("model", m);
-        sun_shader.set_uniform("diffuse_color", glm::vec3(1, 0, 0));
-        cube.render();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

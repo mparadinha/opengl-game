@@ -52,8 +52,8 @@ mesh_t Loader::load_mesh(std::string filepath) {
     read_buffer_data(buffer, file.buffer_views[indices_accessor.buffer_view], GL_ELEMENT_ARRAY_BUFFER);
     // and store the number of indices (needed for drawing)
     out_mesh.num_indices = file.accessors[primitive.indices].count;
-    //TODO: unhack this. make a map/table with all the gltf values and corresponding GL types. the hardcoded 5120 is for unsigned bytes
-    out_mesh.index_data_type = (indices_accessor.component_type == 5120) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_INT;
+    //TODO: unhack this. make a map/table with all the gltf values and corresponding GL types. the hardcoded 5121 is for unsigned bytes
+    out_mesh.index_data_type = (indices_accessor.component_type == 5121) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_INT;
 
     std::cout << "loaded mesh info:\n";
     print(std::cout, out_mesh);

@@ -32,7 +32,7 @@ void uri_file_t::seek(unsigned int offset) {
     fseek(file, offset, SEEK_SET);
 }
 
-template<typename T>
+template<typename T = unsigned char> // default to reading bytes
 std::vector<T> uri_file_t::read(unsigned int offset, unsigned int count) {
     std::cout << "read(" << offset << ", " << count << ")" << std::endl;
 

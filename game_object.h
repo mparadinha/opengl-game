@@ -22,21 +22,21 @@ public:
     GameObject(std::string model_file) : model(Model(model_file)) {};
 
     // send draw calls to openGL
-    void render(Shader shader) {
+    void render(Shader& shader) {
         set_all_uniforms(shader);
         model.render();
     }
 
     // uniform setting
-    void set_all_uniforms(Shader shader) {
+    void set_all_uniforms(Shader& shader) {
         set_model_uniform(shader);
         set_normal_uniform(shader);
     }
-    void set_model_uniform(Shader shader) {
+    void set_model_uniform(Shader& shader) {
         model_matrix = rotation * translation * scaling;
         shader.set_uniform("model", &model_matrix[0][0]);
     }
-    void set_normal_uniform(Shader shader) {
+    void set_normal_uniform(Shader& shader) {
         glm::mat3 inverse = glm::inverseTranspose(glm::mat3(model_matrix));
         shader.set_uniform("normal_matrix", &inverse[0][0]);
     }

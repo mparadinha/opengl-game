@@ -8,9 +8,6 @@
 Camera::Camera(MessageBus* msg_bus, float ratio) : System(msg_bus) {
     projection = glm::perspective(glm::radians(fov), ratio, near, far);
 
-    codes.push_back(MOUSE_MOVE);
-    codes.push_back(MOUSE_SCROLL);
-
     player_pos = glm::vec3(0, 2.f, 0);
     update(0, 0); // initialize vectors
 }

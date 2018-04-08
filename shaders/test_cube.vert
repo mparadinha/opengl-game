@@ -9,7 +9,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-const vec3 light = vec3(1.0, 1.0, 1.0);
+const vec3 light = vec3(1.0, -1.0, -1.0);
 const vec3 c = vec3(1.0, 0.0, 0.0);
 
 void main() {

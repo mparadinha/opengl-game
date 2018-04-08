@@ -14,7 +14,7 @@ struct mesh_t {
     // all the allocated GPU buffers to clean them later
     unsigned int vao, vbos[MAX_VBOS], ebo;
     unsigned int num_indices;
-    unsigned int index_data_type; // in case they're not simple uints
+    unsigned int index_data_type; // uint, byte, ubyte, etc...
 };
 
 #endif // include guard

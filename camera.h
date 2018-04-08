@@ -25,8 +25,6 @@ public:
 private:
     void update(float dx, float dy);
 
-    std::vector<int> codes;
-    
     glm::mat4 view, projection;
 
     glm::vec3 position; // relative to player

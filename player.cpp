@@ -3,6 +3,10 @@
 #include "player.h"
 #include "signals.h"
 
+void Player::render(Shader& shader) {
+    player_obj->render(shader);
+}
+
 void Player::handle_message(message_t msg) {
     switch(msg.code) {
         case NEW_FRAME:
