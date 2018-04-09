@@ -7,7 +7,7 @@
 #include "mesh.h"
 
 Mesh make_cube() {
-    float verts[] = {
+    const static float verts[] = {
         -1.0f, -1.0f,  1.0f,
         -1.0f,  1.0f,  1.0f,
          1.0f,  1.0f,  1.0f,
@@ -38,7 +38,7 @@ Mesh make_cube() {
          1.0f, -1.0f,  1.0f,
          1.0f, -1.0f, -1.0f
     };
-    std::vector<unsigned int> indices = {
+    const static std::vector<unsigned int> indices = {
         2, 1, 0,    2, 0, 3,
         7, 6, 5,    7, 5, 4,
         11, 10, 9,  11, 9, 8,
@@ -46,7 +46,7 @@ Mesh make_cube() {
         19, 18, 17, 19, 17, 16, 
         23, 22, 21, 23, 21, 20
     };
-    std::vector<glm::vec3> normals = {
+    const static std::vector<glm::vec3> normals = {
         glm::vec3(0, 0, 1),
         glm::vec3(0, 0, -1),
         glm::vec3(-1, 0, 0),
@@ -74,44 +74,41 @@ Mesh make_cube() {
     return Mesh(vertices, indices);
 }
 
-void make_sphere(float radius, unsigned int lat_divisions, unsigned int log_divisions) {
-    std::vector<vertex_t> vertices;
-    // poles are special vertices. insert (manualy) one before and after the loop
-    vertices.push_back({glm::vec3(0, -radius, 0), glm::vec3(0, -1, 0), glm::vec2(0, 0)});
-    for(unsigned int i = 1; i < lat_divisions - 1; i++) {
-        float phi = -M_PI + (i * 2 * M_PI / (float)lat_divisions);
-        for(unsigned int j = 0; j < log_divisions; j++) {
-            float theta = i * 2 * M_PI / (float)log_divisions;
-
-            glm::vec3 pos(radius * cos(phi) * cos(theta),
-                          radius * sin(phi),
-                         -radius * cos(phi) * sin(theta)
+Mesh make_sphere(unsigned int divisions) {
+    std::vector<glm::vec3> positions;
+    for(unsigned int i = 0; i < divisions + 1; i++) {
+        for(unsigned int j = 0; j < divisions + 1; j++) {
+            float theta = (-M_PI / 2.0f) + (M_PI / ((float) divisions)) * i;
+            float phi = (2 * M_PI / ((float) divisions)) * j;
+            glm::vec3 pos(
+                cos(theta) * sin(phi),
+                sin(theta),
+                cos(theta) * cos(phi)
             );
-            glm::vec3 normal = (1 / radius) * pos;
-            vertices.push_back({pos, normal, glm::vec2(0, 0)});
+            std::cout << theta << " " << phi << " " << glm::to_string(pos) << std::endl;
+            positions.push_back(pos);
         }
     }
-    vertices.push_back({glm::vec3(0, radius, 0), glm::vec3(0, 1, 0), glm::vec2(0, 0)});
 
-
-    //TODO: use % go to 0 1 2 3 0 1 2 ... etc. all these special cases are stupid
     std::vector<unsigned int> indices;
-    // bottom cap of sphere
-    for(unsigned int i = 1; i < log_divisions; i++) {
-        indices.push_back(0);
-        indices.push_back(i + 1);
-        indices.push_back(i);
-    }
-    indices.push_back(0); indices.push_back(log_divisions); indices.push_back(1);
-    for(unsigned int i = 1; i < vertices.size() - 1; i++) {
-        indices.push_back(i);
-    }
-    // top cap of sphere
-    for(unsigned int i = vertices.size() - 1 - log_divisions; i < vertices.size() - 2; i++) {
-        indices.push_back(vertices.size() - 1);
-        indices.push_back(i);
-        indices.push_back(i + 1);
-    }
-    indices.push_back(vertices.size() - 1); indices.push_back(vertices.size() - 1 - log_divisions); indices.push_back(vertices.size() - 2);
+    unsigned int vertex = 0;
+    for(unsigned int i = 0; i < divisions; i++) {
+        for(unsigned int j = 0; j < divisions; j++) {
+            // do square on vertex
+            indices.insert(indices.end(), {vertex, vertex + divisions + 2, vertex + divisions + 1});
+            indices.insert(indices.end(), {vertex, vertex + 1, vertex + divisions + 2});
 
+            vertex++;
+        }
+        vertex++; // skip the last vertex of the line
+    }
+
+    std::cout << "indices:\n";
+    for(auto i : indices) { std::cout << i << std::endl; }
+
+    std::vector<vertex_t> vertices;
+    for(glm::vec3 p : positions) {
+        vertices.push_back({p, p, glm::vec2(0, 0)});
+    }
+    return Mesh(vertices, indices);
 }

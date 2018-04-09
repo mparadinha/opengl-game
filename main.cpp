@@ -29,6 +29,7 @@
 #include "components/component_enum.h"
 #include "components/transformation.h"
 #include "components/mesh.h"
+#include "components/camera.h"
 
 static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
@@ -56,6 +57,10 @@ int main() {
     Entity thot_e;
     thot_e.components[TRANSFORMATION] = &transform;
     thot_e.components[MESH] = &thot_mesh; 
+
+    transformation_t c_t = {glm::mat4(1), glm::mat4(1), glm::mat4(1)};
+    camera_t c = {glm::mat4(1), glm::mat4(1)}; 
+    Entity camera_e; camera_e.components[TRANSFORMATION] = &c_t; camera_e.components[CAMERA] = &c;
 
     // shaders
     Shader terrain_shader("terrain");
@@ -87,10 +92,11 @@ int main() {
     //nanodude.scale(0.2f);
     Player player(&msg_bus, &thot, &camera, glm::vec3(0));
     Mesh cube = make_cube();
+    Mesh sphere = make_sphere(10);
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
-    bool show_fps = false;
+    bool show_fps = true;
     while(!input.should_close()) {
         // calculate delta time (in seconds) for this frame
         time = glfwGetTime();
@@ -109,15 +115,25 @@ int main() {
         // draw objects
         terrain_shader.use();
         camera.set_uniforms(terrain_shader);
-        terrain.render();
+        //terrain.render();
 
         renderer.render(camera, thot_e);
-        renderer.render(camera, test_cube_e);
+        //renderer.render(camera, test_cube_e);
 
         sun_shader.use();
         sun_shader.set_uniform("diffuse_color", glm::vec3(0.2f));
         camera.set_uniforms(sun_shader);
         player.render(sun_shader);
+
+        // draw the code create cube and sphere
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        auto m = glm::mat4(1);
+        test_shader.use();
+        test_shader.set_uniform("model", m);
+        camera.set_uniforms(test_shader);
+        //cube.render();
+        sphere.render();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

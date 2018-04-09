@@ -12,3 +12,7 @@ EntityPool:
 Input (system):
 * translates inputs into game specific events and sends them to the msg_bus
 * could be with some sort of table that changes depending on the current game state
+
+Camera (system):
+* updates the camera entity according to input
+* camera entity has a transformation component

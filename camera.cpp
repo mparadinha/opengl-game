@@ -8,7 +8,7 @@
 Camera::Camera(MessageBus* msg_bus, float ratio) : System(msg_bus) {
     projection = glm::perspective(glm::radians(fov), ratio, near, far);
 
-    player_pos = glm::vec3(0, 2.f, 0);
+    player_pos = glm::vec3(0, 0, 0);
     update(0, 0); // initialize vectors
 }
 
@@ -28,14 +28,17 @@ void Camera::update(float dx, float dy) {
     pitch += sensitivity * dy;
     rotation += sensitivity * dx;
     if(pitch > 89.0f) pitch = 89.0f;
-    if(pitch < 0.0f) pitch = 0.0f;
+    if(pitch < -44.0f) pitch = -44.0f;
     rotation = fmod(rotation, 360);
 
     up = glm::normalize(glm::vec3(
         -sin(glm::radians(rotation)),
-        sqrt(2) * sin(glm::radians(90 - pitch)),
+        //sqrt(2) * sin(glm::radians(90 - pitch)),
+        sqrt(2) * cos(glm::radians(pitch)),
         -cos(glm::radians(rotation))
     ));
+
+    //std::cout << "pitch: " << pitch << " :: up vector: " << glm::to_string(up) << std::endl;
 
     // change the position
     auto diff = glm::vec3(0); // diff from focus point of camera (player) to camera
@@ -47,6 +50,7 @@ void Camera::update(float dx, float dy) {
 
     // update view mat using glm::lookAt
     view = glm::lookAt(position, player_pos, up);
+    //std::cout << "lookAt(position=" << glm::to_string(position) << ", player_pos=" << glm::to_string(player_pos) << ", up=" << glm::to_string(up) << ")" << std::endl;
 }
 
 void Camera::set_uniforms(Shader& shader) {
