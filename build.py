@@ -6,8 +6,6 @@ import subprocess
 
 #TODO: translation units whose included headers have been changed
 # might need to be recompiled
-#TODO: add option to pass a list of files to be recompiled
-# with the "force" option
 
 flags = ("Wall", "pedantic")
 include_dirs = ("./include", "/usr/include")
@@ -25,8 +23,6 @@ for src_dir in src_dirs:
 src_files = tuple(src_files)
 
 objs = []
-
-script_timestamp = os.path.getmtime(__file__)
 
 def run_cmd(args, show=True): 
     if show: print(" ".join(args))
@@ -72,6 +68,11 @@ def main(args):
         clean()
         return
 
+    force_files = []
+    if len(args) > 2:
+        force_files = ["./" + f for f in args[2:]]
+    force_full = "force" in args and not force_files
+
     # make sure all build directories are created
     for src_dir in src_dirs:
         build_path = os.path.join(src_dir, build_folder)
@@ -82,7 +83,7 @@ def main(args):
     # build all the objects
     for src in src_files:
         build_obj(src.split("/")[-1], "/".join(src.split("/")[:-1]),
-            force="force" in args)
+            force=force_full or src in force_files)
 
     # link final executable
     build_exe("thingy")

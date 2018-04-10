@@ -15,5 +15,5 @@ const vec3 c = vec3(1.0, 0.0, 0.0);
 void main() {
     gl_Position = projection * view * model * vec4(pos, 1.0); 
     //color = c * max(dot(norm, light), 0.0);
-    color = norm;
+    color = abs(norm);
 }

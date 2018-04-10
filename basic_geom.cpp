@@ -85,7 +85,6 @@ Mesh make_sphere(unsigned int divisions) {
                 sin(theta),
                 cos(theta) * cos(phi)
             );
-            std::cout << theta << " " << phi << " " << glm::to_string(pos) << std::endl;
             positions.push_back(pos);
         }
     }
@@ -102,9 +101,6 @@ Mesh make_sphere(unsigned int divisions) {
         }
         vertex++; // skip the last vertex of the line
     }
-
-    std::cout << "indices:\n";
-    for(auto i : indices) { std::cout << i << std::endl; }
 
     std::vector<vertex_t> vertices;
     for(glm::vec3 p : positions) {
