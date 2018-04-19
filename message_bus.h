@@ -41,6 +41,7 @@ class System {
 public:
     System(MessageBus* msg_bus) {
         this->msg_bus = msg_bus;
+        std::cout << "[system] init: adding self to msg_bus\n";
         this->msg_bus->add_system(this->get_handle_func());
     }
 

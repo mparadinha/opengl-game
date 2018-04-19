@@ -12,6 +12,7 @@ public:
     Renderer(MessageBus* msg_bus);
     ~Renderer();
 
+    void render(Shader& shader, Entity& camera, Entity& e);
     void render(Camera c, Entity e);
 
 private:

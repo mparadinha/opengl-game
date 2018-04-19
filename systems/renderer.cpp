@@ -1,10 +1,14 @@
 #include <iostream>
 
+#include <glm/gtx/string_cast.hpp>
+
 #include "renderer.h"
 #include "../entity_pool.h"
 #include "../components/component_enum.h"
 #include "../components/mesh.h"
 #include "../components/transformation.h"
+#include "../components/pos_rot_scale.h"
+#include "../components/camera.h"
 #include "../message_bus.h"
 #include "../shader.h"
 
@@ -28,18 +32,21 @@ Renderer::~Renderer() {
     }
 }
 
-void Renderer::render(Camera c, Entity e) {
+void Renderer::render(Shader& shader, Entity& camera, Entity& e) {
     //TODO: check if the entity has at least these components before doing this
-    // grab the necessary components from the entity
-    transformation_t* t = (transformation_t*) e.components[TRANSFORMATION];
-    mesh_t* m = (mesh_t*) e.components[MESH];
-
     // send the camera information to the shader
-    Shader& shader = *shaders["test_cube"];
+    camera_t* camera_info = (camera_t*) camera.components[CAMERA];
+    //Shader& shader = *shaders["test_cube"];
     shader.use();
-    shader.set_uniform("diffuse_color", glm::vec3(0.2f));
-    c.set_uniforms(shader);
-    shader.set_uniform("model", t->get_model());
+    shader.set_uniform("view", camera_info->view);
+    shader.set_uniform("projection", camera_info->projection);
+
+    // grab the necessary components from the entity
+    mesh_t* m = (mesh_t*) e.components[MESH];
+    pos_rot_scale_t* prs = (pos_rot_scale_t*) e.components[POS_ROT_SCALE];
+    glm::mat4 model = model_matrix(prs);
+    //std::cout << "model matrix: " << glm::to_string(model) << std::endl;
+    shader.set_uniform("model", model);
 
     // tell the gpu to draw the mesh
     glBindVertexArray(m->vao);

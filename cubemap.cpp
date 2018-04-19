@@ -4,6 +4,9 @@
 #include <glad.h>
 #include <stb_image.h>
 
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include "cubemap.h"
 #include "texture.h"
 
@@ -91,6 +94,13 @@ void CubeMap::set_uniforms(Shader& shader, Camera camera) {
     glm::mat4 view = glm::mat4(glm::mat3(camera.get_view()));
     shader.set_uniform("view", &view[0][0]);
     camera.set_projection_uniform(shader);
+}
+
+void CubeMap::set_uniforms(Shader& shader, Entity& camera) {
+    camera_t* c_comp = (camera_t*) camera.components[CAMERA];
+    glm::mat4 view = glm::mat4(glm::mat3(c_comp->view));
+    shader.set_uniform("view", view);
+    shader.set_uniform("projection", c_comp->projection);
 }
 
 void CubeMap::render() {

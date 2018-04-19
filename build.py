@@ -7,10 +7,10 @@ import subprocess
 #TODO: translation units whose included headers have been changed
 # might need to be recompiled
 
-flags = ("Wall", "pedantic")
+flags = ("Wall", "pedantic", "g")
 include_dirs = ("./include", "/usr/include")
 libs = ("dl", "glfw", "assimp")
-src_dirs = (".", "./systems")
+src_dirs = (".", "./systems", "./components")
 build_folder = "build"
 
 flags = tuple("-" + f for f in flags)

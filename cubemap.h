@@ -7,12 +7,15 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "entity_pool.h"
+#include "components/camera.h"
 
 class CubeMap {
 public:
     CubeMap(std::string path, std::string extension);
 
     void set_uniforms(Shader& shader, Camera camera);
+    void set_uniforms(Shader& shader, Entity& camera);
     void render();
 
     ~CubeMap() {};
