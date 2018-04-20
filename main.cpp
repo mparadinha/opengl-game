@@ -22,6 +22,7 @@
 #include "player.h"
 #include "basic_geom.h"
 #include "gltf.h"
+#include "axes.h"
 
 #include "systems/renderer.h"
 #include "systems/loader.h"
@@ -51,7 +52,7 @@ int main() {
     pos_rot_scale_t prs = {{0, 0, 0}, {1, 1, 1}, 0, 0, 0};
     Entity test_cube_e; test_cube_e.components[POS_ROT_SCALE] = &prs; test_cube_e.components[MESH] = &test_cube;
 
-    pos_rot_scale_t c_pos = {glm::vec3(0, 0, 2), glm::vec3(1), 0, 0, 0};
+    pos_rot_scale_t c_pos = {glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0};
     camera_t c = {glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60}; 
     Entity camera_e; camera_e.components[POS_ROT_SCALE] = &c_pos; camera_e.components[CAMERA] = &c;
  
@@ -72,9 +73,12 @@ int main() {
     Mesh cube = make_cube();
     Mesh sphere = make_sphere(50);
 
+    // testing the axis
+    Axes axes;
+
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
-    bool show_fps = false;
+    bool show_fps = true;
     while(!input.should_close()) {
         // calculate delta time (in seconds) for this frame
         time = glfwGetTime();
@@ -111,7 +115,7 @@ int main() {
 
 void display_fps(float dt) {
     static int frames = 0;
-    static float time = 0:
+    static float time = 0;
     if(time >= 1) {
         std::cout << "FPS: " << frames / time << std::endl;
         frames = 0;

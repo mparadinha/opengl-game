@@ -6,6 +6,7 @@
 #include "../message_bus.h"
 #include "../entity_pool.h"
 #include "../components/camera.h"
+#include "../components/pos_rot_scale.h"
 
 class CameraUpdater : public System {
 public:
@@ -17,9 +18,14 @@ public:
     void handle_message(message_t msg);
 
 private:
+    void update_move(float forward, float right);
+    void update_look(float dx, float dy);
     void update_1st_person(float forward, float right, float dx, float dy);
 
+    std::string camera_style;
+
     Entity* camera;
+    pos_rot_scale_t* player_prs;
 };
 
 #endif // include guard
