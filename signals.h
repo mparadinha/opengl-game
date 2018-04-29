@@ -14,7 +14,9 @@ enum {
 
     SWITCH_CAMERA_STYLE,
 
-    NEW_FRAME
+    NEW_FRAME,
+
+    TOGGLE_BB
 };
 
 #endif // include guard

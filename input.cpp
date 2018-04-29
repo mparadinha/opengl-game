@@ -31,6 +31,10 @@ void Input::poll_keys() {
     };
 
     send_msg(msg);
+
+    if(pressed(GLFW_KEY_B)) {
+        send_msg({TOGGLE_BB});
+    }
 }
 
 void Input::poll_mouse() {

@@ -2,18 +2,14 @@
 #define COMPONENT_ENUM_H
 
 enum ComponentType {
-    TRANSFORMATION = 0x1,
-    MESH = 0x2,
-    ANIMATION = 0x4,
-    CAMERA = 0x8,
-    POS_ROT_SCALE = 0xa
-};
-
-struct Component {
-    const static ComponentType type;
-
-    Component() {};
-    virtual ~Component() {};
+    TRANSFORMATION = 1 << 0,
+    MESH           = 1 << 1,
+    ANIMATION      = 1 << 2,
+    CAMERA         = 1 << 3,
+    POS_ROT_SCALE  = 1 << 4,
+    RIGID_BODY     = 1 << 5,
+    AABB           = 1 << 6,
+    BB_CUBE        = 1 << 7
 };
 
 #endif // include guard

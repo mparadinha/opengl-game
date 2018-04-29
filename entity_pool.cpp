@@ -1,4 +1,6 @@
 #include <vector>
+#include <iostream>
+#include <bitset>
 
 #include "entity_pool.h"
 

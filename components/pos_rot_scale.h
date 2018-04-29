@@ -4,10 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "component_enum.h"
+//TODO: remove this and just use rigid_body components everywhere instead
+// or maybe not because this might be usefull for drawing bounding boxes
 
 struct pos_rot_scale_t {
-    const static ComponentType type = POS_ROT_SCALE;
     glm::vec3 pos, scale;
     float yaw, pitch, roll;
 };

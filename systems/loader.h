@@ -11,6 +11,8 @@ public:
     Loader(MessageBus* msg_bus);
     ~Loader();
 
+    void handle_message(message_t msg);
+
     mesh_t load_mesh(std::string filepath);
     float * read_uri(std::string filepath);
 

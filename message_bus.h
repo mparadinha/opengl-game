@@ -12,6 +12,7 @@ enum {
     PRIORITY_NOW
 };
 
+//TODO: maybe have an additional uint to say how many values in data are valid
 #define MAX_ARGS 8
 typedef struct message_t {
     int code;

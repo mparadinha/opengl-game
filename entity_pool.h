@@ -13,8 +13,8 @@ struct Entity {
 
 class EntityPool {
 public:
-    EntityPool();
-    ~EntityPool();
+    EntityPool() {};
+    ~EntityPool() {};
 
     unsigned int add_entity(Entity* e);
     std::vector<Entity*> query(unsigned int mask);

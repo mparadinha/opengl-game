@@ -5,6 +5,7 @@
 
 #include "loader.h"
 #include "../gltf.h"
+#include "../signals.h"
 #include "../components/mesh.h"
 #include "../components/animation.h"
 
@@ -13,6 +14,11 @@ Loader::Loader(MessageBus* msg_bus) : System(msg_bus) {
 }
 
 Loader::~Loader() {}
+
+void Loader::handle_message(message_t msg) {
+    switch(msg.code) {
+    }
+}
 
 mesh_t Loader::load_mesh(std::string filepath) {
     //TODO: need to parse and include in the mesh_t the type of data that

@@ -3,11 +3,14 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "renderer.h"
+#include "../signals.h"
 #include "../entity_pool.h"
+#include "../entity_pool_global.h"
 #include "../components/component_enum.h"
 #include "../components/mesh.h"
 #include "../components/transformation.h"
 #include "../components/pos_rot_scale.h"
+#include "../components/bounding_volumes.h"
 #include "../components/camera.h"
 #include "../message_bus.h"
 #include "../shader.h"
@@ -24,11 +27,59 @@ Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
 
     Shader* test_cube = new Shader("test_cube");
     shaders["test_cube"] = test_cube;
+    shaders["bounding_box"] = new Shader("bounding_box");
+
+    // cube mesh rendering aabb bounding boxes
 }
 
 Renderer::~Renderer() {
     for(const auto& pair : shaders) {
         delete pair.second;
+    }
+}
+
+void Renderer::handle_message(message_t msg) {
+    switch(msg.code) {
+    case NEW_FRAME:
+        if(show_bounding_box) render_bbs();
+        break;
+    case TOGGLE_BB:
+        show_bounding_box = !show_bounding_box;
+        break;
+    }
+}
+
+void Renderer::render_bbs() {
+    static Entity* bb_cube = e_pool.query(BB_CUBE)[0];
+    static mesh_t* bb_mesh = (mesh_t*) bb_cube->components[BB_CUBE];
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // setup shader (we can use the same one for all bounding boxes)
+    Shader* shader = shaders["bounding_box"];
+    shader->use();
+    shader->set_uniform("view", m_camera_info->view);
+    shader->set_uniform("projection", m_camera_info->projection);
+
+    for(auto e : e_pool.query(AABB)) {
+        aabb_t* aabb = (aabb_t*) e->components[AABB];
+        pos_rot_scale_t prs = {aabb->center, aabb->size};
+        glm::mat4 model = model_matrix(&prs);
+
+        shader->set_uniform("model", model);
+
+        glBindVertexArray(bb_mesh->vao);
+        glDrawElements(GL_TRIANGLES,
+            bb_mesh->num_indices, bb_mesh->index_data_type,
+            nullptr);
+    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+    
+void Renderer::render_all(Shader& shader, Entity& camera) {
+    for(auto e : e_pool.query(MESH)) {
+        render(shader, camera, *e);
     }
 }
 

@@ -3,11 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "component_enum.h"
-
 struct camera_t {
-    const static ComponentType type = CAMERA;
-
     glm::mat4 view, projection;
     float fov;
 };
