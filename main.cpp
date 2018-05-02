@@ -40,6 +40,22 @@ static const unsigned int WINDOW_HEIGHT = 900;
 void display_fps(float dt);
 void wait(float seconds);
 
+void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}) {
+    static mesh_t* mesh = new mesh_t(loader.load_mesh("res/cube.gltf"));
+    pos_rot_scale_t* prs = new pos_rot_scale_t({pos, scale});
+    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, false});
+    aabb_t* aabb = new aabb_t({pos, scale});
+
+    Entity* cube = new Entity;
+    cube->components[MESH] = mesh;
+    cube->components[POS_ROT_SCALE] = prs;
+    cube->components[RIGID_BODY] = rb;
+    cube->components[AABB] = aabb;
+    cube->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | AABB;
+
+    e_pool.add_entity(cube);
+}
+
 int main() {
     MessageBus msg_bus = MessageBus();
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
@@ -49,20 +65,8 @@ int main() {
     Physics physics(&msg_bus);
 
     // test entities
-    mesh_t test_cube = loader.load_mesh("res/cube.gltf");
-    pos_rot_scale_t prs = {{0, 0, 0}, {1, 1, 1}, 0, 0, 0};
-    rigid_body_t rb = {{0, 0, 0}};
-    aabb_t aabb = {{0, 0, 0}, {1, 1, 1}};
-    Entity test_cube_e; test_cube_e.components[POS_ROT_SCALE] = &prs; test_cube_e.components[MESH] = &test_cube; test_cube_e.components[RIGID_BODY] = &rb;
-    test_cube_e.components[AABB] = &aabb;
-    test_cube_e.bitset = POS_ROT_SCALE | MESH | RIGID_BODY | AABB;
-
-    pos_rot_scale_t prs2 = {{10, 0, 0}, {1, 1, 1}, 0, 0, 0};
-    rigid_body_t rb2 = {{10, 0, 0}, {-2, 0, 0}};
-    aabb_t aabb2 = {{10, 0, 0}, {1, 1, 1}};
-    Entity test_cube_e2; test_cube_e2.components[POS_ROT_SCALE] = &prs2; test_cube_e2.components[MESH] = &test_cube; test_cube_e2.components[RIGID_BODY] = &rb2;
-    test_cube_e2.components[AABB] = &aabb2;
-    test_cube_e2.bitset = POS_ROT_SCALE | MESH | RIGID_BODY | AABB;
+    add_cube(loader, {0, 0, 0});
+    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
 
     pos_rot_scale_t c_pos = {glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0};
     rigid_body_t rb_c = {{10, 10, 10}, {}, {}, 0, 0, 0, true};
@@ -70,14 +74,18 @@ int main() {
     Entity camera_e; camera_e.components[POS_ROT_SCALE] = &c_pos; camera_e.components[CAMERA] = &c; camera_e.components[RIGID_BODY] = &rb_c;
     camera_e.bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY;
 
-    // bounding box cube entity with special component
+    add_cube(loader, {0, 5, 0}, {1, 1, 3});
+
+    // (for drawing bbs) bounding box cube entity with special component
+    mesh_t test_cube = loader.load_mesh("res/cube.gltf");
     Entity bb_cube; bb_cube.components[BB_CUBE] = &test_cube;
     bb_cube.bitset = BB_CUBE;
+    e_pool.add_special(&bb_cube, BB_CUBE);
+    std::cout << "after specials\n";
 
-    e_pool.add_entity(&test_cube_e);
-    e_pool.add_entity(&test_cube_e2);
-    e_pool.add_entity(&camera_e);
-    e_pool.add_entity(&bb_cube);
+    e_pool.add_special(&camera_e, CAMERA);
+
+    std::cout << "drawables: " << e_pool.query(MESH).size() << std::endl;
 
     renderer.m_camera_info = &c;
 
@@ -122,7 +130,7 @@ int main() {
         msg_bus.add_message(new_frame_msg, PRIORITY_NOW);
         
         // draw entities
-        renderer.render_all(test_shader, camera_e);
+        renderer.render_all(test_shader);
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time

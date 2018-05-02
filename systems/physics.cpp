@@ -45,7 +45,9 @@ void Physics::update(float dt) {
         Entity* body = bodies[i];
 
         rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
-        if(rb->floating) continue;
+        // floating objects aren't affected by gravity
+        if(rb->floating) {
+        }
 
         //glm::vec3 accel = g;
         glm::vec3 accel = glm::vec3(0);

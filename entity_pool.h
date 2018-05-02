@@ -17,10 +17,15 @@ public:
     ~EntityPool() {};
 
     unsigned int add_entity(Entity* e);
+
+    void add_special(Entity* e, ComponentType type);
+    Entity* get_special(ComponentType type);
+
     std::vector<Entity*> query(unsigned int mask);
 
 private:
     std::vector<Entity*> entities;
+    std::map<ComponentType, Entity*> specials;
 };
 
 #endif // include guard

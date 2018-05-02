@@ -25,11 +25,8 @@ Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
 
     shaders["sun"] = sun_shader;
 
-    Shader* test_cube = new Shader("test_cube");
-    shaders["test_cube"] = test_cube;
+    shaders["test_cube"] = new Shader("test_cube");
     shaders["bounding_box"] = new Shader("bounding_box");
-
-    // cube mesh rendering aabb bounding boxes
 }
 
 Renderer::~Renderer() {
@@ -50,7 +47,7 @@ void Renderer::handle_message(message_t msg) {
 }
 
 void Renderer::render_bbs() {
-    static Entity* bb_cube = e_pool.query(BB_CUBE)[0];
+    static Entity* bb_cube = e_pool.get_special(BB_CUBE);
     static mesh_t* bb_mesh = (mesh_t*) bb_cube->components[BB_CUBE];
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -77,16 +74,18 @@ void Renderer::render_bbs() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
     
-void Renderer::render_all(Shader& shader, Entity& camera) {
+void Renderer::render_all(Shader& shader) {
     for(auto e : e_pool.query(MESH)) {
-        render(shader, camera, *e);
+        render(shader, *e);
     }
 }
 
-void Renderer::render(Shader& shader, Entity& camera, Entity& e) {
+void Renderer::render(Shader& shader, Entity& e) {
+    Entity* camera = e_pool.get_special(CAMERA);
+
     //TODO: check if the entity has at least these components before doing this
     // send the camera information to the shader
-    camera_t* camera_info = (camera_t*) camera.components[CAMERA];
+    camera_t* camera_info = (camera_t*) camera->components[CAMERA];
     //Shader& shader = *shaders["test_cube"];
     shader.use();
     shader.set_uniform("view", camera_info->view);

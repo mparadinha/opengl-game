@@ -16,8 +16,8 @@ public:
     void handle_message(message_t msg);
 
     void render_bbs();
-    void render_all(Shader& shader, Entity& camera);
-    void render(Shader& shader, Entity& camera, Entity& e);
+    void render_all(Shader& shader);
+    void render(Shader& shader, Entity& e);
     void render(Camera c, Entity e);
 
     camera_t* m_camera_info;
@@ -25,7 +25,7 @@ public:
 private:
     std::map<std::string, Shader*> shaders;
 
-    bool show_bounding_box = false;
+    bool show_bounding_box = true;
 };
 
 #endif // include guard
