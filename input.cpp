@@ -11,7 +11,15 @@
 #include "message_bus.h"
 #include "signals.h"
 
-Input::Input(GLFWwindow* window, MessageBus* msg_bus) : System(msg_bus), window(window) {}
+static void glfw_callbacks::keys(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    glfw_callbacks::input_system->key_callback(key, scancode, action, mods);
+}
+
+Input::Input(GLFWwindow* window, MessageBus* msg_bus) : System(msg_bus), window(window) {
+    glfw_callbacks::input_system = this;
+    glfwSetKeyCallback(window, glfw_callbacks::keys);
+}
+
 Input::~Input() {}
 
 void Input::handle_message(message_t msg) {
@@ -22,6 +30,10 @@ void Input::handle_message(message_t msg) {
             poll_mouse();
             break;
     }
+}
+
+void Input::key_callback(int key, int scancode, int action, int mods) {
+    std::cout << "key_callback(key=" << key << ", scancode=" << scancode << ", mods=" << mods << std::endl;
 }
 
 void Input::poll_keys() {

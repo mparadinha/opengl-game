@@ -74,18 +74,13 @@ int main() {
     Entity camera_e; camera_e.components[POS_ROT_SCALE] = &c_pos; camera_e.components[CAMERA] = &c; camera_e.components[RIGID_BODY] = &rb_c;
     camera_e.bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY;
 
-    add_cube(loader, {0, 5, 0}, {1, 1, 3});
-
     // (for drawing bbs) bounding box cube entity with special component
     mesh_t test_cube = loader.load_mesh("res/cube.gltf");
     Entity bb_cube; bb_cube.components[BB_CUBE] = &test_cube;
     bb_cube.bitset = BB_CUBE;
     e_pool.add_special(&bb_cube, BB_CUBE);
-    std::cout << "after specials\n";
 
     e_pool.add_special(&camera_e, CAMERA);
-
-    std::cout << "drawables: " << e_pool.query(MESH).size() << std::endl;
 
     renderer.m_camera_info = &c;
 
@@ -99,12 +94,7 @@ int main() {
     CubeMap skybox("res/skybox/skybox", "jpg");
 
     // init systems
-    Camera camera(&msg_bus, (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT);
     Input input(screen.window, &msg_bus);
-
-    // entities
-    Mesh cube = make_cube();
-    Mesh sphere = make_sphere(50);
 
     // testing the axis
     Axes axes;
