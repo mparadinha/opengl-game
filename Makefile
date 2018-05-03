@@ -1,6 +1,7 @@
 CC=$(CXX)
 CCX=g++
-CFLAGS=-Wall -Wextra -pedantic
+#CFLAGS=-Wall -Wextra -pedantic
+CFLAGS=-Wall -pedantic
 CFLAGS+=-O0
 #CFLAGS+=-g -Og
 #CFLAGS+=-pg
@@ -9,7 +10,7 @@ CPPFLAGS=-I./include
 LDFLAGS=
 LDLIBS=
 SRCDIR=.
-SRC!=find $(SRCDIR) -type f -name "*.cpp" | cut -d"/" -f2-
+SRC!=find $(SRCDIR) -name "*.cpp" -not -path "./old/*" | cut -d"/" -f2-
 OBJDIR=.obj
 
 # Define executables and their link dependencies here

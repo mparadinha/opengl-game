@@ -11,7 +11,7 @@
 #include "message_bus.h"
 #include "signals.h"
 
-static void glfw_callbacks::keys(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void glfw_callbacks::keys(GLFWwindow* window, int key, int scancode, int action, int mods) {
     glfw_callbacks::input_system->key_callback(key, scancode, action, mods);
 }
 

@@ -8,7 +8,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "cubemap.h"
-#include "texture.h"
+#include "old/texture.h"
 
 float skybox_vertices[] = {
     // positions          
@@ -88,12 +88,6 @@ CubeMap::CubeMap(std::string path, std::string extension) {
     glBufferData(GL_ARRAY_BUFFER, 36 * 3 * sizeof(float), &skybox_vertices[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
-}
-
-void CubeMap::set_uniforms(Shader& shader, Camera camera) {
-    glm::mat4 view = glm::mat4(glm::mat3(camera.get_view()));
-    shader.set_uniform("view", &view[0][0]);
-    camera.set_projection_uniform(shader);
 }
 
 void CubeMap::set_uniforms(Shader& shader, Entity& camera) {

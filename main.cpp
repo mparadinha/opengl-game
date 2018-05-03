@@ -15,9 +15,8 @@
 #include "shader.h"
 #include "signals.h"
 #include "message_bus.h"
-#include "cubemap.h"
-#include "basic_geom.h"
 #include "axes.h"
+#include "cubemap.h"
 
 #include "systems/renderer.h"
 #include "systems/loader.h"

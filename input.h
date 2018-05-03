@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "camera.h"
 #include "message_bus.h"
 
 class Input : public System {
@@ -31,7 +30,7 @@ private:
 
 namespace glfw_callbacks {
     static Input* input_system;
-    static void keys(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void keys(GLFWwindow* window, int key, int scancode, int action, int mods);
 }
 
 #endif // INPUT_H include guard

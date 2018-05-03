@@ -4,7 +4,6 @@
 #include "../entity_pool.h"
 #include "../message_bus.h"
 #include "../shader.h"
-#include "../camera.h"
 #include "../components/component_enum.h"
 #include "../components/camera.h"
 
@@ -18,7 +17,6 @@ public:
     void render_bbs();
     void render_all(Shader& shader);
     void render(Shader& shader, Entity& e);
-    void render(Camera c, Entity e);
 
     camera_t* m_camera_info;
 
