@@ -33,13 +33,12 @@ endef
 
 $(foreach exec,$(EXECS),$(eval $(call EXEC_templ,$(exec))))
 
--include $($(addprefix $(OBJDIR), $(SRC:.cpp=.o)):.o=.d)
+-include $(addprefix $(OBJDIR)/, $(SRC:.cpp=.d))
 $(OBJDIR)/%.d: %.cpp
 	@mkdir -p `dirname $@`
 	$(CC) $(CPPFLAGS) -MM -MF $@ $^
 
 $(OBJDIR)/%.o: %.cpp
-	@mkdir -p `dirname $@`
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
 
 .PHONY=clean all
