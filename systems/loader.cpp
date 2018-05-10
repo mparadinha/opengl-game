@@ -5,7 +5,7 @@
 #include <stb_image.h>
 
 #include "loader.h"
-#include "../gltf.h"
+#include "../utils/gltf.h"
 #include "../signals.h"
 #include "../components/mesh.h"
 #include "../components/texture.h"

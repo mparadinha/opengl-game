@@ -5,7 +5,7 @@
 
 #include "axes.h"
 
-#include "components/camera.h"
+#include "../components/camera.h"
 
 Axes::Axes() {    
     shader = new Shader("axes");

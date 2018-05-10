@@ -2,7 +2,7 @@
 #define AXES_H
 
 #include "shader.h"
-#include "entity_pool.h"
+#include "../entity_pool.h"
 
 class Axes {
 public:

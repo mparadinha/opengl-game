@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h> // for the GLFWwindow member
 
+//TODO: why is this a class????? no need I think. refactor
 class Display {
 public:
     Display(int width, int height, std::string title); // constructor

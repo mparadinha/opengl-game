@@ -4,7 +4,7 @@
 #include "../message_bus.h"
 #include "../components/mesh.h"
 #include "../components/texture.h"
-#include "../gltf.h"
+#include "../utils/gltf.h"
 
 class Loader : public System {
 public:

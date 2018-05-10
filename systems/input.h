@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "message_bus.h"
+#include "../message_bus.h"
 
 class Input : public System {
 public:

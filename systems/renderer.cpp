@@ -14,7 +14,7 @@
 #include "../components/bounding_volumes.h"
 #include "../components/camera.h"
 #include "../message_bus.h"
-#include "../shader.h"
+#include "../utils/shader.h"
 
 Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing renderer..." << std::endl;

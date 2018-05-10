@@ -11,12 +11,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "display.h"
-#include "input.h"
-#include "shader.h"
 #include "signals.h"
 #include "message_bus.h"
-#include "axes.h"
 
+#include "utils/shader.h"
+#include "utils/axes.h"
+
+#include "systems/input.h"
 #include "systems/renderer.h"
 #include "systems/loader.h"
 #include "systems/animator.h"
@@ -56,6 +57,7 @@ void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::v
 
 int main() {
     MessageBus msg_bus = MessageBus();
+
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
     // init systems

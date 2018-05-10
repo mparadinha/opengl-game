@@ -3,7 +3,7 @@
 
 #include "../entity_pool.h"
 #include "../message_bus.h"
-#include "../shader.h"
+#include "../utils/shader.h"
 #include "../components/component_enum.h"
 #include "../components/camera.h"
 

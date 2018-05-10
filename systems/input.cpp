@@ -7,9 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "input.h"
-#include "shader.h"
-#include "message_bus.h"
-#include "signals.h"
+#include "../message_bus.h"
+#include "../signals.h"
 
 namespace glfw_callbacks {
     static Input* input_system;
