@@ -29,6 +29,10 @@ inline bool intersect(const sphere_bv_t& a, const sphere_bv_t& b) {
     return dist_sq < radius * radius;
 }
 
+Physics::Physics(MessageBus* msg_bus) : System(msg_bus) {
+    std::cout << "initing physics..." << std::endl;
+}
+
 void Physics::handle_message(message_t msg) {
     switch(msg.code) {
     case NEW_FRAME:

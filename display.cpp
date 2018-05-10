@@ -38,6 +38,10 @@ Display::Display(int w, int h, std::string title) {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         std::cerr << "Failed to initialize GLAD" << std::endl;
 
+
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
     // capture mouse movement and hide the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 

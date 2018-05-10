@@ -62,7 +62,7 @@ CubeMap::CubeMap(std::string path, std::string extension) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
     // load all 6 textures (1 for each side)
-    std::string str[] = {"rt", "lf", "up", "dn", "bk", "ft"};
+    std::string str[] = {"right", "left", "up", "down", "back", "front"};
     std::vector<std::string> faces(str, str + (sizeof(str) / sizeof(std::string)));
     for(unsigned int i = 0; i < faces.size(); i++) {
         std::string file = path + "_" + faces[i] + "." + extension;

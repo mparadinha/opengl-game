@@ -28,9 +28,4 @@ private:
     GLFWwindow* window;
 };
 
-namespace glfw_callbacks {
-    static Input* input_system;
-    void keys(GLFWwindow* window, int key, int scancode, int action, int mods);
-}
-
 #endif // INPUT_H include guard

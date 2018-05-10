@@ -3,3 +3,5 @@ thingy
 *.swp
 *.o
 .dummy
+.obj/*
+.obj_dbg/*

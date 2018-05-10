@@ -10,5 +10,9 @@ uniform mat4 view;
 void main() {
     tex_coords = vertex_pos;
     vec4 pos = projection * view * vec4(vertex_pos, 1.0);
-    gl_Position = pos.xyww; // z component is always w so that these skybox pixels are always the farthest aways than any other
+
+    // make z always 1.0 (same as w) so that cubemap fragment shader
+    // always fails the depth test on pixels that have something in front
+    // note: we can do this because we're rendering the cubemap after everything else
+    gl_Position = pos.xyww;
 }

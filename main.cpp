@@ -16,7 +16,6 @@
 #include "signals.h"
 #include "message_bus.h"
 #include "axes.h"
-#include "cubemap.h"
 
 #include "systems/renderer.h"
 #include "systems/loader.h"
@@ -59,6 +58,8 @@ int main() {
     MessageBus msg_bus = MessageBus();
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
+    // init systems
+    Input input(screen.window, &msg_bus);
     Loader loader(&msg_bus);
     Renderer renderer(&msg_bus);
     Physics physics(&msg_bus);
@@ -81,19 +82,12 @@ int main() {
 
     e_pool.add_special(&camera_e, CAMERA);
 
-    renderer.m_camera_info = &c;
+    texture_t skybox_texture = loader.load_texture("res/skybox/skybox.jpg", GL_TEXTURE_CUBE_MAP);
+    Entity _skybox; _skybox.components[SKYBOX] = &skybox_texture;
+    _skybox.bitset = SKYBOX;
+    e_pool.add_special(&_skybox, SKYBOX);
 
     CameraUpdater camera_updater(&msg_bus, &camera_e);
-
-    // shaders
-    Shader default_shader("default");
-    Shader test_shader("test_cube");
-    Shader cubemap_shader("cubemap");
-    cubemap_shader.set_uniform("skybox", 0);
-    CubeMap skybox("res/skybox/skybox", "jpg");
-
-    // init systems
-    Input input(screen.window, &msg_bus);
 
     // testing the axis
     Axes axes;
@@ -119,13 +113,18 @@ int main() {
         msg_bus.add_message(new_frame_msg, PRIORITY_NOW);
         
         // draw entities
-        renderer.render_all(test_shader);
+        renderer.render_all();
 
         // draw skybox last so that we dont end up drawing tons of pixels on top of it
         // since most of the skybox wont be visible most of the time
-        cubemap_shader.use();
-        skybox.set_uniforms(cubemap_shader, camera_e);
-        skybox.render();
+        //cubemap_shader.use();
+        //skybox.set_uniforms(cubemap_shader, camera_e);
+        //skybox.render(test_cube.vao, test_cube.num_indices, skybox_texture.id); 
+        /*glDepthMask(GL_FALSE);
+        glBindVertexArray(test_cube.vao);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture.id);
+        glDrawElements(GL_TRIANGLES, test_cube.num_indices, test_cube.index_data_type, nullptr);
+        glDepthMask(GL_TRUE);*/
 
         msg_bus.process();
 

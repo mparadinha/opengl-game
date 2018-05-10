@@ -9,7 +9,9 @@ enum ComponentType {
     POS_ROT_SCALE  = 1 << 4,
     RIGID_BODY     = 1 << 5,
     AABB           = 1 << 6,
-    BB_CUBE        = 1 << 7
+    TEXTURE        = 1 << 7,
+    BB_CUBE        = 1 << 8,
+    SKYBOX         = 1 << 9
 };
 
 #endif // include guard

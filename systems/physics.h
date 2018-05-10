@@ -9,7 +9,7 @@ inline bool intersect(const sphere_bv_t& a, const sphere_bv_t& b);
 
 class Physics : public System {
 public:
-    Physics(MessageBus* msg_bus) : System(msg_bus) {};
+    Physics(MessageBus* msg_bus);
     ~Physics() {};
 
     void handle_message(message_t msg);

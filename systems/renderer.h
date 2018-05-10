@@ -15,10 +15,9 @@ public:
     void handle_message(message_t msg);
 
     void render_bbs();
-    void render_all(Shader& shader);
-    void render(Shader& shader, Entity& e);
-
-    camera_t* m_camera_info;
+    void render_skybox();
+    void render_all();
+    void render(Shader* shader, Entity* e);
 
 private:
     std::map<std::string, Shader*> shaders;

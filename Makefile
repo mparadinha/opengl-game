@@ -1,8 +1,9 @@
 CC=$(CXX)
 CCX=g++
-#CFLAGS=-Wall -Wextra -pedantic
 CFLAGS=-Wall -pedantic
+#CFLAGS+=-Wextra
 CFLAGS+=-O0
+CFLAGS+=-fdiagnostics-color=always
 #CFLAGS+=-g -Og
 #CFLAGS+=-pg
 CXXFLAGS=$(CFLAGS)
