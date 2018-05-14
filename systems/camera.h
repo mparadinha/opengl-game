@@ -10,10 +10,9 @@
 
 class CameraUpdater : public System {
 public:
-    CameraUpdater(MessageBus* msg_bus, Entity* camera) :
-        System(msg_bus), camera(camera) {};
+    CameraUpdater(MessageBus* msg_bus);
 
-    ~CameraUpdater() {std::cout << "CameraUpdate DESTRUCTOR" << std::endl;};
+    ~CameraUpdater();
 
     void handle_message(message_t msg);
 

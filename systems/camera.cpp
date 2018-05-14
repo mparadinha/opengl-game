@@ -6,6 +6,29 @@
 
 #include "../signals.h"
 #include "../components/pos_rot_scale.h"
+#include "../components/rigid_body.h"
+#include "../components/camera.h"
+
+#include "../entity_pool_global.h"
+
+CameraUpdater::CameraUpdater(MessageBus* msg_bus) : System(msg_bus) {
+    std::cout << "initing camera updater...\n";
+
+    // create camera and add to the special pool
+    pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0});
+    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {}, {}, 0, 0, 0, true});
+    camera_t* c = new camera_t({glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60});
+    camera = new Entity;
+    camera->components[POS_ROT_SCALE] = c_pos;
+    camera->components[CAMERA] = c;
+    camera->components[RIGID_BODY] = rb_c;
+    camera->bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY;
+
+    e_pool.add_special(camera, CAMERA);
+}
+
+CameraUpdater::~CameraUpdater() {
+}
 
 void CameraUpdater::handle_message(message_t msg) {
     switch(msg.code) {

@@ -6,6 +6,9 @@
 #include "../signals.h"
 #include "../entity_pool.h"
 #include "../entity_pool_global.h"
+#include "../message_bus.h"
+#include "../utils/shader.h"
+
 #include "../components/component_enum.h"
 #include "../components/mesh.h"
 #include "../components/texture.h"
@@ -13,18 +16,9 @@
 #include "../components/pos_rot_scale.h"
 #include "../components/bounding_volumes.h"
 #include "../components/camera.h"
-#include "../message_bus.h"
-#include "../utils/shader.h"
 
 Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing renderer..." << std::endl;
-
-    Shader* sun_shader = new Shader("onecolor_light");
-    sun_shader->set_uniform("light.direction", glm::vec3(-1));
-    sun_shader->set_uniform("light.diffuse", glm::vec3(0.7f));
-    sun_shader->set_uniform("light.ambient", glm::vec3(0.3f));
-
-    shaders["sun"] = sun_shader;
 
     shaders["test_cube"] = new Shader("test_cube");
     shaders["bounding_box"] = new Shader("bounding_box");

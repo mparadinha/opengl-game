@@ -65,34 +65,24 @@ int main() {
     Loader loader(&msg_bus);
     Renderer renderer(&msg_bus);
     Physics physics(&msg_bus);
+    CameraUpdater camera_updater(&msg_bus);
 
     // test entities
     add_cube(loader, {0, 0, 0});
     add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
 
-    pos_rot_scale_t c_pos = {glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0};
-    rigid_body_t rb_c = {{10, 10, 10}, {}, {}, 0, 0, 0, true};
-    camera_t c = {glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60}; 
-    Entity camera_e; camera_e.components[POS_ROT_SCALE] = &c_pos; camera_e.components[CAMERA] = &c; camera_e.components[RIGID_BODY] = &rb_c;
-    camera_e.bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY;
-
-    // (for drawing bbs) bounding box cube entity with special component
+    // special entities
+    // add a simple cube mesh to the pool to draw bounding boxes later
     mesh_t test_cube = loader.load_mesh("res/cube.gltf");
-    Entity bb_cube; bb_cube.components[BB_CUBE] = &test_cube;
+    Entity bb_cube;
+    bb_cube.components[BB_CUBE] = &test_cube;
     bb_cube.bitset = BB_CUBE;
     e_pool.add_special(&bb_cube, BB_CUBE);
-
-    e_pool.add_special(&camera_e, CAMERA);
-
+    // add skybox texture to special pool
     texture_t skybox_texture = loader.load_texture("res/skybox/skybox.jpg", GL_TEXTURE_CUBE_MAP);
     Entity _skybox; _skybox.components[SKYBOX] = &skybox_texture;
     _skybox.bitset = SKYBOX;
     e_pool.add_special(&_skybox, SKYBOX);
-
-    CameraUpdater camera_updater(&msg_bus, &camera_e);
-
-    // testing the axis
-    Axes axes;
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
@@ -116,17 +106,6 @@ int main() {
         
         // draw entities
         renderer.render_all();
-
-        // draw skybox last so that we dont end up drawing tons of pixels on top of it
-        // since most of the skybox wont be visible most of the time
-        //cubemap_shader.use();
-        //skybox.set_uniforms(cubemap_shader, camera_e);
-        //skybox.render(test_cube.vao, test_cube.num_indices, skybox_texture.id); 
-        /*glDepthMask(GL_FALSE);
-        glBindVertexArray(test_cube.vao);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture.id);
-        glDrawElements(GL_TRIANGLES, test_cube.num_indices, test_cube.index_data_type, nullptr);
-        glDepthMask(GL_TRUE);*/
 
         msg_bus.process();
 
