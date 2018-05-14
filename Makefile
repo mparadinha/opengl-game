@@ -17,7 +17,7 @@ OBJDIR=.obj
 # Define executables and their link dependencies here
 EXECS = thingy
 thingy_DEPS = $(SRC)
-thingy_LIBS = dl glfw assimp
+thingy_LIBS = dl glfw
 
 debug:
 	$(eval OBJDIR=.obj_dbg)
