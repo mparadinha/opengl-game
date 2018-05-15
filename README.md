@@ -1,12 +1,13 @@
 # Building
 ## Dependencies
 - `glfw`
+- `glm`
 
 ## Compiling
-just do `make` on the root directory
+Just do `make` on the root directory
 
 # Documentation
-A `MessageBus` receives "events" ([`message_t`](message_bus.h)) and relays them to system such as a renderer, physics engine, etc...
+A `MessageBus` receives "events" ([`message_t`](message_bus.h)) and relays them to systems such as a renderer, physics engine, etc.
 This was inspired by [this gamasutra post.](https://www.gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php)
 
 ![messaging architecture](docs/messaging_diagram.png)
