@@ -69,7 +69,7 @@ void Physics::update(float dt) {
         }
 
         // check for collisions
-        //if(i == bodies.size() - 1) continue; // last object has already been checked for collision
+        if(i == bodies.size() - 1) continue; // last object has already been checked for collision
         for(unsigned int j = i + 1; j < bodies.size(); j++) {
             Entity* other = bodies[j];
             aabb_t* other_aabb = (aabb_t*) other->components[AABB];
@@ -78,7 +78,7 @@ void Physics::update(float dt) {
                 rb->pos -= rb->vel * dt;
                 // every collision is perfectly elastic in the real world.
                 // even friction
-                rb->vel *= -1;
+                rb->vel *= -1; //TODO: only switch vel component where the collision occured
                 other_rb->vel *= -1;
             }
         }

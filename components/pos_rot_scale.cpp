@@ -7,5 +7,5 @@ glm::mat4 model_matrix(pos_rot_scale_t* prs) {
     rotation = glm::rotate(glm::mat4(1), glm::radians(prs->yaw), {0, 1, 0});
     rotation = glm::rotate(glm::mat4(1), glm::radians(prs->roll), {0, 0, 1});
 
-    return rotation * scale * translation;
+    return translation * rotation * scale;
 }
