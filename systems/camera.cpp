@@ -8,6 +8,7 @@
 #include "../components/pos_rot_scale.h"
 #include "../components/rigid_body.h"
 #include "../components/camera.h"
+#include "../components/bounding_volumes.h"
 
 #include "../entity_pool_global.h"
 
@@ -16,13 +17,15 @@ CameraUpdater::CameraUpdater(MessageBus* msg_bus) : System(msg_bus) {
 
     // create camera and add to the special pool
     pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0});
-    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {}, {}, 0, 0, 0, true});
+    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {1, 1, 1}, {}, 0, 0, 0, true});
+    aabb_t* c_bv = new aabb_t({{10, 10, 10}, {1, 1, 1}});
     camera_t* c = new camera_t({glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60});
     camera = new Entity;
     camera->components[POS_ROT_SCALE] = c_pos;
     camera->components[CAMERA] = c;
     camera->components[RIGID_BODY] = rb_c;
-    camera->bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY;
+    camera->components[AABB] = c_bv;
+    camera->bitset = POS_ROT_SCALE | CAMERA | RIGID_BODY | AABB;
 
     e_pool.add_special(camera, CAMERA);
 }
@@ -32,6 +35,14 @@ CameraUpdater::~CameraUpdater() {
 
 void CameraUpdater::handle_message(message_t msg) {
     switch(msg.code) {
+    //HACK: these two moves (start and stop) is the way it should work in the end (I think)
+    // but right now its just to get this shit working
+    case START_MOVE:
+        moving = true;
+        break;
+    case STOP_MOVE:
+        moving = false;
+        break;
     case PLAYER_MOVE:
         update_move(msg.data[0], msg.data[1]);
         update_1st_person(msg.data[0], msg.data[1], 0, 0);
@@ -54,7 +65,7 @@ void CameraUpdater::update_look(float dx, float dy) {
 }
 
 void CameraUpdater::update_1st_person(float forward, float right, float dx, float dy) {
-    const static float vel = 0.05;
+    const static float vel = 10;
     const static float sens = 0.02;
 
     bool update_pos = (forward != 0 || right != 0), update_angles = (dx != 0 || dy != 0);
@@ -81,8 +92,17 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
 
     // move camera
     if(update_pos) {
-        prs->pos += vel * glm::normalize(right * xaxis - forward * zaxis);
+        std::cout << "updating pos\n";
+        glm::vec3 dir = glm::normalize(right * xaxis - forward * zaxis);
+        dir.y = 0;
+        rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
+        rb->vel = vel * dir;
+        //prs->pos += vel * dir;
         //prs->pos = player_prs->pos + glm::vec3(0, 2, 0);
+    }
+    if(!moving) {
+        rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
+        rb->vel = glm::vec3(0);
     }
 
     // update the view matrix for the camera

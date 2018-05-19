@@ -70,6 +70,8 @@ int main() {
     // test entities
     add_cube(loader, {0, 0, 0});
     add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
+    add_cube(loader, {0, -2, 0}, {100, 0.1, 100});
+    add_cube(loader, {5, 2.5, 5}, {1, 2.5, 1});
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
@@ -86,7 +88,7 @@ int main() {
 
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
-    bool show_fps = true;
+    bool show_fps = false;
     unsigned int max_fps = 60;
     float spf = 1 / (float) max_fps;
     while(!input.should_close()) {
@@ -122,7 +124,7 @@ void display_fps(float dt) {
     static int frames = 0;
     static float time = 0;
     if(time >= 1) {
-        //std::cout << "FPS: " << frames / time << std::endl;
+        std::cout << "FPS: " << frames / time << std::endl;
         frames = 0;
         time = 0;
     }

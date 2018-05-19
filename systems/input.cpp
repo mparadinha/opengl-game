@@ -37,7 +37,15 @@ void Input::handle_message(message_t msg) {
 }
 
 void Input::key_callback(int key, int scancode, int action, int mods) {
-    std::cout << "key_callback(key=" << key << ", scancode=" << scancode << ", mods=" << mods << std::endl;
+    //std::cout << "key_callback(key=" << key << ", scancode=" << scancode << ", mods=" << mods << ")" << std::endl;
+    if(key == GLFW_KEY_W || key == GLFW_KEY_S ||key == GLFW_KEY_A || key == GLFW_KEY_D) {
+        if(action == GLFW_PRESS) {
+            send_msg({START_MOVE, {}});
+        }
+        else if(action == GLFW_RELEASE) {
+            send_msg({STOP_MOVE, {}});
+        }
+    }
 }
 
 void Input::poll_keys() {

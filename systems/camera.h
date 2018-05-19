@@ -24,6 +24,7 @@ private:
     std::string camera_style;
 
     Entity* camera;
+    bool moving;
     pos_rot_scale_t* player_prs;
 };
 

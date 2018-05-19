@@ -1,5 +1,5 @@
+CXX=g++
 CC=$(CXX)
-CCX=g++
 CFLAGS=-Wall -pedantic
 #CFLAGS+=-Wextra
 CFLAGS+=-O0

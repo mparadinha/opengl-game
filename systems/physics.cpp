@@ -45,6 +45,7 @@ void Physics::update(float dt) {
     glm::vec3 g(0, -9.8, 0);
 
     std::vector<Entity*> bodies = e_pool.query(RIGID_BODY | AABB);
+    bodies.push_back(e_pool.get_special(CAMERA));
     for(unsigned int i = 0; i < bodies.size(); i++) {
         Entity* body = bodies[i];
 
@@ -58,6 +59,11 @@ void Physics::update(float dt) {
 
         rb->pos += rb->vel * dt;
         rb->vel += accel * dt;
+
+        if((body->bitset & CAMERA) == CAMERA) {
+            std::cout << "rb->pos: " << glm::to_string(rb->pos) << std::endl;
+            std::cout << "rb->vel: " << glm::to_string(rb->vel) << std::endl;
+        }
 
         aabb_t* aabb = (aabb_t*) body->components[AABB];
         aabb->center += rb->vel * dt;
@@ -75,6 +81,14 @@ void Physics::update(float dt) {
             aabb_t* other_aabb = (aabb_t*) other->components[AABB];
             rigid_body_t* other_rb = (rigid_body_t*) other->components[RIGID_BODY];
             if(intersect(*aabb, *other_aabb)) {
+                // hack below, when the camera/player system is better implemented
+                // this should be changed
+                // if colliding against camera just stop the camera from moving
+                if((other->bitset & CAMERA) == CAMERA) {
+                    other_rb->vel = glm::vec3(0);
+                    continue;
+                }
+
                 rb->pos -= rb->vel * dt;
                 // every collision is perfectly elastic in the real world.
                 // even friction
