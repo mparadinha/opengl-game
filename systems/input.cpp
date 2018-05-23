@@ -37,14 +37,29 @@ void Input::handle_message(message_t msg) {
 }
 
 void Input::key_callback(int key, int scancode, int action, int mods) {
-    //std::cout << "key_callback(key=" << key << ", scancode=" << scancode << ", mods=" << mods << ")" << std::endl;
-    if(key == GLFW_KEY_W || key == GLFW_KEY_S ||key == GLFW_KEY_A || key == GLFW_KEY_D) {
-        if(action == GLFW_PRESS) {
-            send_msg({START_MOVE, {}});
+    if(action != GLFW_REPEAT) std::cout << "key_callback(key=" << key << ", scancode=" << scancode << ", action=" << action << ", mods=" << mods << ")" << std::endl;
+    // movement changes
+    if(key == GLFW_KEY_W || key == GLFW_KEY_S || key == GLFW_KEY_A || key == GLFW_KEY_D) {
+        message_t msg = {PLAYER_MOVE,
+            {pressed(GLFW_KEY_W) - pressed(GLFW_KEY_S), // forward/backward movement
+             pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // right/left movement
+        };
+
+        send_msg(msg);
+
+        /*if(action == GLFW_PRESS) {
+            msg.code = START_MOVE;
+            send_msg(msg);
         }
         else if(action == GLFW_RELEASE) {
-            send_msg({STOP_MOVE, {}});
-        }
+            msg.code = STOP_MOVE;
+            send_msg(msg);
+        }*/
+    }
+
+    // toggle bounding boxes 
+    if(key == GLFW_KEY_B && action != GLFW_REPEAT) {
+        send_msg({TOGGLE_BB});
     }
 }
 
@@ -54,11 +69,7 @@ void Input::poll_keys() {
          pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // right/left movement
     };
 
-    send_msg(msg);
-
-    if(pressed(GLFW_KEY_B)) {
-        send_msg({TOGGLE_BB});
-    }
+    //send_msg(msg);
 }
 
 void Input::poll_mouse() {

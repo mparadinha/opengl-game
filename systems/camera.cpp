@@ -1,5 +1,6 @@
 #include <cmath>
 
+#define GLM_ENABLE_EXPERIMENTAL 
 #include <glm/gtx/string_cast.hpp>
 
 #include "camera.h"
@@ -34,19 +35,30 @@ CameraUpdater::~CameraUpdater() {
 }
 
 void CameraUpdater::handle_message(message_t msg) {
+    if(msg.code != NEW_FRAME && msg.code != MOUSE_MOVE) {
+        std::cout << "camera::handle_message:msg.code: " << msg.code << std::endl;
+    }
     switch(msg.code) {
-    //HACK: these two moves (start and stop) is the way it should work in the end (I think)
-    // but right now its just to get this shit working
-    case START_MOVE:
-        moving = true;
+    //HACK: this (in a perfect world) shouldn't need to be here
+    // we need to update the view matrix in case the camera is moving
+    // even if there no alterations in the movement keys/mouse
+    case NEW_FRAME:
+        //update_1st_person(0, 0, 0, 0);
         break;
-    case STOP_MOVE:
-        moving = false;
-        break;
+
     case PLAYER_MOVE:
-        update_move(msg.data[0], msg.data[1]);
+        // need to set moving state for the update function
+        if(msg.data[0] == 0 && msg.data[1] == 0) {
+            moving = false;
+        }
+        else {
+            moving = true;
+        }
+        std::cout << "PLAYER_MOVE recieved. moving = " << moving << std::endl;
+
         update_1st_person(msg.data[0], msg.data[1], 0, 0);
         break;
+
     case MOUSE_MOVE:
         update_look(msg.data[0], msg.data[1]);
         update_1st_person(0, 0, msg.data[0], msg.data[1]);
@@ -69,6 +81,12 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
     const static float sens = 0.02;
 
     bool update_pos = (forward != 0 || right != 0), update_angles = (dx != 0 || dy != 0);
+    // this line is commented because there can be nothing changed but the camera is still
+    // moving and need to update the view matrix.
+    //TODO: maybe we should update the view matrix in the renderer before before rendering
+    // the other things
+    //if(!update_pos && !update_angles) return; // nothing to do, don't need to waste time
+    //if(update_pos) std::cout << "update_1st_person(forward=" << forward << ", right=" << right << ", dx=" << dx << ", dy=" << dy << ")\n";
 
     //TODO: use dx and dy as percentage of total screen so that sensitivity makes sense
     // and is independent of the screen size and works the same for x and y directions
@@ -91,22 +109,24 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
         zaxis(sin_yaw * cos_pitch, -sin_pitch, cos_pitch * cos_yaw);
 
     // move camera
-    if(update_pos) {
-        std::cout << "updating pos\n";
+    if(moving) {
+        //std::cout << "updating pos: " << forward << ", " << right << std::endl;
         glm::vec3 dir = glm::normalize(right * xaxis - forward * zaxis);
         dir.y = 0;
         rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
         rb->vel = vel * dir;
+        std::cout << "on camera update. vel is now: " << glm::to_string(rb->vel) << std::endl;
         //prs->pos += vel * dir;
         //prs->pos = player_prs->pos + glm::vec3(0, 2, 0);
     }
-    if(!moving) {
+    else {
+        //std::cout << "stopped moving!\n";
         rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
         rb->vel = glm::vec3(0);
     }
 
     // update the view matrix for the camera
-    if(update_pos || update_angles) {
+    if(update_pos || update_angles || moving) {
         ((camera_t* ) camera->components[CAMERA])->view = glm::mat4({
             xaxis.x, yaxis.x, zaxis.x, 0,
             xaxis.y, yaxis.y, zaxis.y, 0,

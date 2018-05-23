@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL 
 #include <glm/gtx/string_cast.hpp>
 
 #include "physics.h"
@@ -61,8 +62,10 @@ void Physics::update(float dt) {
         rb->vel += accel * dt;
 
         if((body->bitset & CAMERA) == CAMERA) {
+            /*
             std::cout << "rb->pos: " << glm::to_string(rb->pos) << std::endl;
             std::cout << "rb->vel: " << glm::to_string(rb->vel) << std::endl;
+            */
         }
 
         aabb_t* aabb = (aabb_t*) body->components[AABB];
