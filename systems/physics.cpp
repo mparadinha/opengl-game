@@ -43,6 +43,7 @@ void Physics::handle_message(message_t msg) {
 }
 
 void Physics::update(float dt) {
+    std::cout << "physics::update::dt = " << dt << std::endl;
     glm::vec3 g(0, -9.8, 0);
 
     std::vector<Entity*> bodies = e_pool.query(RIGID_BODY | AABB);
@@ -61,11 +62,20 @@ void Physics::update(float dt) {
         rb->pos += rb->vel * dt;
         rb->vel += accel * dt;
 
+        // check for nan
+        /*
+        std::cout << "checking for nan. rb->pos: ";
+        for(int i = 0; i < 3; i++) {
+            std::cout << rb->pos[i] << ", ";
+            assert(!std::isnan(rb->pos[i]));
+        }
+        std::cout << "\n";
+        */
+
         if((body->bitset & CAMERA) == CAMERA) {
-            /*
+            std::cout << "physics:: updating camera's rb\n";
             std::cout << "rb->pos: " << glm::to_string(rb->pos) << std::endl;
             std::cout << "rb->vel: " << glm::to_string(rb->vel) << std::endl;
-            */
         }
 
         aabb_t* aabb = (aabb_t*) body->components[AABB];
