@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 #include "physics.h"
@@ -61,24 +61,6 @@ void Physics::update(float dt) {
         rb->pos += rb->vel * dt;
         rb->vel += accel * dt;
 
-        // check for nan
-        /*
-        std::cout << "checking for nan. rb->pos: ";
-        for(int i = 0; i < 3; i++) {
-            std::cout << rb->pos[i] << ", ";
-            assert(!std::isnan(rb->pos[i]));
-        }
-        std::cout << "\n";
-        */
-
-        if((body->bitset & CAMERA) == CAMERA) {
-            /*
-            std::cout << "physics:: updating camera's rb\n";
-            std::cout << "rb->pos: " << glm::to_string(rb->pos) << std::endl;
-            std::cout << "rb->vel: " << glm::to_string(rb->vel) << std::endl;
-            */
-        }
-
         aabb_t* aabb = (aabb_t*) body->components[AABB];
         aabb->center += rb->vel * dt;
 
@@ -91,9 +73,11 @@ void Physics::update(float dt) {
         // check for collisions
         if(i == bodies.size() - 1) continue; // last object has already been checked for collision
         for(unsigned int j = i + 1; j < bodies.size(); j++) {
+            // grab the other object to test collisions with
             Entity* other = bodies[j];
             aabb_t* other_aabb = (aabb_t*) other->components[AABB];
             rigid_body_t* other_rb = (rigid_body_t*) other->components[RIGID_BODY];
+
             if(intersect(*aabb, *other_aabb)) {
                 // hack below, when the camera/player system is better implemented
                 // this should be changed

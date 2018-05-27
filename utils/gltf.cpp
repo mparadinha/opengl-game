@@ -6,7 +6,7 @@
 #include <cstdlib> // for str to number conversions
 #include <stdio.h> // for c file reading function (for binary file)
 
-#define GLM_ENABLE_EXPERIMENTAL 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "gltf.h"

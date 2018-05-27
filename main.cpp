@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -90,7 +90,7 @@ int main() {
     float dt, time, last_time = glfwGetTime();
     message_t new_frame_msg = {NEW_FRAME, {0}};
     bool show_fps = false;
-    unsigned int max_fps = 20;
+    unsigned int max_fps = 60;
     float spf = 1 / (float) max_fps;
     while(!input.should_close()) {
         // calculate delta time (in seconds) for this frame

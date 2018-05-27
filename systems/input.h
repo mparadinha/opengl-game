@@ -14,7 +14,6 @@ public:
     ~Input();
 
     void poll_events();
-    void poll_keys();
     void poll_mouse();
     int should_close();
 
@@ -23,7 +22,7 @@ public:
     void handle_message(message_t msg);
 
 private:
-    float pressed(int code);
+    bool pressed(int code);
 
     GLFWwindow* window;
 };
