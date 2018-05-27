@@ -110,7 +110,7 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
     if(!moving) {
         rb->vel = glm::vec3(0);
     }
-    else if(moving && update_pos) {
+    else if(update_pos) {
         glm::vec3 dir = glm::normalize(right * xaxis - forward * zaxis);
         dir.y = 0; // lock movement to xz plane because we're using an fps style camera
         rb->vel = vel * dir;
