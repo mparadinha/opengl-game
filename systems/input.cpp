@@ -61,15 +61,13 @@ void Input::key_callback(int key, int scancode, int action, int mods) {
     if(key == GLFW_KEY_B && action != GLFW_REPEAT) {
         send_msg({TOGGLE_BB});
     }
+
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        send_msg({JUMP});
+    }
 }
 
 void Input::poll_keys() {
-    message_t msg = {PLAYER_MOVE,
-        {pressed(GLFW_KEY_W) - pressed(GLFW_KEY_S), // forward/backward movement
-         pressed(GLFW_KEY_D) - pressed(GLFW_KEY_A)} // right/left movement
-    };
-
-    //send_msg(msg);
 }
 
 void Input::poll_mouse() {
@@ -98,6 +96,7 @@ int Input::should_close() {
     return glfwWindowShouldClose(window);
 }
 
+//TODO: why the fuck does this return a float???????
 float Input::pressed(int code) {
     return glfwGetKey(window, code) == GLFW_PRESS;
 }

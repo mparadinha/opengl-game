@@ -3,6 +3,7 @@
 
 enum {
     PLAYER_MOVE,
+    JUMP,
 
     //TODO: remove these after first person camera has been
     // implemented with the new entity system

@@ -20,6 +20,7 @@ private:
     void update_move(float forward, float right);
     void update_look(float dx, float dy);
     void update_1st_person(float forward, float right, float dx, float dy);
+    void jump();
 
     std::string camera_style;
 

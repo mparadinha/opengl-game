@@ -18,7 +18,7 @@ CameraUpdater::CameraUpdater(MessageBus* msg_bus) : System(msg_bus) {
 
     // create camera and add to the special pool
     pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0});
-    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {1, 1, 1}, {}, 0, 0, 0, true});
+    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {1, 1, 1}, {}, 0, 0, 0, false});
     aabb_t* c_bv = new aabb_t({{10, 10, 10}, {1, 1, 1}});
     camera_t* c = new camera_t({glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60});
     camera = new Entity;
@@ -46,6 +46,11 @@ void CameraUpdater::handle_message(message_t msg) {
         //update_1st_person(0, 0, 0, 0);
         break;
 
+    case JUMP:
+        moving = true;
+        jump();
+        break;
+
     case PLAYER_MOVE:
         // need to set moving state for the update function
         if(msg.data[0] == 0 && msg.data[1] == 0) {
@@ -63,6 +68,11 @@ void CameraUpdater::handle_message(message_t msg) {
         update_1st_person(0, 0, msg.data[0], msg.data[1]);
         break;
     }
+}
+
+void CameraUpdater::jump() {
+    rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
+    rb->vel += glm::vec3(0, 2, 0);
 }
 
 void CameraUpdater::update_move(float forward, float right) {

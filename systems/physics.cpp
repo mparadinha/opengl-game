@@ -43,7 +43,6 @@ void Physics::handle_message(message_t msg) {
 }
 
 void Physics::update(float dt) {
-    std::cout << "physics::update::dt = " << dt << std::endl;
     glm::vec3 g(0, -9.8, 0);
 
     std::vector<Entity*> bodies = e_pool.query(RIGID_BODY | AABB);
@@ -73,9 +72,11 @@ void Physics::update(float dt) {
         */
 
         if((body->bitset & CAMERA) == CAMERA) {
+            /*
             std::cout << "physics:: updating camera's rb\n";
             std::cout << "rb->pos: " << glm::to_string(rb->pos) << std::endl;
             std::cout << "rb->vel: " << glm::to_string(rb->vel) << std::endl;
+            */
         }
 
         aabb_t* aabb = (aabb_t*) body->components[AABB];
