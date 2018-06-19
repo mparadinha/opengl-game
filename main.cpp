@@ -40,10 +40,10 @@ static const unsigned int WINDOW_HEIGHT = 900;
 void display_fps(float dt);
 void wait(float seconds);
 
-void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}) {
+void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false) {
     static mesh_t* mesh = new mesh_t(loader.load_mesh("res/cube.gltf"));
     pos_rot_scale_t* prs = new pos_rot_scale_t({pos, scale});
-    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, false});
+    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, floating});
     aabb_t* aabb = new aabb_t({pos, scale});
 
     Entity* cube = new Entity;
@@ -69,10 +69,10 @@ int main() {
     CameraUpdater camera_updater(&msg_bus);
 
     // test entities
-    add_cube(loader, {0, 0, 0});
+    add_cube(loader, {0, 5, 0}, {1, 2.5, 1}, {0, 0, 0});
     add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
-    add_cube(loader, {0, -2, 0}, {100, 0.1, 100});
-    add_cube(loader, {5, 2.5, 5}, {1, 2.5, 1});
+    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true);
+    add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0});
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later

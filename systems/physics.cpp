@@ -53,11 +53,13 @@ void Physics::update(float dt) {
     bodies.push_back(e_pool.get_special(CAMERA));
 
     // update all the positions and velocities
-    glm::vec3 accel(0, 0, 0);
+    glm::vec3 accel(0, -9.8, 0);
     for(Entity* body : bodies) { 
         rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
+        if(rb->floating) continue;
+
         rb->pos += rb->vel * dt;
-        rb->vel += accel * dt;
+        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
 
         aabb_t* aabb = (aabb_t*) body->components[AABB];
         aabb->center += rb->vel * dt;
@@ -70,9 +72,10 @@ void Physics::update(float dt) {
     }
 
     // create all the collision info
+    bodies.pop_back(); // don't use camera for collision (for now)
     std::vector<collision_t> collisions;
     for(unsigned int i = 0; i < bodies.size() - 1; i++) {
-        for(unsigned j = i; j < bodies.size(); j++) {    
+        for(unsigned j = i + 1; j < bodies.size(); j++) {
             collision_t info = collision_info(bodies[i], bodies[j]);
             if(info.penetration < 0) {
                 collisions.push_back(info);
@@ -94,6 +97,9 @@ void Physics::resolve_collision(collision_t collision) {
     // relative velocity along the contact normal
     float vel_normal = glm::dot((b->vel - a->vel), collision.normal);
 
+    // if the objects will be separated in the next time step don't bother resolving
+    if(vel_normal > 0) return;
+
     // use the lowest restitution value
     // HACK BELOW: using a hard coded value for restitution for now while its not implemented
     // on the rigid_body component
@@ -106,8 +112,8 @@ void Physics::resolve_collision(collision_t collision) {
     // creating the component and based on a density * volume (that would be different
     // various types of materials)
     float density = 1;
-    float inv_mass_a = 1 / (density * (a->scale.x * a->scale.y * a->scale.z * 8));
-    float inv_mass_b = 1 / (density * (b->scale.x * b->scale.y * b->scale.z * 8));
+    float inv_mass_a = a->floating ? 0 : 1 / (density * (a->scale.x * a->scale.y * a->scale.z * 8));
+    float inv_mass_b = b->floating ? 0 : 1 / (density * (b->scale.x * b->scale.y * b->scale.z * 8));
 
     // calculate the magnitude of the impulse to be applied
     // (magic formula from: https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
@@ -123,9 +129,11 @@ collision_t collision_info(Entity* a, Entity* b) {
     collision_t collision = {a, b, 0, {0, 0, 0}};
 
     // fetch bounding box components for checking collisions and
-    // rigid body for velocities
+    // rigid body for positions/velocities
     aabb_t* a_aabb = (aabb_t*) a->components[AABB];
     aabb_t* b_aabb = (aabb_t*) b->components[AABB];
+    rigid_body_t* a_rb = (rigid_body_t*) a->components[RIGID_BODY];
+    rigid_body_t* b_rb = (rigid_body_t*) b->components[RIGID_BODY];
 
     // calculate penetration depth in each direction
     glm::vec3 depth;
@@ -140,12 +148,15 @@ collision_t collision_info(Entity* a, Entity* b) {
 
     // calculate the contact normal (or don't bother if not colliding)
     if(collision.penetration < 0) {
+        // TODO: think of a better way to calculate contact normal
+        glm::vec3 diff = b_rb->pos - a_rb->pos;
         for(unsigned int i = 0; i < 3; i++) {
             if(collision.penetration == depth[i]) {
-                collision.normal[i] = 1;
+                collision.normal[i] = diff[i] > 0 ? 1 : -1;
             }
         }
     }
 
     return collision;
 }
+
