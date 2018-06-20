@@ -61,7 +61,7 @@ void Physics::update(float dt) {
         if(rb->floating) continue;
 
         // update velocity
-        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
+        rb->vel += accel * dt;
         // update position
         rb->pos += rb->vel * dt;
         aabb->center += rb->vel * dt;
@@ -74,10 +74,9 @@ void Physics::update(float dt) {
     }
 
     // create all the collision info
-    bodies.pop_back(); // don't use camera for collision (for now)
     std::vector<collision_t> collisions;
     for(unsigned int i = 0; i < bodies.size() - 1; i++) {
-        for(unsigned j = i + 1; j < bodies.size(); j++) {
+        for(unsigned int j = i + 1; j < bodies.size(); j++) {
             collision_t info = collision_info(bodies[i], bodies[j]);
             if(info.penetration < 0) {
                 collisions.push_back(info);
