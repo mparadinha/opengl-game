@@ -60,12 +60,11 @@ void Physics::update(float dt) {
 
         if(rb->floating) continue;
 
+        // update velocity
+        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
         // update position
         rb->pos += rb->vel * dt;
         aabb->center += rb->vel * dt;
-        // update velocity
-        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
-        if((body->bitset & CAMERA) != CAMERA) std::cout << glm::to_string(rb->pos) << " :: ";
 
         // also update the position in the prs if the entity has one
         if((body->bitset & POS_ROT_SCALE) == POS_ROT_SCALE) {
