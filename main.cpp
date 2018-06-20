@@ -70,7 +70,7 @@ int main() {
 
     // test entities
     add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0});
-    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
+    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0});
     add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0});
     add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true);
 

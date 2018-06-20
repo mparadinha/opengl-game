@@ -72,7 +72,6 @@ void Physics::update(float dt) {
             prs->pos = rb->pos;
         }
     }
-    std::cout << std::endl;
 
     // create all the collision info
     bodies.pop_back(); // don't use camera for collision (for now)
@@ -113,7 +112,7 @@ void Physics::resolve_collision(collision_t collision) {
     // TODO: keep an inverse mass value on the rigib_body to avoid recomputation
     // HACK: hard coded calc for inverse mass (1/mass) that should be done when
     // creating the component and based on a density * volume (that would be different
-    // various types of materials)
+    // for various types of materials)
     float density = 1;
     float inv_mass_a = a->floating ? 0 : 1 / (density * (a->scale.x * a->scale.y * a->scale.z * 8));
     float inv_mass_b = b->floating ? 0 : 1 / (density * (b->scale.x * b->scale.y * b->scale.z * 8));
@@ -126,6 +125,22 @@ void Physics::resolve_collision(collision_t collision) {
     glm::vec3 impulse = impulse_abs * collision.normal;
     a->vel -= inv_mass_a * impulse;
     b->vel += inv_mass_b * impulse;
+
+    // apply static friction
+    // we need to recalculate the relative velocity _vector_
+    glm::vec3 rel_vel = b->vel - a->vel;
+    // find the tangent direction
+    glm::vec3 tangent = rel_vel - (glm::dot(rel_vel, collision.normal)) * collision.normal;
+    if(glm::length(tangent) != 0) tangent = glm::normalize(tangent);
+    // find the magnitude of our friction impulse
+    float friction_mag = -glm::dot(rel_vel, tangent) / (inv_mass_a + inv_mass_b);
+    // clamp friction to be below mu * normal_force (coulomb's law)
+    float mu = 0.1; // TODO: this should be an interpolation of the two bodies' static coeficients
+    friction_mag = (abs(friction_mag) <= mu * impulse_abs) ? friction_mag : -mu * impulse_abs;
+    // finally apply the friction impulse
+    glm::vec3 friction_impulse = friction_mag * tangent;
+    a->vel -= inv_mass_a * friction_impulse;
+    b->vel += inv_mass_b * friction_impulse;
 
     // correct positions (this stops objects from sinking into the ground
     // or jittering in place)
