@@ -54,15 +54,18 @@ void Physics::update(float dt) {
 
     // update all the positions and velocities
     glm::vec3 accel(0, -9.8, 0);
-    for(Entity* body : bodies) { 
+    for(Entity* body : bodies) {
         rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
+        aabb_t* aabb = (aabb_t*) body->components[AABB];
+
         if(rb->floating) continue;
 
+        // update position
         rb->pos += rb->vel * dt;
-        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
-
-        aabb_t* aabb = (aabb_t*) body->components[AABB];
         aabb->center += rb->vel * dt;
+        // update velocity
+        if((body->bitset & CAMERA) != CAMERA) rb->vel += accel * dt;
+        if((body->bitset & CAMERA) != CAMERA) std::cout << glm::to_string(rb->pos) << " :: ";
 
         // also update the position in the prs if the entity has one
         if((body->bitset & POS_ROT_SCALE) == POS_ROT_SCALE) {
@@ -70,6 +73,7 @@ void Physics::update(float dt) {
             prs->pos = rb->pos;
         }
     }
+    std::cout << std::endl;
 
     // create all the collision info
     bodies.pop_back(); // don't use camera for collision (for now)
@@ -123,6 +127,14 @@ void Physics::resolve_collision(collision_t collision) {
     glm::vec3 impulse = impulse_abs * collision.normal;
     a->vel -= inv_mass_a * impulse;
     b->vel += inv_mass_b * impulse;
+
+    // correct positions (this stops objects from sinking into the ground
+    // or jittering in place)
+    float percent = 0.2; // percentage of penetration that is corrected
+    float allowed = 0.05; // percentage of penetration that is allowed to occur
+    glm::vec3 correction = (std::max(collision.penetration - allowed, 0.0f) / (inv_mass_a + inv_mass_b)) * percent * collision.normal;
+    a->pos -= inv_mass_a * correction;
+    b->pos -= inv_mass_b * correction;
 }
 
 collision_t collision_info(Entity* a, Entity* b) {

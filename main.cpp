@@ -69,10 +69,10 @@ int main() {
     CameraUpdater camera_updater(&msg_bus);
 
     // test entities
-    add_cube(loader, {0, 5, 0}, {1, 2.5, 1}, {0, 0, 0});
+    add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0});
     add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-2, 0, 0});
-    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true);
     add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0});
+    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true);
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
