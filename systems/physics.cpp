@@ -52,7 +52,7 @@ void Physics::update(float dt) {
     std::vector<Entity*> bodies = e_pool.query(RIGID_BODY | AABB);
     bodies.push_back(e_pool.get_special(CAMERA));
 
-    // update all the positions and velocities
+    // update velocities
     glm::vec3 accel(0, -9.8, 0);
     for(Entity* body : bodies) {
         rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
@@ -62,15 +62,6 @@ void Physics::update(float dt) {
 
         // update velocity
         rb->vel += accel * dt;
-        // update position
-        rb->pos += rb->vel * dt;
-        aabb->center += rb->vel * dt;
-
-        // also update the position in the prs if the entity has one
-        if((body->bitset & POS_ROT_SCALE) == POS_ROT_SCALE) {
-            pos_rot_scale_t* prs = (pos_rot_scale_t*) body->components[POS_ROT_SCALE];
-            prs->pos = rb->pos;
-        }
     }
 
     // create all the collision info
@@ -87,6 +78,24 @@ void Physics::update(float dt) {
     // resolve all the collisions by applying impulses to objects
     for(collision_t collision : collisions) {
         resolve_collision(collision);
+    }
+
+    // update positions
+    for(Entity* body : bodies) {
+        rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
+        aabb_t* aabb = (aabb_t*) body->components[AABB];
+
+        if(rb->floating) continue;
+
+        // update position
+        rb->pos += rb->vel * dt;
+        aabb->center += rb->vel * dt;
+
+        // also update the position in the prs if the entity has one
+        if((body->bitset & POS_ROT_SCALE) == POS_ROT_SCALE) {
+            pos_rot_scale_t* prs = (pos_rot_scale_t*) body->components[POS_ROT_SCALE];
+            prs->pos = rb->pos;
+        }
     }
 }
 
