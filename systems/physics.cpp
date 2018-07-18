@@ -113,11 +113,7 @@ void Physics::resolve_collision(collision_t collision) {
     if(vel_normal > 0) return;
 
     // use the lowest restitution value
-    // HACK BELOW: using a hard coded value for restitution for now while its not implemented
-    // on the rigid_body component
-    // TODO: have a restitution value on each rigib_body component (related to the object
-    // material)
-    float restitution = 0.4;
+    float restitution = glm::min(a->material.restitution, b->material.restitution);
 
     // calculate the magnitude of the impulse to be applied
     // (magic formula from: https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
@@ -137,7 +133,7 @@ void Physics::resolve_collision(collision_t collision) {
     // find the magnitude of our friction impulse
     float friction_mag = -glm::dot(rel_vel, tangent) / (a->inv_mass + b->inv_mass);
     // clamp friction to be below mu * normal_force (coulomb's law)
-    float mu = 0.1; // TODO: this should be an interpolation of the two bodies' static coeficients
+    float mu = (a->material.drag_coef + b->material.drag_coef) / 2;
     friction_mag = (abs(friction_mag) <= mu * impulse_abs) ? friction_mag : -mu * impulse_abs;
     // finally apply the friction impulse
     glm::vec3 friction_impulse = friction_mag * tangent;

@@ -46,7 +46,12 @@ void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::v
 
     const float density = 1;
     float inv_mass = floating ? 0 : 1 / (density * scale.x * scale.y * scale.z * 8);
-    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, inv_mass, floating});
+    rigid_body_t* rb = new rigid_body_t({
+        pos, vel, scale,
+        0, 0, 0, // angles
+        inv_mass, floating,
+        {0.25, 0.4} // material properties
+    });
     aabb_t* aabb = new aabb_t({pos, scale});
 
     Entity* cube = new Entity;
