@@ -17,9 +17,9 @@ CameraUpdater::CameraUpdater(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing camera updater...\n";
 
     // create camera and add to the special pool
-    pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 10, 10), glm::vec3(1), 0, 0, 0});
-    rigid_body_t* rb_c = new rigid_body_t({{10, 10, 10}, {1, 1, 1}, {}, 0, 0, 0, false});
-    aabb_t* c_bv = new aabb_t({{10, 10, 10}, {1, 1, 1}});
+    pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 20.5, 10), {1, 2.5, 1}, 45, -30, 0});
+    rigid_body_t* rb_c = new rigid_body_t({{10, 20.5, 10}, {0, 0, 0}, {1, 2.5, 1}, 0, 0, 0, 1 / 80.0, false, {0.25, 0.4}});
+    aabb_t* c_bv = new aabb_t({{10, 20.5, 10}, {1, 2.5, 1}});
     camera_t* c = new camera_t({glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60});
     camera = new Entity;
     camera->components[POS_ROT_SCALE] = c_pos;
@@ -108,7 +108,8 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
     // move camera
     rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
     if(!moving) {
-        rb->vel = glm::vec3(0);
+        //rb->vel = glm::vec3(0);
+        rb->vel[0] = 0; rb->vel[2] = 0;
     }
     else if(update_pos) {
         glm::vec3 dir = glm::normalize(right * xaxis - forward * zaxis);
@@ -117,11 +118,9 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
     }
 
     // update the view matrix for the camera
-    if(update_pos || update_angles || moving) {
-        ((camera_t* ) camera->components[CAMERA])->view = glm::mat4({
-            xaxis.x, yaxis.x, zaxis.x, 0,
-            xaxis.y, yaxis.y, zaxis.y, 0,
-            xaxis.z, yaxis.z, zaxis.z, 0,
-            -dot(xaxis, prs->pos), -dot(yaxis, prs->pos), -dot(zaxis, prs->pos), 1});
-    }
+    ((camera_t* ) camera->components[CAMERA])->view = glm::mat4({
+        xaxis.x, yaxis.x, zaxis.x, 0,
+        xaxis.y, yaxis.y, zaxis.y, 0,
+        xaxis.z, yaxis.z, zaxis.z, 0,
+        -dot(xaxis, prs->pos), -dot(yaxis, prs->pos), -dot(zaxis, prs->pos), 1});
 }
