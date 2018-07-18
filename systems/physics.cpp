@@ -56,7 +56,6 @@ void Physics::update(float dt) {
     glm::vec3 accel(0, -9.8, 0);
     for(Entity* body : bodies) {
         rigid_body_t* rb = (rigid_body_t*) body->components[RIGID_BODY];
-        aabb_t* aabb = (aabb_t*) body->components[AABB];
 
         if(rb->floating) continue;
 
@@ -104,6 +103,9 @@ void Physics::resolve_collision(collision_t collision) {
     rigid_body_t* a = (rigid_body_t*) collision.a->components[RIGID_BODY];
     rigid_body_t* b = (rigid_body_t*) collision.b->components[RIGID_BODY];
 
+    // no need to resolve collision between two immovable objects
+    if(a->inv_mass == 0 && b->inv_mass == 0) return;
+
     // relative velocity along the contact normal
     float vel_normal = glm::dot((b->vel - a->vel), collision.normal);
 
@@ -117,22 +119,14 @@ void Physics::resolve_collision(collision_t collision) {
     // material)
     float restitution = 0.4;
 
-    // TODO: keep an inverse mass value on the rigib_body to avoid recomputation
-    // HACK: hard coded calc for inverse mass (1/mass) that should be done when
-    // creating the component and based on a density * volume (that would be different
-    // for various types of materials)
-    float density = 1;
-    float inv_mass_a = a->floating ? 0 : 1 / (density * (a->scale.x * a->scale.y * a->scale.z * 8));
-    float inv_mass_b = b->floating ? 0 : 1 / (density * (b->scale.x * b->scale.y * b->scale.z * 8));
-
     // calculate the magnitude of the impulse to be applied
     // (magic formula from: https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331)
-    float impulse_abs = -(1 + restitution) * vel_normal / (inv_mass_a + inv_mass_b);
+    float impulse_abs = -(1 + restitution) * vel_normal / (a->inv_mass + b->inv_mass);
 
     // apply the impulse
     glm::vec3 impulse = impulse_abs * collision.normal;
-    a->vel -= inv_mass_a * impulse;
-    b->vel += inv_mass_b * impulse;
+    a->vel -= a->inv_mass * impulse;
+    b->vel += b->inv_mass * impulse;
 
     // apply static friction
     // we need to recalculate the relative velocity _vector_
@@ -141,22 +135,22 @@ void Physics::resolve_collision(collision_t collision) {
     glm::vec3 tangent = rel_vel - (glm::dot(rel_vel, collision.normal)) * collision.normal;
     if(glm::length(tangent) != 0) tangent = glm::normalize(tangent);
     // find the magnitude of our friction impulse
-    float friction_mag = -glm::dot(rel_vel, tangent) / (inv_mass_a + inv_mass_b);
+    float friction_mag = -glm::dot(rel_vel, tangent) / (a->inv_mass + b->inv_mass);
     // clamp friction to be below mu * normal_force (coulomb's law)
     float mu = 0.1; // TODO: this should be an interpolation of the two bodies' static coeficients
     friction_mag = (abs(friction_mag) <= mu * impulse_abs) ? friction_mag : -mu * impulse_abs;
     // finally apply the friction impulse
     glm::vec3 friction_impulse = friction_mag * tangent;
-    a->vel -= inv_mass_a * friction_impulse;
-    b->vel += inv_mass_b * friction_impulse;
+    a->vel -= a->inv_mass * friction_impulse;
+    b->vel += b->inv_mass * friction_impulse;
 
     // correct positions (this stops objects from sinking into the ground
     // or jittering in place)
     float percent = 0.2; // percentage of penetration that is corrected
     float allowed = 0.05; // percentage of penetration that is allowed to occur
-    glm::vec3 correction = (std::max(collision.penetration - allowed, 0.0f) / (inv_mass_a + inv_mass_b)) * percent * collision.normal;
-    a->pos -= inv_mass_a * correction;
-    b->pos -= inv_mass_b * correction;
+    glm::vec3 correction = (std::max(collision.penetration - allowed, 0.0f) / (a->inv_mass + b->inv_mass)) * percent * collision.normal;
+    a->pos -= a->inv_mass * correction;
+    b->pos -= b->inv_mass * correction;
 }
 
 collision_t collision_info(Entity* a, Entity* b) {

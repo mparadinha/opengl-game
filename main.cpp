@@ -43,7 +43,10 @@ void wait(float seconds);
 void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false) {
     static mesh_t* mesh = new mesh_t(loader.load_mesh("res/cube.gltf"));
     pos_rot_scale_t* prs = new pos_rot_scale_t({pos, scale});
-    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, floating});
+
+    const float density = 1;
+    float inv_mass = floating ? 0 : 1 / (density * scale.x * scale.y * scale.z * 8);
+    rigid_body_t* rb = new rigid_body_t({pos, vel, scale, 0, 0, 0, inv_mass, floating});
     aabb_t* aabb = new aabb_t({pos, scale});
 
     Entity* cube = new Entity;
