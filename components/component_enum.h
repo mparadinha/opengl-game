@@ -12,7 +12,8 @@ enum ComponentType {
     TEXTURE        = 1 << 7,
     BB_CUBE        = 1 << 8,
     SKYBOX         = 1 << 9,
-    PLAYER         = 1 << 10
+    PLAYER         = 1 << 10,
+    SOLID_COLOR    = 1 << 11
 };
 
 #endif // include guard

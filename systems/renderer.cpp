@@ -1,6 +1,8 @@
 #include <iostream>
+#include <algorithm>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 #include "renderer.h"
@@ -15,8 +17,10 @@
 #include "../components/texture.h"
 #include "../components/transformation.h"
 #include "../components/pos_rot_scale.h"
+#include "../components/rigid_body.h"
 #include "../components/bounding_volumes.h"
 #include "../components/camera.h"
+#include "../components/solid_color.h"
 
 Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing renderer..." << std::endl;
@@ -42,16 +46,24 @@ void Renderer::handle_message(message_t msg) {
         break;
     }
 }
- 
-void Renderer::render_all() {
-    Shader* shader = shaders["test_cube"];
-    for(Entity* e : e_pool.query(MESH)) {
-        render(shader, e);
-    }
 
-    // draw skybox last so that we don't end up drawing tons of pixels on top of it
-    // since most of the skybox wont be visible most of the time
+void Renderer::render_all() {
+    // skybox needs to render first because we have translucent objects
     render_skybox();
+
+    // fetch camera info component (not going to change during the frame)
+    Entity* camera = e_pool.get_special(CAMERA);
+    camera_t* camera_info = (camera_t*) camera->components[CAMERA];
+    pos_rot_scale_t* prs = (pos_rot_scale_t*) camera->components[POS_ROT_SCALE];
+    glm::vec3 camera_pos = prs->pos;
+
+    // need to order meshes because of transparency (closer = rendered last)
+    std::vector<Entity*> entities = sorted_entities(camera_pos);
+
+    Shader* shader = shaders["test_cube"];
+    for(Entity* e : entities) {
+        render(shader, camera_info, e);
+    }
 }
 
 void Renderer::render_bbs() {
@@ -120,12 +132,8 @@ void Renderer::render_skybox() {
     glDepthMask(GL_TRUE);
 }
 
-void Renderer::render(Shader* shader, Entity* e) {
-    Entity* camera = e_pool.get_special(CAMERA);
-
-    //TODO: check if the entity has at least these components before doing this
+void Renderer::render(Shader* shader, camera_t* camera_info, Entity* e) {
     // send the camera information to the shader
-    camera_t* camera_info = (camera_t*) camera->components[CAMERA];
     shader->use();
     shader->set_uniform("view", camera_info->view);
     shader->set_uniform("projection", camera_info->projection);
@@ -136,7 +144,34 @@ void Renderer::render(Shader* shader, Entity* e) {
     glm::mat4 model = model_matrix(prs);
     shader->set_uniform("model", model);
 
+    // send any adicional information about the mesh to the shader
+    if((e->bitset & SOLID_COLOR) == SOLID_COLOR) {
+        solid_color_t* color = (solid_color_t*) e->components[SOLID_COLOR];
+        std::cout << "setting color to: " << glm::to_string(color->color) << std::endl;
+        shader->set_uniform("color", color->color);
+    }
+
     // tell the gpu to draw the mesh
     glBindVertexArray(m->vao);
     glDrawElements(GL_TRIANGLES, m->num_indices, m->index_data_type, nullptr);
+}
+
+std::vector<Entity*> sorted_entities(glm::vec3 camera_pos) {
+    std::vector<Entity*> entities = e_pool.query(MESH);
+    for(unsigned int i = 1; i < entities.size(); i++) {
+        unsigned int j = i;
+
+        rigid_body_t* rb_a = (rigid_body_t*) entities[j - 1]->components[RIGID_BODY];
+        rigid_body_t* rb_b = (rigid_body_t*) entities[j]->components[RIGID_BODY];
+        float distance_a = glm::length(camera_pos - rb_a->pos);
+        float distance_b = glm::length(camera_pos - rb_b->pos);
+        while(j > 0 && distance_a < distance_b) {
+            Entity* tmp = entities[j];
+            entities[j] = entities[j - 1];
+            entities[j - 1] = tmp;
+
+            j--;
+        }
+    }
+    return entities;
 }

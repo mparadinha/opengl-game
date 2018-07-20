@@ -55,6 +55,11 @@ void Shader::set_uniform(std::string identifier, glm::vec3 vector) {
     GLuint location = glGetUniformLocation(program, identifier.c_str());
     glUniform3f(location, vector.x, vector.y, vector.z);
 }
+// set uniform for vec4
+void Shader::set_uniform(std::string identifier, glm::vec4 vector) {
+    GLuint location = glGetUniformLocation(program, identifier.c_str());
+    glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+}
 // set uniform for 1 float
 void Shader::set_uniform(std::string identifier, float f) {
     GLuint location = glGetUniformLocation(program, identifier.c_str());

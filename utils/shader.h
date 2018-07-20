@@ -15,6 +15,7 @@ public:
     void set_uniform(std::string name, float* matrix);
     void set_uniform(std::string name, glm::mat4 matrix);
     void set_uniform(std::string name, glm::vec3 vector);
+    void set_uniform(std::string name, glm::vec4 vector);
     void set_uniform(std::string name, int i);
     void set_uniform(std::string name, unsigned int i);
     void set_uniform(std::string name, float f);

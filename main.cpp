@@ -31,6 +31,7 @@
 #include "components/mesh.h"
 #include "components/camera.h"
 #include "components/rigid_body.h"
+#include "components/solid_color.h"
 
 #include "entity_pool_global.h"
 
@@ -40,7 +41,7 @@ static const unsigned int WINDOW_HEIGHT = 900;
 void display_fps(float dt);
 void wait(float seconds);
 
-void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false) {
+void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false, glm::vec4 color = {1, 1, 1, 1}) {
     static mesh_t* mesh = new mesh_t(loader.load_mesh("res/cube.gltf"));
     pos_rot_scale_t* prs = new pos_rot_scale_t({pos, scale});
 
@@ -54,12 +55,15 @@ void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::v
     });
     aabb_t* aabb = new aabb_t({pos, scale});
 
+    solid_color_t* solid_color = new solid_color_t({color});
+
     Entity* cube = new Entity;
     cube->components[MESH] = mesh;
     cube->components[POS_ROT_SCALE] = prs;
     cube->components[RIGID_BODY] = rb;
     cube->components[AABB] = aabb;
-    cube->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | AABB;
+    cube->components[SOLID_COLOR] = solid_color;
+    cube->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | AABB | SOLID_COLOR;
 
     e_pool.add_entity(cube);
 }
@@ -77,10 +81,10 @@ int main() {
     CameraUpdater camera_updater(&msg_bus);
 
     // test entities
-    add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0});
-    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0});
-    add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0});
-    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true);
+    add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
+    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0}, false, {0, 1, 0, 1});
+    add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0}, false, {1, 0, 0, 0.4});
+    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.8});
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
