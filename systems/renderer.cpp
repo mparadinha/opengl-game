@@ -147,7 +147,6 @@ void Renderer::render(Shader* shader, camera_t* camera_info, Entity* e) {
     // send any adicional information about the mesh to the shader
     if((e->bitset & SOLID_COLOR) == SOLID_COLOR) {
         solid_color_t* color = (solid_color_t*) e->components[SOLID_COLOR];
-        std::cout << "setting color to: " << glm::to_string(color->color) << std::endl;
         shader->set_uniform("color", color->color);
     }
 
@@ -166,12 +165,23 @@ std::vector<Entity*> sorted_entities(glm::vec3 camera_pos) {
         float distance_a = glm::length(camera_pos - rb_a->pos);
         float distance_b = glm::length(camera_pos - rb_b->pos);
         while(j > 0 && distance_a < distance_b) {
-            Entity* tmp = entities[j];
-            entities[j] = entities[j - 1];
-            entities[j - 1] = tmp;
-
+            std::swap(entities[j], entities[j - 1]);
             j--;
         }
     }
+
+    // move all the imovable objects (floors, walls, etc) to the start
+    unsigned int start = 0, i = entities.size() - 1;
+    while(i > start) {
+        rigid_body_t* rb = (rigid_body_t*) entities[i]->components[RIGID_BODY];
+        if(rb->inv_mass == 0) {
+            std::swap(entities[start], entities[i]);
+            start++;
+        }
+        else {
+            i--;
+        }
+    }
+
     return entities;
 }

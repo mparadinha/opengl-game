@@ -84,7 +84,8 @@ int main() {
     add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
     add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0}, false, {0, 1, 0, 1});
     add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0}, false, {1, 0, 0, 0.4});
-    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.8});
+    add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
+    add_cube(loader, {20, 10, 20}, {10, 10, 10}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
