@@ -62,7 +62,9 @@ void CameraUpdater::handle_message(message_t msg) {
 
 void CameraUpdater::jump() {
     rigid_body_t* rb = (rigid_body_t*) camera->components[RIGID_BODY];
-    rb->vel += glm::vec3(0, 2, 0);
+    if(abs(rb->vel[1]) < 0.05) {
+        rb->vel += glm::vec3(0, 10, 0);
+    }
 }
 
 void CameraUpdater::update_move(float forward, float right) {
@@ -113,8 +115,13 @@ void CameraUpdater::update_1st_person(float forward, float right, float dx, floa
     }
     else if(update_pos) {
         glm::vec3 dir = glm::normalize(right * xaxis - forward * zaxis);
-        dir.y = 0; // lock movement to xz plane because we're using an fps style camera
-        rb->vel = vel * dir;
+
+        // control while in the air needs to be restricted
+        float velocity = abs(rb->vel[1]) > 0.05 ? 0.3 * vel : vel;
+
+        // lock movement to xz plane because we're using an fps style camera
+        rb->vel[0] = velocity * dir[0];
+        rb->vel[2] = velocity * dir[2];
     }
 
     // update the view matrix for the camera

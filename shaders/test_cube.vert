@@ -11,7 +11,13 @@ uniform vec4 color;
 
 out vec4 frag_color;
 
+const float ambient = 0.4;
+const vec3 sun = normalize(vec3(1, -1, 1));
+
 void main() {
     gl_Position = projection * view * model * vec4(pos, 1.0); 
     frag_color = color;
+
+    float diffuse = max(dot(norm, sun), 0.0);
+    frag_color = vec4((diffuse +ambient) * color.xyz, color.w);
 }
