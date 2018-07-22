@@ -131,6 +131,8 @@ int main() {
         if(dt < spf) wait(spf - dt);
     }
 
+    msg_bus.add_message({CLEAN_UP}, PRIORITY_NOW);
+
     return 0;
 }
 

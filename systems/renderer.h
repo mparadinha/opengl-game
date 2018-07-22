@@ -27,6 +27,7 @@ private:
     bool show_bounding_box = false;
 };
 
+void cleanup_meshes();
 std::vector<Entity*> sorted_entities(glm::vec3 camera_pos);
 
 #endif // include guard

@@ -34,7 +34,9 @@ Shader::Shader(std::string filename, std::string dir) {
     set_uniform("specular", 1);
 }
 
-Shader::~Shader() {}
+Shader::~Shader() {
+    glDeleteProgram(program);
+}
 
 void Shader::use() {
     glUseProgram(program);

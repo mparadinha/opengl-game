@@ -12,7 +12,9 @@ enum {
 
     NEW_FRAME,
 
-    TOGGLE_BB
+    TOGGLE_BB,
+
+    CLEAN_UP
 };
 
 #endif // include guard

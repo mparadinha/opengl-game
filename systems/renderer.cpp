@@ -44,6 +44,8 @@ void Renderer::handle_message(message_t msg) {
     case TOGGLE_BB:
         show_bounding_box = !show_bounding_box;
         break;
+    case CLEAN_UP:
+        cleanup_meshes();
     }
 }
 
@@ -153,6 +155,16 @@ void Renderer::render(Shader* shader, camera_t* camera_info, Entity* e) {
     // tell the gpu to draw the mesh
     glBindVertexArray(m->vao);
     glDrawElements(GL_TRIANGLES, m->num_indices, m->index_data_type, nullptr);
+}
+
+void cleanup_meshes() {
+    std::vector<Entity*> entities = e_pool.query(MESH);
+    for(Entity* e : entities) {
+        mesh_t* m = (mesh_t*) e->components[MESH];
+        glDeleteVertexArrays(1, &m->vao);
+        glDeleteBuffers(MAX_VBOS, m->vbos);
+        glDeleteBuffers(1, &m->ebo);
+    }
 }
 
 std::vector<Entity*> sorted_entities(glm::vec3 camera_pos) {
