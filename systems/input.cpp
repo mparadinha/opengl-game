@@ -48,7 +48,7 @@ void Input::key_callback(int key, int scancode, int action, int mods) {
     }
 
     // toggle bounding boxes
-    if(key == GLFW_KEY_B && action != GLFW_REPEAT) {
+    if(key == GLFW_KEY_B && action == GLFW_RELEASE) {
         send_msg({TOGGLE_BB});
     }
 
