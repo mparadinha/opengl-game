@@ -30,6 +30,7 @@ mesh_t Loader::load_mesh(std::string filepath) {
     gltf::file_t file(filepath);
 
     mesh_t out_mesh; // this is the "engine" mesh that will be used later
+    out_mesh.draw_mode = GL_TRIANGLES;
 
     //TODO: support more than one mesh/primitive/buffer
     gltf::primitive_t primitive = file.meshes[0].primitives[0];
@@ -54,6 +55,24 @@ mesh_t Loader::load_mesh(std::string filepath) {
     out_mesh.index_data_type = (indices_accessor.component_type == 5121) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_INT;
 
     return out_mesh;
+}
+
+mesh_t Loader::load_mesh(std::vector<glm::vec3> vertices, std::vector<unsigned int> indices) {
+    mesh_t mesh;
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    load_vbo(vertices.data(), vertices.size() * sizeof(glm::vec3), mesh.vbos, 0, 3);
+
+    glGenBuffers(1, &mesh.ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+    read_buffer_data(indices.data(), indices.size() * sizeof(unsigned int), GL_ELEMENT_ARRAY_BUFFER);
+
+    mesh.num_indices = indices.size();
+    mesh.index_data_type = GL_UNSIGNED_INT;
+
+    return mesh;
 }
 
 texture_t Loader::load_texture(std::string path, unsigned int texture_type) {
@@ -101,15 +120,10 @@ texture_t Loader::load_texture(std::string path, unsigned int texture_type) {
     return texture;
 }
 
-void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
+void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size) { 
     // create and bind vbo
     glGenBuffers(1, &vbos[vbo_idx]);
     glBindBuffer(GL_ARRAY_BUFFER, vbos[vbo_idx]);
-
-    gltf::accessor_t accessor = file.accessors[accessor_idx];
-    gltf::buffer_view_t buf_view = file.buffer_views[accessor.buffer_view];
-
-    read_buffer_data(buffer, buf_view, GL_ARRAY_BUFFER);
 
     // set the attributes for communicating with the shaders 
     glEnableVertexAttribArray(vbo_idx); // in shader: "layout(location = <vbo_idx>)"
@@ -119,8 +133,27 @@ void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor
         GL_FALSE, /* don't normalize data */
         0, /* stride */
         (void*) 0); /* pointer to first component of attribute in vbo */
+}
 
-    std::cout << std::endl;
+void load_vbo(void* data, unsigned int byte_length, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
+    create_vbo(vbos, vbo_idx, size);
+
+    read_buffer_data(data, byte_length, GL_ARRAY_BUFFER);
+}
+
+void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
+    create_vbo(vbos, vbo_idx, size);
+
+    gltf::accessor_t accessor = file.accessors[accessor_idx];
+    gltf::buffer_view_t buf_view = file.buffer_views[accessor.buffer_view];
+    read_buffer_data(buffer, buf_view, GL_ARRAY_BUFFER);
+}
+
+void read_buffer_data(void* data, unsigned int byte_length, unsigned int data_type) {
+    glBufferData(data_type, /* GL_ARRAY_BUFFER for verts/normals GL_ELEMENT_BUFFER for indices */
+        byte_length, /* size in bytes */
+        data, /* pointer to data */
+        GL_STATIC_DRAW);
 }
 
 void read_buffer_data(gltf::uri_file_t& buffer, gltf::buffer_view_t buf_view, unsigned int data_type) {
@@ -128,11 +161,7 @@ void read_buffer_data(gltf::uri_file_t& buffer, gltf::buffer_view_t buf_view, un
     std::vector<unsigned char> data = buffer.read<unsigned char>(
         buf_view.byte_offset, buf_view.byte_length);
 
-    // load data from binary file to GPU
-    glBufferData(data_type, /* GL_ARRAY_BUFFER for verts/normals GL_ELEMENT_BUFFER for indices */
-        buf_view.byte_length, /* size in bytes */
-        &data[0], /* pointer to data */
-        GL_STATIC_DRAW);
+    read_buffer_data(&data[0], buf_view.byte_length, data_type);
 }
 
 void load_image(std::string path, unsigned int texture_type, bool gen_mipmaps) {

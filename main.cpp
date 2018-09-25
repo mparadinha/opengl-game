@@ -41,7 +41,7 @@ static const unsigned int WINDOW_HEIGHT = 900;
 void display_fps(float dt);
 void wait(float seconds);
 
-void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false, glm::vec4 color = {1, 1, 1, 1}) {
+unsigned int add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::vec3 vel = {0, 0, 0}, bool floating = false, glm::vec4 color = {1, 1, 1, 1}) {
     static mesh_t* mesh = new mesh_t(loader.load_mesh("res/cube.gltf"));
     pos_rot_scale_t* prs = new pos_rot_scale_t({pos, scale});
 
@@ -65,7 +65,32 @@ void add_cube(Loader& loader, glm::vec3 pos, glm::vec3 scale = {1, 1, 1}, glm::v
     cube->components[SOLID_COLOR] = solid_color;
     cube->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | AABB | SOLID_COLOR;
 
-    e_pool.add_entity(cube);
+    return e_pool.add_entity(cube);
+}
+
+unsigned int add_grid(Loader& loader, glm::vec3 pos, glm::vec3 scale, unsigned int divs, float size) {
+    Entity* test = new Entity;
+    std::vector<glm::vec3> vertices;
+    for(uint32_t i = 0; i < divs + 1; i++) {
+        vertices.push_back({size * i / float(divs), 0, 0});
+        vertices.push_back({size * i / float(divs), 0, size});
+        vertices.push_back({0, 0, size * i / divs});
+        vertices.push_back({size, 0, size * i / divs});
+    }
+    //for(auto v : vertices) std::cout << glm::to_string(v) << std::endl;
+    std::vector<unsigned int> indices;
+    for(uint32_t i = 0; i < (divs + 1) * 4; i++) {
+        indices.push_back(i);
+    }
+    //for(auto i : indices) std::cout << i << std::endl; 
+    mesh_t* testmesh = new mesh_t(loader.load_mesh(vertices, indices));
+    testmesh->draw_mode = GL_LINES;
+    test->components[MESH] = testmesh;
+    test->components[POS_ROT_SCALE] = new pos_rot_scale_t({pos, scale, 0, 0, 0});
+    test->components[RIGID_BODY] = new rigid_body_t({pos, {0, 0, 0}, scale, 0, 0, 0, 0, true});
+    test->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
+    test->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR;
+    return e_pool.add_entity(test);
 }
 
 int main() {
@@ -86,6 +111,7 @@ int main() {
     add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0}, false, {1, 0, 0, 0.4});
     add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_cube(loader, {20, 10, 20}, {10, 10, 10}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
+    add_grid(loader, {0, -1.89, 0}, {1, 1, 1}, 10, 10);
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later

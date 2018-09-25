@@ -1,6 +1,8 @@
 #ifndef COMPONENT_MESH_H
 #define COMPONENT_MESH_H
 
+#include <glad.h>
+
 #define MAX_VBOS 5
 
 struct mesh_t {
@@ -10,6 +12,7 @@ struct mesh_t {
     unsigned int vao, vbos[MAX_VBOS], ebo;
     unsigned int num_indices;
     unsigned int index_data_type; // uint, byte, ubyte, etc...
+    GLenum draw_mode;
 };
 
 #endif // include guard

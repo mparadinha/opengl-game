@@ -19,5 +19,5 @@ void main() {
     frag_color = color;
 
     float diffuse = max(dot(norm, sun), 0.0);
-    frag_color = vec4((diffuse +ambient) * color.xyz, color.w);
+    frag_color = vec4((diffuse + ambient) * color.xyz, color.w);
 }

@@ -154,7 +154,7 @@ void Renderer::render(Shader* shader, camera_t* camera_info, Entity* e) {
 
     // tell the gpu to draw the mesh
     glBindVertexArray(m->vao);
-    glDrawElements(GL_TRIANGLES, m->num_indices, m->index_data_type, nullptr);
+    glDrawElements(m->draw_mode, m->num_indices, m->index_data_type, nullptr);
 }
 
 void cleanup_meshes() {
