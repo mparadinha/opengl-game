@@ -1,14 +1,21 @@
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include <glad.h>
 #include <stb_image.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "loader.h"
 #include "../utils/gltf.h"
 #include "../signals.h"
 #include "../components/mesh.h"
 #include "../components/texture.h"
+#include "../components/animation.h"
 
 Loader::Loader(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing loader..." << std::endl;
@@ -41,8 +48,14 @@ mesh_t Loader::load_mesh(std::string filepath) {
     glBindVertexArray(out_mesh.vao);
 
     // load the mesh attributes each into its own vbo
-    load_vbo(file, buffer, primitive.attributes["POSITION"], out_mesh.vbos, 0, 3);
-    load_vbo(file, buffer, primitive.attributes["NORMAL"], out_mesh.vbos, 1, 3);
+    std::map<std::string, unsigned int> attrs = primitive.attributes;
+    load_vbo(file, buffer, attrs["POSITION"], out_mesh.vbos, 0, 3);
+    load_vbo(file, buffer, attrs["NORMAL"], out_mesh.vbos, 1, 3);
+    // if there is an animation also load the joint IDS and weights
+    if(attrs.count("JOINTS_0") != 0 && attrs.count("WEIGHTS_0") != 0) {
+        load_vbo(file, buffer, attrs["JOINTS_0"], out_mesh.vbos, 2, 4);
+        load_vbo(file, buffer, attrs["WEIGHTS_0"], out_mesh.vbos, 3, 4);
+    }
 
     // create, bind, and fill ebo
     gltf::accessor_t indices_accessor = file.accessors[primitive.indices];
@@ -51,8 +64,7 @@ mesh_t Loader::load_mesh(std::string filepath) {
     read_buffer_data(buffer, file.buffer_views[indices_accessor.buffer_view], GL_ELEMENT_ARRAY_BUFFER);
     // and store the number of indices (needed for drawing)
     out_mesh.num_indices = file.accessors[primitive.indices].count;
-    //TODO: unhack this. make a map/table with all the gltf values and corresponding GL types. the hardcoded 5121 is for unsigned bytes
-    out_mesh.index_data_type = (indices_accessor.component_type == 5121) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_INT;
+    out_mesh.index_data_type = gltf::types[indices_accessor.component_type];
 
     return out_mesh;
 }
@@ -73,6 +85,48 @@ mesh_t Loader::load_mesh(std::vector<glm::vec3> vertices, std::vector<unsigned i
     mesh.index_data_type = GL_UNSIGNED_INT;
 
     return mesh;
+}
+
+animation_t Loader::load_animation(std::string filepath) {
+    std::cout << "loading animation from " << filepath << std::endl;
+    std::string file_dir = filepath.substr(0, filepath.find_last_of("/"));
+    gltf::file_t file(filepath);
+
+    gltf::uri_file_t buffer(file_dir + "/" + file.buffers[0].uri, file.buffers[0].byte_length);
+
+    animation_t animation;
+
+    // TODO: allow for more than one skin per file
+
+    // load all the information for the joint_t tree
+    unsigned int root_node = file.nodes[file.skins[0].joints[0]];
+    // get all the inverse bind matrices into a map
+    auto accessor = file.accessors[file.skins[0].inverseBindMatrices];
+    std::vector<glm::mat4> inv_binds = buffer.read<glm::mat4>(
+        accessor.buffer_view.byte_offset, accessor.count);
+    std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_binds;
+    for(unsigned int i = 0; i < inv_binds.size(); i++) {
+        joint_binds[file.skins[0].joints[i]] = {i, inv_binds[i]};
+    }
+    // called for the root node. its recursive and calls for each child
+    load_joint_tree(file.nodes, root_node, joint_binds);
+
+}
+
+joint_t Loader::load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int node,
+    std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs) {
+
+    joint_t joint;
+    joint.name = nodes[node].name;
+    joint.id = joint_bind_pairs[node].first;
+    joint.inverse_bind = joint_bind_pairs[node].second;
+
+    for(unsigned int child_node : nodes[node].children) {
+        joint_t child = load_joint_tree(nodes, child_node, joint_bind_pairs);
+        joint.children.push_back(child);
+    }
+
+    return joint;
 }
 
 texture_t Loader::load_texture(std::string path, unsigned int texture_type) {
@@ -120,7 +174,7 @@ texture_t Loader::load_texture(std::string path, unsigned int texture_type) {
     return texture;
 }
 
-void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size) { 
+void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size, unsigned int type) { 
     // create and bind vbo
     glGenBuffers(1, &vbos[vbo_idx]);
     glBindBuffer(GL_ARRAY_BUFFER, vbos[vbo_idx]);
@@ -129,7 +183,7 @@ void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
     glEnableVertexAttribArray(vbo_idx); // in shader: "layout(location = <vbo_idx>)"
     glVertexAttribPointer(vbo_idx,
         size, /* number of components per element of the vbo (e.g. pos=3, texcoord=2) */
-        GL_FLOAT,
+        type,
         GL_FALSE, /* don't normalize data */
         0, /* stride */
         (void*) 0); /* pointer to first component of attribute in vbo */
@@ -142,9 +196,10 @@ void load_vbo(void* data, unsigned int byte_length, unsigned int vbos[], unsigne
 }
 
 void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
-    create_vbo(vbos, vbo_idx, size);
-
     gltf::accessor_t accessor = file.accessors[accessor_idx];
+
+    create_vbo(vbos, vbo_idx, size, gltf::types[accessor.component_type]);
+
     gltf::buffer_view_t buf_view = file.buffer_views[accessor.buffer_view];
     read_buffer_data(buffer, buf_view, GL_ARRAY_BUFFER);
 }

@@ -12,7 +12,7 @@ struct mesh_t {
     unsigned int vao, vbos[MAX_VBOS], ebo;
     unsigned int num_indices;
     unsigned int index_data_type; // uint, byte, ubyte, etc...
-    GLenum draw_mode;
+    unsigned int draw_mode;
 };
 
 #endif // include guard

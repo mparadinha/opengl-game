@@ -32,6 +32,7 @@
 #include "components/camera.h"
 #include "components/rigid_body.h"
 #include "components/solid_color.h"
+#include "components/animation.h"
 
 #include "entity_pool_global.h"
 
@@ -104,6 +105,7 @@ int main() {
     Renderer renderer(&msg_bus);
     Physics physics(&msg_bus);
     CameraUpdater camera_updater(&msg_bus);
+    Animator animator(&msg_bus);
 
     // test entities
     add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
@@ -112,6 +114,22 @@ int main() {
     add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_cube(loader, {20, 10, 20}, {10, 10, 10}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_grid(loader, {0, -1.89, 0}, {1, 1, 1}, 10, 10);
+
+    Entity* thot = new Entity;
+    mesh_t* thotm = new mesh_t(loader.load_mesh("res/thot_dab.gltf"));
+    animation_t* thota = new animation_t(loader.load_animation("res/thot_dab.gltf"));
+    thot->components[MESH] = thotm;
+    thot->components[ANIMATION] = thota;
+    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({{0, 0, 0}, {1, 1, 1}, 0, 0, 0});
+    thot->components[RIGID_BODY] = new rigid_body_t({{0, 0, 0}, {0, 0, 0}, {1, 1, 1}, 0, 0, 0, 0, true});
+    thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
+    thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION; 
+    e_pool.add_entity(thot);
+
+    std::cout << "shiiiiiiiiiiiiit\n";
+    std::vector<float> v = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    auto mat3 = glm::make_mat3(v.data());
+    std::cout << glm::to_string(mat3 * glm::vec3(1, 0, 0)) << std::endl;
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later

@@ -21,6 +21,7 @@
 #include "../components/bounding_volumes.h"
 #include "../components/camera.h"
 #include "../components/solid_color.h"
+#include "../components/animation.h"
 
 Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing renderer..." << std::endl;
@@ -28,6 +29,7 @@ Renderer::Renderer(MessageBus* msg_bus) : System(msg_bus) {
     shaders["test_cube"] = new Shader("test_cube");
     shaders["bounding_box"] = new Shader("bounding_box");
     shaders["cubemap"] = new Shader("cubemap");
+    shaders["animated"] = new Shader("animated");
 }
 
 Renderer::~Renderer() {
@@ -62,9 +64,15 @@ void Renderer::render_all() {
     // need to order meshes because of transparency (closer = rendered last)
     std::vector<Entity*> entities = sorted_entities(camera_pos);
 
-    Shader* shader = shaders["test_cube"];
     for(Entity* e : entities) {
-        render(shader, camera_info, e);
+        if((e->bitset & ANIMATION) == ANIMATION) {
+            animation_t* a = (animation_t*) e->components[ANIMATION];
+            shaders["animated"]->set_uniform("joint_transforms", (float*)a->invbinds.data(), a->invbinds.size());
+            render(shaders["animated"], camera_info, e);
+        }
+        else {
+            render(shaders["test_cube"], camera_info, e);
+        }
     }
 }
 

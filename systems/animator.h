@@ -9,7 +9,6 @@ public:
     ~Animator();
 
 private:
-
 };
 
 #endif // include guard

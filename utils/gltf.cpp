@@ -55,11 +55,13 @@ std::vector<T> uri_file_t::read(unsigned int offset, unsigned int count) {
     return vec;
 }
 // instanciate various types of call to templated functions
-// has to be exist else compiler would give "undefined reference"
+// has to exist else compiler would give "undefined reference"
 template std::vector<unsigned short> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<unsigned char> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<unsigned int> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<float> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<glm::vec3> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<glm::mat4> uri_file_t::read(unsigned int offset, unsigned count);
 
 file_t::file_t(std::string filepath) {
     std::ifstream in(filepath);
@@ -72,41 +74,42 @@ file_t::file_t(std::string filepath) {
     std::string name;
     while(true) {
         name = read_string(in);
-        //std::cout << "file_t::name: " << name << std::endl;
+        std::cout << "file_t::name: " << name << std::endl;
         if(name == "accessors") {
             while(in >> ch && ch != ']') {
                 accessors.push_back(accessor_t(in));
             }
+            std::cout << "accessors.size(): " << accessors.size() << std::endl;
         }
         else if(name == "bufferViews") {
             while(in >> ch && ch != ']') {
                 buffer_views.push_back(buffer_view_t(in));
             }
-            //std::cout << "buffer_views.size(): " << buffer_views.size() << std::endl;
+            std::cout << "buffer_views.size(): " << buffer_views.size() << std::endl;
         }
         else if(name == "animations") {
             while(in >> ch && ch != ']') {
                 animations.push_back(animation_t(in));
             }
-            //std::cout << "animations.size(): " << animations.size() << std::endl;
+            std::cout << "animations.size(): " << animations.size() << std::endl;
         }
         else if(name == "buffers") {
             while(in >> ch && ch != ']') {
                 buffers.push_back(buffer_t(in));
             }
-            //std::cout << "buffers.size(): " << buffers.size() << std::endl;
+            std::cout << "buffers.size(): " << buffers.size() << std::endl;
         }
         else if(name == "skins") {
             while(in >> ch && ch != ']') {
                 skins.push_back(skin_t(in));
             }
-            //std::cout << "skins.size(): " << skins.size() << std::endl;
+            std::cout << "skins.size(): " << skins.size() << std::endl;
         }
         else if(name == "nodes") {
             while(in >> ch && ch != ']') {
                 nodes.push_back(node_t(in));
             }
-            //std::cout << "nodes.size(): " << nodes.size() << std::endl;
+            std::cout << "nodes.size(): " << nodes.size() << std::endl;
         }
         else if(name == "asset") {
             asset.init(in);
@@ -115,7 +118,7 @@ file_t::file_t(std::string filepath) {
             while(in >> ch && ch != ']') {
                 materials.push_back(material_t(in));
             }
-            //std::cout << "materials.size(): " << materials.size() << std::endl;
+            std::cout << "materials.size(): " << materials.size() << std::endl;
         }
         else if(name == "scene") {
             std::string number;
@@ -126,13 +129,13 @@ file_t::file_t(std::string filepath) {
             while(in >> ch && ch != ']') {
                 scenes.push_back(scene_t(in));
             }
-            //std::cout << "scenes.size(): " << scenes.size() << std::endl;
+            std::cout << "scenes.size(): " << scenes.size() << std::endl;
         }
         else if(name == "meshes") {
             while(in >> ch && ch != ']') {
                 meshes.push_back(mesh_t(in));
             }
-            //std::cout << "meshes.size(): " << meshes.size() << std::endl;
+            std::cout << "meshes.size(): " << meshes.size() << std::endl;
         }
         else {
             std::cout << "something else found: " << name << std::endl;
@@ -217,7 +220,7 @@ node_t::node_t(std::ifstream& in) {
 skin_t::skin_t(std::ifstream& in) {
     std::map<std::string, std::string> pairs = get_pairs(in);
 
-    inverse_bind_matrix = to_uint(pairs["inverse_bind_matrix"]);
+    inverse_bind_matrices = to_uint(pairs["inverseBindMatrices"]);
     joints = read_uint_vector(pairs["joints"]);
     skeleton = to_uint(pairs["skeleton"]);
 }

@@ -1,7 +1,14 @@
 #version 330 core
 
+in vec3 normal;
 in vec3 color;
 
+out vec4 FragColor;
+
+const float ambient = 0.4;
+const vec3 sun = normalize(vec3(1, -1, 1));
+
 void main() {
-    FragColor = vec4(color, 0.0);
+    float diffuse = max(dot(normal, sun), 0.0);
+    FragColor = vec4((diffuse + ambient) * color, 1);
 }

@@ -5,11 +5,22 @@
 #include <vector>
 #include <string>
 
+#include <glad.h>
+
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 namespace gltf {
+
+// this is not suppost to ever change at runtime but the compiler freaks out
+// because of accessing it cannot be done while mainting const certain
+static std::map<unsigned int, unsigned int> types = { 
+    {5121, GL_UNSIGNED_BYTE},
+    {5123, GL_UNSIGNED_SHORT},
+    {5125, GL_UNSIGNED_INT},
+    {5126, GL_FLOAT}
+};
 
 struct buffer_t {
     buffer_t(std::ifstream& in);
@@ -61,7 +72,7 @@ struct meshes_t {
 struct skin_t {
     skin_t(std::ifstream& in);
 
-    unsigned int inverse_bind_matrix; // accessor that has 1 matrix per joint
+    unsigned int inverse_bind_matrices; // accessor that has 1 matrix per joint
     std::vector<unsigned int> joints;
     unsigned int skeleton; // points to node that is root of joint hierarchy
 };
@@ -70,7 +81,10 @@ struct node_t {
     node_t(std::ifstream& in);
 
     std::vector<unsigned int> children; // indices on list of nodes
-    glm::mat4 matrix; // can have a single matrix; M = T * R * S
+    // the node can have a transformation either in the form of a single mat4
+    // or separate translation and scale vec3's and a quaterion rotation which
+    // converted to a matrix on initialization. M = T * R * S
+    glm::mat4 matrix;
     // or 3 separate properties for trans, rot and scale
     unsigned int mesh, camera, skin;
     std::string name; // optional

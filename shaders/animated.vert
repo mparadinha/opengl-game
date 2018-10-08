@@ -1,27 +1,37 @@
 #version 330 core
 
 const int MAX_BONES = 50; // max number of bones in a single mesh
-const int MAX_WEIGHTS = 3; // each vertex can only be affected by 3 bones
+const int MAX_WEIGHTS = 4; // each vertex can only be affected by 3 bones
 
 
 layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec2 texcoords;
-layout (location = 3) in ivec3 bone_ids;
-layout (location = 4) in vec3 weights;
+layout (location = 1) in vec3 norm;
+layout (location = 2) in ivec4 joints;
+layout (location = 3) in vec4 weights;
 
-uniform mat4 bones_transforms[MAX_BONES]; 
+out vec3 normal;
+out vec3 color;
+
+uniform mat4 joint_transforms[MAX_BONES]; 
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-    vec4 final_model_pos = vec4(0.0);
+    vec4 total_pos = vec4(0.0);
+    vec4 total_norm = vec4(0.0);
 
     for(int i = 0; i < MAX_WEIGHTS; i++) {
-        mat4 pose_pos = bone_transforms[bone_ids[i]] * vec4(position, 1.0);
-        final_model_pos += pose_pos * weights[i];
+        mat4 joint_transform = joint_transforms[joints[i]];
+
+        total_pos += weights[i] * joint_transform * vec4(position, 1.0);
+        total_norm += weights[i] * joint_transform * vec4(norm, 0.0);
     }
 
-    gl_Position = projection * view * model * final_model_pos;
+    gl_Position = projection * view * model * vec4(total_pos.xyz, 1.0);
+
+    // pass normal to fragment shader
+    normal = norm;
+    color = weights.xyz;
 }

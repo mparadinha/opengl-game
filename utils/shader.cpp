@@ -43,9 +43,9 @@ void Shader::use() {
 }
 
 // set uniform for 4x4 matrix
-void Shader::set_uniform(std::string identifier, float* matrix) {
+void Shader::set_uniform(std::string identifier, float* data, unsigned int count) {
     GLuint location = glGetUniformLocation(program, identifier.c_str());
-    glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
+    glUniformMatrix4fv(location, count, GL_FALSE, data);
 }
 // set uniform for 4x4 matrix (glm version)
 void Shader::set_uniform(std::string identifier, glm::mat4 matrix) {
@@ -100,6 +100,7 @@ void Shader::check_error(GLuint shader, GLuint flag) {
     if(success == GL_FALSE) {
         glGetShaderInfoLog(shader, sizeof(error), NULL, error);
         std::cerr << "[SHADER ERROR] - " << error << std::endl;
+        std::exit(-1);
     }
 }
 
