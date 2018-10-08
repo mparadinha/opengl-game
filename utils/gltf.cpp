@@ -61,6 +61,7 @@ template std::vector<unsigned char> uri_file_t::read(unsigned int offset, unsign
 template std::vector<unsigned int> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<float> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<glm::vec3> uri_file_t::read(unsigned int offset, unsigned count);
+template std::vector<glm::quat> uri_file_t::read(unsigned int offset, unsigned count);
 template std::vector<glm::mat4> uri_file_t::read(unsigned int offset, unsigned count);
 
 file_t::file_t(std::string filepath) {

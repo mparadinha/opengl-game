@@ -28,7 +28,9 @@ public:
     texture_t load_texture(std::string path, unsigned int texture_type);
 
 private:
-    joint_t load_joint_tree(gltf::node_t node);
+    joint_t load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int node,
+        std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs);
+    unsigned int find_key_frame(std::vector<key_frame_t>& key_frames, float time);
 };
 
 void read_buffer_data(void* data, unsigned int byte_length, unsigned int data_type);

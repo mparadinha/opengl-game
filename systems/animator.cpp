@@ -7,3 +7,15 @@ Animator::Animator(MessageBus* msg_bus) : System(msg_bus) {
 }
 
 Animator::~Animator() {}
+
+void Animator::handle_message(message_t msg) {
+    switch(msg.code) {
+    case NEW_FRAME:
+        update_animations();
+        break;
+    }
+}
+
+void Animator::update_animations() {
+
+}

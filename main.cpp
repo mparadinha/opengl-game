@@ -133,11 +133,11 @@ int main() {
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
-    mesh_t test_cube = loader.load_mesh("res/cube.gltf");
-    Entity bb_cube;
-    bb_cube.components[BB_CUBE] = &test_cube;
-    bb_cube.bitset = BB_CUBE;
-    e_pool.add_special(&bb_cube, BB_CUBE);
+    mesh_t* test_cube = new mesh_t(loader.load_mesh("res/cube.gltf"));
+    Entity* bb_cube = new Entity;
+    bb_cube->components[BB_CUBE] = test_cube;
+    bb_cube->bitset = BB_CUBE;
+    e_pool.add_special(bb_cube, BB_CUBE);
     // add skybox texture to special pool
     texture_t skybox_texture = loader.load_texture("res/skybox/skybox.jpg", GL_TEXTURE_CUBE_MAP);
     Entity _skybox; _skybox.components[SKYBOX] = &skybox_texture;

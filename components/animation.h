@@ -15,12 +15,15 @@ struct joint_transform_t {
 };
 
 struct key_frame_t {
-    std::vector<joint_transform_t> joint_tranforms;
+    joint_transform_t joint_transform;
     float time_stamp;
 };
 
+// in a more advanced system the translation and rotation animations might have
+// keyframes at different times and so we would need to have two separate key_frame
+// arrays, one for the translations key frames and one for the rotation key frames
 struct joint_animation_t {
-    std::vector<key_frame_t> key_frames;
+    std::vector<key_frame_t> key_frames; // these are not necessarily ordered in time
 };
 
 // this joint struct represent the joint at the current pose
@@ -35,9 +38,11 @@ struct joint_t {
     // transform. it is in model space and in the default pose (hence the bind) 
 };
 
+typedef std::map<std::string, glm::mat4> pose_t;
+
 struct animation_t {
     float duration;
-    std::map<std::string, joint_animation_t> joint_animations;
+    std::vector<joint_animation_t> joint_animations;
     joint_t root_joint; // this tree of joints is what is updated every frame
 
     // this vector contains the final, shader ready matrix transforms for the current

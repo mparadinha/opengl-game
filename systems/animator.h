@@ -8,7 +8,10 @@ public:
     Animator(MessageBus* msg_bus);
     ~Animator();
 
+    void handle_message(message_t msg);
+
 private:
+    void update_animations();
 };
 
 #endif // include guard
