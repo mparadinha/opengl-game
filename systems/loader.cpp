@@ -132,12 +132,11 @@ animation_t Loader::load_animation(std::string filepath) {
         float time = buffer.read<float>(t_buf_v.byte_offset, t_access.count)[0];
 
         unsigned int joint_anim_index = joint_binds[node].first;
-        joint_animation_t joint_anim = animation.joint_animations[joint_anim_index];
+        joint_animation_t& joint_anim = animation.joint_animations[joint_anim_index];
         unsigned int key_frame_index = find_key_frame(joint_anim.key_frames, time);
 
         joint_anim.key_frames[key_frame_index].time_stamp = time;
         if(time > duration) duration = time;
-        std::cout << "key_frame time stamp: " << time << std::endl;
 
         // load and save the translation/rotation
         gltf::accessor_t accessor = file.accessors[sampler.output];
@@ -150,6 +149,12 @@ animation_t Loader::load_animation(std::string filepath) {
             glm::quat rotation = buffer.read<glm::quat>(buffer_view.byte_offset, 1)[0];
             joint_anim.key_frames[key_frame_index].joint_transform.rotation = rotation;
         }
+    }
+
+    std::cout << "key frames: " << animation.joint_animations[0].key_frames.size() << std::endl;
+    animation.joint_transforms.resize(joint_binds.size());
+    for(unsigned int i = 0; i < joint_binds.size(); i++) {
+        animation.joint_transforms[i] = glm::mat4(1);
     }
 
     return animation;

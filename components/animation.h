@@ -32,17 +32,19 @@ struct joint_t {
     unsigned int id; // index into the final array of joint transforms
     // that are sent to the shader
     glm::mat4 transform; // transforms the joint from the bind pose, its default
-    // state, (i.e no animation applied) into the current pose
+    // state, (i.e no animation applied) into the current pose. relative to parent
     std::string name;
     glm::mat4 inverse_bind; // used by the animation system to calculate the
     // transform. it is in model space and in the default pose (hence the bind) 
 };
 
-typedef std::map<std::string, glm::mat4> pose_t;
+typedef std::vector<glm::mat4> pose_t; // all these glm::mat4 are relative to the parent
 
 struct animation_t {
     float duration;
-    std::vector<joint_animation_t> joint_animations;
+    float time; // for keeping track of time
+    std::vector<joint_animation_t> joint_animations; // joint_animations[0] is the
+    // animtions of the joint_t whose id = 0;
     joint_t root_joint; // this tree of joints is what is updated every frame
 
     // this vector contains the final, shader ready matrix transforms for the current

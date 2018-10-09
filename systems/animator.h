@@ -3,6 +3,8 @@
 
 #include "../message_bus.h"
 
+#include "../components/animation.h"
+
 class Animator : public System {
 public:
     Animator(MessageBus* msg_bus);
@@ -11,7 +13,10 @@ public:
     void handle_message(message_t msg);
 
 private:
-    void update_animations();
+    void update_animations(float dt);
+
+    pose_t build_pose(animation_t* animation);
+    void apply_pose(animation_t* animation, joint_t joint, pose_t pose);
 };
 
 #endif // include guard
