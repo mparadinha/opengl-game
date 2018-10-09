@@ -166,7 +166,7 @@ unsigned int Loader::find_key_frame(std::vector<key_frame_t>& key_frames, float 
     }
 
     key_frames.push_back(key_frame_t());
-    return key_frames.size();
+    return key_frames.size() - 1;
 }
 
 joint_t Loader::load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int node,
