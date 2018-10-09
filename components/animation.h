@@ -44,7 +44,7 @@ struct animation_t {
     float duration;
     float time; // for keeping track of time
     std::vector<joint_animation_t> joint_animations; // joint_animations[0] is the
-    // animtions of the joint_t whose id = 0;
+    // animations of the joint_t whose id = 0;
     joint_t root_joint; // this tree of joints is what is updated every frame
 
     // this vector contains the final, shader ready matrix transforms for the current

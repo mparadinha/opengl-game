@@ -11,6 +11,8 @@ layout (location = 3) in vec4 weights;
 
 out vec3 normal;
 out vec3 color;
+out mat4 skin; // for debugging
+out mat4 j0;
 
 uniform mat4 joint_transforms[MAX_BONES]; 
 
@@ -21,17 +23,18 @@ uniform mat4 projection;
 void main() {
     vec4 total_pos = vec4(0.0);
     vec4 total_norm = vec4(0.0);
+    vec4 norm_weights = normalize(weights);
 
+    mat4 skin_matrix = mat4(0.0);
     for(int i = 0; i < MAX_WEIGHTS; i++) {
-        mat4 joint_transform = joint_transforms[joints[i]];
-
-        total_pos += weights[i] * joint_transform * vec4(position, 1.0);
-        total_norm += weights[i] * joint_transform * vec4(norm, 0.0);
+        skin_matrix = weights[i] * joint_transforms[joints[i]];
     }
 
-    gl_Position = projection * view * model * vec4(total_pos.xyz, 1.0);
+    gl_Position = projection * view * model * skin_matrix * vec4(position, 1.0);
 
     // pass normal to fragment shader
+    skin = skin_matrix;
+    j0 = joint_transforms[joints[0]];
     normal = norm;
     color = weights.xyz;
 }
