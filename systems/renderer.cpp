@@ -67,6 +67,7 @@ void Renderer::render_all() {
     for(Entity* e : entities) {
         if((e->bitset & ANIMATION) == ANIMATION) {
             animation_t* a = (animation_t*) e->components[ANIMATION];
+            shaders["animated"]->use();
             shaders["animated"]->set_uniform("joint_transforms", (float*)a->joint_transforms.data(), a->joint_transforms.size());
             render(shaders["animated"], camera_info, e);
         }

@@ -231,29 +231,37 @@ texture_t Loader::load_texture(std::string path, unsigned int texture_type) {
 }
 
 void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size, unsigned int type) { 
+    std::cout << "create_vbo(vbos[]=" << vbos << ", vbo_idx=" << vbo_idx << ", size=" << size << ", type=" << type << ")" << std::endl;
     // create and bind vbo
     glGenBuffers(1, &vbos[vbo_idx]);
     glBindBuffer(GL_ARRAY_BUFFER, vbos[vbo_idx]);
 
     // set the attributes for communicating with the shaders 
     glEnableVertexAttribArray(vbo_idx); // in shader: "layout(location = <vbo_idx>)"
-    glVertexAttribPointer(vbo_idx,
-        size, /* number of components per element of the vbo (e.g. pos=3, texcoord=2) */
-        type,
-        GL_FALSE, /* don't normalize data */
-        0, /* stride */
-        (void*) 0); /* pointer to first component of attribute in vbo */
+    if(type == GL_UNSIGNED_SHORT || type == GL_UNSIGNED_INT || type == GL_INT) {
+        glVertexAttribIPointer(vbo_idx, size, type, 0, (void*) 0);
+    }
+    else {
+        glVertexAttribPointer(vbo_idx,
+            size, /* number of components per element of the vbo (e.g. pos=3, texcoord=2) */
+            type,
+            GL_FALSE, /* don't normalize data */
+            0, /* stride */
+            (void*) 0); /* pointer to first component of attribute in vbo */
+    }
 }
 
-void load_vbo(void* data, unsigned int byte_length, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
-    create_vbo(vbos, vbo_idx, size);
+void load_vbo(void* data, unsigned int byte_length, unsigned int vbos[], unsigned int vbo_idx, unsigned int size, unsigned int type) {
+    create_vbo(vbos, vbo_idx, size, type);
 
     read_buffer_data(data, byte_length, GL_ARRAY_BUFFER);
 }
 
-void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx, unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
-    gltf::accessor_t accessor = file.accessors[accessor_idx];
+void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx,
+    unsigned int vbos[], unsigned int vbo_idx, unsigned int size) {
+    std::cout << "load_vbo(file, buffer, accessor_idx=" << accessor_idx << ", vbos=" << vbos << ", vbo_idx=" << vbo_idx << ", size=" << size << ")\n";
 
+    gltf::accessor_t accessor = file.accessors[accessor_idx];
     create_vbo(vbos, vbo_idx, size, gltf::types[accessor.component_type]);
 
     gltf::buffer_view_t buf_view = file.buffer_views[accessor.buffer_view];

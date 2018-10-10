@@ -3,9 +3,6 @@
 in vec3 normal;
 in vec3 color;
 
-in mat4 skin;
-in mat4 j0;
-
 out vec4 FragColor;
 
 const float ambient = 0.4;
