@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "gltf.h"
+#include "gltf_utils.h"
 
 using namespace gltf;
 
@@ -206,8 +207,8 @@ node_t::node_t(std::ifstream& in) {
     }
     else {
         glm::vec3 s(1), t(0);
-        if(pairs.count("scale")) read_glm_vector(pairs["scale"]);
-        if(pairs.count("translation")) read_glm_vector(pairs["translation"]);
+        if(pairs.count("scale")) s = read_glm_vector(pairs["scale"]);
+        if(pairs.count("translation")) t = read_glm_vector(pairs["translation"]);
         glm::quat r;
         if(pairs.count("rotation")) r = read_glm_quat(pairs["rotation"]);
 
@@ -424,16 +425,6 @@ std::vector<std::string> split_str_last_of(std::string source, char separator) {
     return res;
 }
 
-std::vector<std::string> split_str(std::string source, char separator) {
-    std::vector<std::string> res;
-    std::istringstream iss(source);
-    std::string line;
-    while(std::getline(iss, line, separator)) {
-        res.push_back(line);
-    }
-    return res;
-}
-
 bool remove_char(char c) {
     return (c == ' ' || c == '\n' || c == '"' || c == '{');
 }
@@ -539,4 +530,147 @@ std::vector<std::string> read_obj_list(std::ifstream& in) {
     }
 
     return objs;
+}
+
+void file_t::fill(const std::string& filepath) { 
+    std::ifstream in(filepath);
+
+    // read whole file into a string for easier access
+    std::string str;    
+    in.seekg(0, std::ios::end);
+    str.reserve(in.tellg());
+    in.seekg(0, std::ios::beg);
+    str.assign((std::istreambuf_iterator<char>(in)),
+                std::istreambuf_iterator<char>());
+
+    str = clean_obj(str, '{', '}');
+
+    // TODO: figure out way to make a dispatcher map with different constructors
+    // of different types
+
+    auto pairs = split_pairs(str);
+    for(auto& pair : pairs) {
+        if(pair.first == "accessors") build_obj_list<accessor_t>(pair.second, accessors);
+        if(pair.first == "bufferViews") build_obj_list<buffer_view_t>(pair.second, buffer_views);
+        if(pair.first == "buffers") build_obj_list<buffer_t>(pair.second, buffers);
+        if(pair.first == "skins") build_obj_list<skin_t>(pair.second, skins);
+        if(pair.first == "animations") build_obj_list<animation_t>(pair.second, animations);
+        if(pair.first == "nodes") build_obj_list<node_t>(pair.second, nodes);
+        if(pair.first == "materials") build_obj_list<material_t>(pair.second, materials);
+        if(pair.first == "meshes") build_obj_list<mesh_t>(pair.second, meshes);
+        if(pair.first == "scenes") build_obj_list<scene_t>(pair.second, scenes);
+
+        if(pair.first == "asset") {
+            auto asset_pairs = split_pairs(clean_obj(pair.second, '{', '}'));
+            asset = asset_t(asset_pairs);
+        }
+    }
+
+    scene = std::stoul(map_get(pairs, "scene", "0"));
+}
+
+buffer_t::buffer_t(std::map<std::string, std::string>& pairs) {
+    byte_length = std::stoul(pairs["byteLength"]);
+    uri = pairs["uri"];
+}
+
+buffer_view_t::buffer_view_t(std::map<std::string, std::string>& pairs) { 
+    buffer = std::stoul(pairs["buffer"]);
+    byte_offset = std::stoul(pairs["byteOffset"]);
+    byte_length = std::stoul(pairs["byteLength"]);
+    byte_stride = std::stoul(map_get(pairs, "bufferStride", "0"));
+    target = std::stoul(pairs["target"]);
+}
+
+accessor_t::accessor_t(std::map<std::string, std::string>& pairs) {
+    buffer_view = std::stoul(pairs["bufferView"]);
+    byte_offset = std::stoul(pairs["byteOffset"]);
+    component_type = std::stoul(pairs["componentType"]);
+    count = std::stoul(pairs["count"]);
+    type = pairs["type"];
+}
+
+primitive_t::primitive_t(std::map<std::string, std::string>& pairs) {
+    mode = std::stoul(map_get(pairs, "mode", "0"));
+    indices = std::stoul(pairs["indices"]);
+    material = std::stoul(map_get(pairs, "material", "0"));
+    for(auto& pair : split_pairs(pairs["attributes"])) {
+        attributes[pair.first] = std::stoul(pair.second);
+    }
+}
+
+mesh_t::mesh_t(std::map<std::string, std::string>& pairs) {
+    name = map_get(pairs, "name", "");
+    build_obj_list<primitive_t>(pairs["primitives"], primitives);
+}
+
+skin_t::skin_t(std::map<std::string, std::string>& pairs) {
+    inverse_bind_matrices = std::stoul(pairs["inverseBindMatrices"]);
+    joints = to_uint_vec(pairs["joints"]);
+    skeleton = std::stoul(pairs["skeleton"]);
+}
+
+node_t::node_t(std::map<std::string, std::string>& pairs) {
+    children = to_uint_vec(pairs["children"]);
+    mesh = std::stoul(pairs["mesh"]);
+    camera = std::stoul(map_get(pairs, "camera", "0"));
+    skin = std::stoul(map_get(pairs, "skin", "0"));
+    name = map_get(pairs, "name", "");
+
+    if(pairs.count("matrix")) {
+        matrix = to_mat4(pairs["matrix"]);
+    }
+    else {
+        scale = to_vec3(map_get(pairs, "scale", "[1,1,1]"));
+        translation = to_vec3(map_get(pairs, "translation", "[0,0,0]"));
+        rotation = to_quat(map_get(pairs, "rotation", "[1,0,0,0]"));
+
+        glm::mat4 trans_mat = glm::translate(glm::mat4(1), translation),
+            scale_mat = glm::scale(glm::mat4(1), scale),
+            rot_mat = glm::mat4_cast(rotation);
+        matrix = trans_mat * rot_mat * scale_mat;
+    }
+}
+
+target_t::target_t(std::map<std::string, std::string>& pairs) {
+    node = std::stoul(pairs["node"]);
+    path = pairs["path"];
+}
+
+channel_t::channel_t(std::map<std::string, std::string>& pairs) {
+    auto target_pairs = split_pairs(clean_obj(pairs["target"], '{', '}')); 
+    target = target_t(target_pairs);
+    sampler = std::stoul(pairs["sampler"]);
+}
+
+sampler_t::sampler_t(std::map<std::string, std::string>& pairs) {
+    input = std::stoul(pairs["input"]);
+    output = std::stoul(pairs["output"]);
+    interpolation = pairs["interpolation"];
+}
+
+animation_t::animation_t(std::map<std::string, std::string>& pairs) {
+    build_obj_list<channel_t>(pairs["channels"], channels);
+    build_obj_list<sampler_t>(pairs["samplers"], samplers);
+}
+
+asset_t::asset_t(std::map<std::string, std::string>& pairs) {
+    generator = pairs["generator"];
+    version = pairs["version"];
+}
+
+pbr_metallic_t::pbr_metallic_t(std::map<std::string, std::string>& pairs) {
+    base_color_factor = to_float_vec(pairs["baseColorFactor"]);
+    metallic_factor = std::stof(pairs["metallicFactor"]);
+}
+
+material_t::material_t( std::map<std::string, std::string>& pairs) {
+    name = pairs["name"];
+    auto pbr_pairs = split_pairs(clean_obj(pairs["pbrMetallicRoughness"], '{', '}'));
+    pbr_metallic_roughness = pbr_metallic_t(pbr_pairs);
+}
+
+scene_t::scene_t( std::map<std::string, std::string>& pairs) {
+    name = pairs["name"];
+    nodes = to_uint_vec(pairs["nodes"]);
 }

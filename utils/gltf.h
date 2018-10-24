@@ -24,6 +24,7 @@ static std::map<unsigned int, unsigned int> types = {
 
 struct buffer_t {
     buffer_t(std::ifstream& in);
+    buffer_t(std::map<std::string, std::string>& in);
 
     unsigned int byte_length;
     std::string uri;
@@ -31,6 +32,7 @@ struct buffer_t {
 
 struct buffer_view_t {
     buffer_view_t(std::ifstream& in);
+    buffer_view_t(std::map<std::string, std::string>& in);
 
     unsigned int buffer;
     unsigned int byte_offset, byte_length, byte_stride;
@@ -39,6 +41,7 @@ struct buffer_view_t {
 
 struct accessor_t {
     accessor_t(std::ifstream& in);
+    accessor_t(std::map<std::string, std::string>& in);
 
     unsigned int buffer_view;
     unsigned int byte_offset;
@@ -50,6 +53,7 @@ struct accessor_t {
 
 struct primitive_t {
     primitive_t(std::ifstream& in);
+    primitive_t(std::map<std::string, std::string>& in);
 
     unsigned int mode, indices, material;
     std::map<std::string, unsigned int> attributes;
@@ -57,20 +61,15 @@ struct primitive_t {
 
 struct mesh_t {
     mesh_t(std::ifstream& in);
+    mesh_t(std::map<std::string, std::string>& in);
 
     std::string name;
     std::vector<primitive_t> primitives;
 };
 
-struct meshes_t {
-    void init(std::ifstream& in);
-
-    std::vector<mesh_t> meshes;
-    std::vector<float> weights; // of (possible) morph targets
-};
-
 struct skin_t {
     skin_t(std::ifstream& in);
+    skin_t(std::map<std::string, std::string>& in);
 
     unsigned int inverse_bind_matrices; // accessor that has 1 matrix per joint
     std::vector<unsigned int> joints;
@@ -79,19 +78,24 @@ struct skin_t {
 
 struct node_t {
     node_t(std::ifstream& in);
+    node_t(std::map<std::string, std::string>& in);
 
     std::vector<unsigned int> children; // indices on list of nodes
     // the node can have a transformation either in the form of a single mat4
     // or separate translation and scale vec3's and a quaterion rotation which
     // converted to a matrix on initialization. M = T * R * S
+    // attention
     glm::mat4 matrix;
     // or 3 separate properties for trans, rot and scale
+    glm::vec3 translation, scale;
+    glm::quat rotation;
     unsigned int mesh, camera, skin;
     std::string name; // optional
 };
 
 struct target_t {
     target_t(std::ifstream& in);
+    target_t(std::map<std::string, std::string>& in);
     target_t() {};
 
     unsigned int node;
@@ -102,6 +106,7 @@ struct target_t {
 
 struct channel_t {
     channel_t(std::ifstream& in);
+    channel_t(std::map<std::string, std::string>& in);
 
     target_t target;
     unsigned int sampler; // summarizes the actual animation data
@@ -109,6 +114,7 @@ struct channel_t {
 
 struct sampler_t {
     sampler_t(std::ifstream& in);
+    sampler_t(std::map<std::string, std::string>& in);
 
     unsigned int input, output; // indices for accessors
     // "input" has time of the key frame, "output" has values for animated property
@@ -117,6 +123,7 @@ struct sampler_t {
 
 struct animation_t {
     animation_t(std::ifstream& in);
+    animation_t(std::map<std::string, std::string>& in);
 
     std::vector<channel_t> channels;
     std::vector<sampler_t> samplers;
@@ -124,12 +131,16 @@ struct animation_t {
 
 struct asset_t {
     void init(std::ifstream& in);
+    asset_t(std::map<std::string, std::string>& pairs);
+    asset_t() {};
 
     std::string generator, version;    
 };
 
 struct pbr_metallic_t {
     void init(std::ifstream& in);
+    pbr_metallic_t(std::map<std::string, std::string>& in);
+    pbr_metallic_t() {};
 
     std::vector<float> base_color_factor;
     float metallic_factor;
@@ -137,6 +148,7 @@ struct pbr_metallic_t {
  
 struct material_t {
     material_t(std::ifstream& in);
+    material_t(std::map<std::string, std::string>& in);
 
     std::string name;
     pbr_metallic_t pbr_metallic_roughness;
@@ -144,6 +156,7 @@ struct material_t {
 
 struct scene_t { 
     scene_t(std::ifstream& in);
+    scene_t(std::map<std::string, std::string>& in);
 
     std::string name;
     std::vector<unsigned int> nodes;
@@ -151,6 +164,9 @@ struct scene_t {
 
 struct file_t {
     file_t(std::string filepath);
+    file_t() {};
+
+    void fill(const std::string& filepath);
 
     std::vector<accessor_t> accessors;
     std::vector<buffer_view_t> buffer_views;

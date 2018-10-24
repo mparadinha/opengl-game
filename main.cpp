@@ -17,6 +17,7 @@
 
 #include "utils/shader.h"
 #include "utils/axes.h"
+#include "utils/gltf.h"
 
 #include "systems/input.h"
 #include "systems/renderer.h"
@@ -98,6 +99,12 @@ int main() {
     MessageBus msg_bus = MessageBus();
 
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
+
+    //gltf::file_t("res/glTF-Sample-Models-master/2.0/TriangleWithoutIndices/glTF/TriangleWithoutIndices.gltf");
+    gltf::file_t f;
+    f.fill("res/glTF-Sample-Models-master/2.0/Triangle/glTF/Triangle.gltf");
+    //gltf::file_t("res/cube.gltf");
+    return 0;
 
     // init systems
     Input input(screen.window, &msg_bus);
