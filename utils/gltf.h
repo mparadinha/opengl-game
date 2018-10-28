@@ -23,7 +23,6 @@ static std::map<unsigned int, unsigned int> types = {
 };
 
 struct buffer_t {
-    buffer_t(std::ifstream& in);
     buffer_t(std::map<std::string, std::string>& in);
 
     unsigned int byte_length;
@@ -31,7 +30,6 @@ struct buffer_t {
 };
 
 struct buffer_view_t {
-    buffer_view_t(std::ifstream& in);
     buffer_view_t(std::map<std::string, std::string>& in);
 
     unsigned int buffer;
@@ -40,7 +38,6 @@ struct buffer_view_t {
 };
 
 struct accessor_t {
-    accessor_t(std::ifstream& in);
     accessor_t(std::map<std::string, std::string>& in);
 
     unsigned int buffer_view;
@@ -52,7 +49,6 @@ struct accessor_t {
 };
 
 struct primitive_t {
-    primitive_t(std::ifstream& in);
     primitive_t(std::map<std::string, std::string>& in);
 
     unsigned int mode, indices, material;
@@ -60,7 +56,6 @@ struct primitive_t {
 };
 
 struct mesh_t {
-    mesh_t(std::ifstream& in);
     mesh_t(std::map<std::string, std::string>& in);
 
     std::string name;
@@ -68,7 +63,6 @@ struct mesh_t {
 };
 
 struct skin_t {
-    skin_t(std::ifstream& in);
     skin_t(std::map<std::string, std::string>& in);
 
     unsigned int inverse_bind_matrices; // accessor that has 1 matrix per joint
@@ -77,7 +71,6 @@ struct skin_t {
 };
 
 struct node_t {
-    node_t(std::ifstream& in);
     node_t(std::map<std::string, std::string>& in);
 
     std::vector<unsigned int> children; // indices on list of nodes
@@ -94,7 +87,6 @@ struct node_t {
 };
 
 struct target_t {
-    target_t(std::ifstream& in);
     target_t(std::map<std::string, std::string>& in);
     target_t() {};
 
@@ -105,7 +97,6 @@ struct target_t {
 };
 
 struct channel_t {
-    channel_t(std::ifstream& in);
     channel_t(std::map<std::string, std::string>& in);
 
     target_t target;
@@ -113,7 +104,6 @@ struct channel_t {
 };
 
 struct sampler_t {
-    sampler_t(std::ifstream& in);
     sampler_t(std::map<std::string, std::string>& in);
 
     unsigned int input, output; // indices for accessors
@@ -122,7 +112,6 @@ struct sampler_t {
 };
 
 struct animation_t {
-    animation_t(std::ifstream& in);
     animation_t(std::map<std::string, std::string>& in);
 
     std::vector<channel_t> channels;
@@ -130,7 +119,6 @@ struct animation_t {
 };
 
 struct asset_t {
-    void init(std::ifstream& in);
     asset_t(std::map<std::string, std::string>& pairs);
     asset_t() {};
 
@@ -138,7 +126,6 @@ struct asset_t {
 };
 
 struct pbr_metallic_t {
-    void init(std::ifstream& in);
     pbr_metallic_t(std::map<std::string, std::string>& in);
     pbr_metallic_t() {};
 
@@ -147,7 +134,6 @@ struct pbr_metallic_t {
 };
  
 struct material_t {
-    material_t(std::ifstream& in);
     material_t(std::map<std::string, std::string>& in);
 
     std::string name;
@@ -155,7 +141,6 @@ struct material_t {
 };
 
 struct scene_t { 
-    scene_t(std::ifstream& in);
     scene_t(std::map<std::string, std::string>& in);
 
     std::string name;
@@ -163,10 +148,7 @@ struct scene_t {
 };
 
 struct file_t {
-    file_t(std::string filepath);
-    file_t() {};
-
-    void fill(const std::string& filepath);
+    file_t(const std::string& filepath);
 
     std::vector<accessor_t> accessors;
     std::vector<buffer_view_t> buffer_views;
@@ -188,31 +170,30 @@ struct uri_file_t {
     FILE* file;
 
     void seek(unsigned int offset);
-    template<typename T>
-    std::vector<T> read(unsigned int offset, unsigned int count);
+
+    template<typename T = unsigned char> // default to reading bytes
+    std::vector<T> read(unsigned int offset, unsigned int count) {
+        std::cout << "read(" << offset << ", " << count << ")" << std::endl;
+    
+        seek(offset); // set file pointer to the offset position
+    
+        T* data = new T[count];
+        if(!data) {
+            std::cout << "ERROR: couldn't create array for " << count * sizeof(T)
+                << " bytes" << std::endl;
+        }
+    
+        fread(data, sizeof(T), count, file);
+    
+        // convert c style array to c++ std::vector
+        std::vector<T> vec(data, data + count);
+    
+        delete data;
+    
+        return vec;
+    }
 };
 
 } // end of gltf namespace
-
-/* convenience functions */
-float to_f(std::string);
-unsigned int to_uint(std::string);
-unsigned int read_uint(std::ifstream& in);
-std::string read_string(std::ifstream& in);
-std::vector<float> read_float_vector(std::string source);
-std::vector<unsigned int> read_uint_vector(std::string source);
-glm::vec3 read_glm_vector(std::string source);
-glm::quat read_glm_quat(std::string source);
-glm::mat4 read_glm_matrix(std::string source);
-std::vector<std::string> split_vector_str(std::string source);
-std::vector<std::string> split_str(std::string source, char separator);
-std::vector<std::string> split_str_last_of(std::string source, char separator);
-std::map<std::string, std::string> get_pairs(std::ifstream& in);
-std::map<std::string, std::string> get_basic_pairs(std::string content);
-std::vector<std::string> read_pair(std::ifstream& in);
-void clean_str(std::string& s);
-
-std::string read_obj(std::ifstream& in);
-std::vector<std::string> read_obj_list(std::ifstream& in);
 
 #endif // include guard

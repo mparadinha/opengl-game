@@ -100,12 +100,6 @@ int main() {
 
     Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
 
-    //gltf::file_t("res/glTF-Sample-Models-master/2.0/TriangleWithoutIndices/glTF/TriangleWithoutIndices.gltf");
-    gltf::file_t f;
-    f.fill("res/glTF-Sample-Models-master/2.0/Triangle/glTF/Triangle.gltf");
-    //gltf::file_t("res/cube.gltf");
-    return 0;
-
     // init systems
     Input input(screen.window, &msg_bus);
     Loader loader(&msg_bus);
@@ -132,11 +126,6 @@ int main() {
     thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
     thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION; 
     e_pool.add_entity(thot);
-
-    std::cout << "shiiiiiiiiiiiiit\n";
-    std::vector<float> v = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    auto mat3 = glm::make_mat3(v.data());
-    std::cout << glm::to_string(mat3 * glm::vec3(1, 0, 0)) << std::endl;
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later

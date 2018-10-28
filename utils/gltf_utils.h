@@ -24,17 +24,10 @@ std::string map_get(std::map<std::string, std::string> map, std::string key, std
 
 template<typename T>
 void build_obj_list(const std::string& in, std::vector<T>& objs) {
-    std::cout << "BUILDING OBJS of type '" << typeid(T).name() << "'\n";
-    std::cout << "string: " << in << std::endl;
-    std::cout << "obj_list of " << clean_obj(in, '[', ']') << "\n";
     for(auto& obj_str : split_obj_list(clean_obj(in, '[', ']'))) {
-        std::cout << "obj) " << obj_str << std::endl;
         auto pairs = split_pairs(obj_str);
-        std::cout << "pairs:\n";
-        for(auto& p : pairs) std::cout << p.first << " --> " << p.second << std::endl;
         objs.push_back(T(pairs));
     }
-    std::cout << "built " << objs.size() << " of type '" << typeid(T).name() << "'\n";
 }
 
 std::vector<unsigned int> to_uint_vec(const std::string& in);
