@@ -61,7 +61,7 @@ mesh_t Loader::load_mesh(std::string filepath) {
     gltf::accessor_t indices_accessor = file.accessors[primitive.indices];
     glGenBuffers(1, &out_mesh.ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, out_mesh.ebo);
-    read_buffer_data(buffer, file.buffer_views[indices_accessor.buffer_view], GL_ELEMENT_ARRAY_BUFFER);
+    read_buffer_data(buffer, indices_accessor, file.buffer_views[indices_accessor.buffer_view], GL_ELEMENT_ARRAY_BUFFER);
     // and store the number of indices (needed for drawing)
     out_mesh.num_indices = file.accessors[primitive.indices].count;
     out_mesh.index_data_type = gltf::types[indices_accessor.component_type];
@@ -265,7 +265,7 @@ void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor
     create_vbo(vbos, vbo_idx, size, gltf::types[accessor.component_type]);
 
     gltf::buffer_view_t buf_view = file.buffer_views[accessor.buffer_view];
-    read_buffer_data(buffer, buf_view, GL_ARRAY_BUFFER);
+    read_buffer_data(buffer, accessor, buf_view, GL_ARRAY_BUFFER);
 }
 
 void read_buffer_data(void* data, unsigned int byte_length, unsigned int data_type) {
@@ -275,12 +275,15 @@ void read_buffer_data(void* data, unsigned int byte_length, unsigned int data_ty
         GL_STATIC_DRAW);
 }
 
-void read_buffer_data(gltf::uri_file_t& buffer, gltf::buffer_view_t buf_view, unsigned int data_type) {
+// TODO: think about reading data with a stride =/= 0
+void read_buffer_data(gltf::uri_file_t& buffer, gltf::accessor_t& accessor, gltf::buffer_view_t buf_view, unsigned int data_type) {
+    unsigned bytes_to_read = sizeof(gltf::types[accessor.component_type]) * gltf::type_component_num[accessor.type] * accessor.count;
+
     // put the buffer file pointer pointing to where the data is
     std::vector<unsigned char> data = buffer.read<unsigned char>(
-        buf_view.byte_offset, buf_view.byte_length);
+        buf_view.byte_offset + accessor.byte_offset, bytes_to_read);
 
-    read_buffer_data(&data[0], buf_view.byte_length, data_type);
+    read_buffer_data(&data[0], bytes_to_read, data_type);
 }
 
 void load_image(std::string path, unsigned int texture_type, bool gen_mipmaps) {

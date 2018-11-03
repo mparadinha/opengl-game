@@ -34,7 +34,7 @@ private:
 };
 
 void read_buffer_data(void* data, unsigned int byte_length, unsigned int data_type);
-void read_buffer_data(gltf::uri_file_t& buffer, gltf::buffer_view_t buf_view, unsigned int data_type);
+void read_buffer_data(gltf::uri_file_t& buffer, gltf::accessor_t& accessor, gltf::buffer_view_t buf_view, unsigned int data_type);
 void load_vbo(gltf::file_t file, gltf::uri_file_t& buffer, unsigned int accessor_idx, unsigned int vbos[], unsigned int vbo_idx, unsigned int size);
 void load_vbo(void* data, unsigned int byte_length, unsigned int vbos[], unsigned int vbo_idx, unsigned int size, unsigned int type = GL_FLOAT);
 void create_vbo(unsigned int vbos[], unsigned int vbo_idx, unsigned int size, unsigned int type);

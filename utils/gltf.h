@@ -13,13 +13,18 @@
 
 namespace gltf {
 
-// this is not suppost to ever change at runtime but the compiler freaks out
+// these is not suppost to ever change at runtime but the compiler freaks out
 // because of accessing it cannot be done while mainting const certain
 static std::map<unsigned int, unsigned int> types = { 
     {5121, GL_UNSIGNED_BYTE},
     {5123, GL_UNSIGNED_SHORT},
     {5125, GL_UNSIGNED_INT},
     {5126, GL_FLOAT}
+};
+static std::map<std::string, unsigned int> type_component_num = {
+    {"SCALAR", 1},
+    {"VEC2", 2}, {"VEC3", 3}, {"VEC4", 4},
+    {"MAT2", 4}, {"MAT3", 9}, {"MAT4", 16}
 };
 
 struct buffer_t {
@@ -172,7 +177,7 @@ struct uri_file_t {
     void seek(unsigned int offset);
 
     template<typename T = unsigned char> // default to reading bytes
-    std::vector<T> read(unsigned int offset, unsigned int count) {
+    std::vector<T> read(unsigned int offset, unsigned int count, unsigned int stride = 0) {
         std::cout << "read(" << offset << ", " << count << ")" << std::endl;
     
         seek(offset); // set file pointer to the offset position
@@ -182,7 +187,7 @@ struct uri_file_t {
             std::cout << "ERROR: couldn't create array for " << count * sizeof(T)
                 << " bytes" << std::endl;
         }
-    
+
         fread(data, sizeof(T), count, file);
     
         // convert c style array to c++ std::vector

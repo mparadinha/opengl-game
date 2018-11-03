@@ -117,14 +117,17 @@ int main() {
     add_grid(loader, {0, -1.89, 0}, {1, 1, 1}, 10, 10);
 
     Entity* thot = new Entity;
-    mesh_t* thotm = new mesh_t(loader.load_mesh("res/thot_dab.gltf"));
-    animation_t* thota = new animation_t(loader.load_animation("res/thot_dab.gltf"));
+    std::string test_file = "res/RiggedSimple/RiggedSimple.gltf";
+    mesh_t* thotm = new mesh_t(loader.load_mesh(test_file));
+    animation_t* thota = new animation_t(loader.load_animation(test_file));
     thot->components[MESH] = thotm;
     thot->components[ANIMATION] = thota;
-    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({{0, 0, 0}, {1, 1, 1}, 0, 0, 0});
-    thot->components[RIGID_BODY] = new rigid_body_t({{0, 0, 0}, {0, 0, 0}, {1, 1, 1}, 0, 0, 0, 0, true});
+    glm::vec3 p(0, 1, 0), s(0.5);
+    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({p, s, 0, -90, 0});
+    thot->components[RIGID_BODY] = new rigid_body_t({p, {0, 0, 0}, s, 0, -90, 0, 0, true});
     thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
-    thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION; 
+    thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION;
+    //thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR;
     e_pool.add_entity(thot);
 
     // special entities
