@@ -29,7 +29,8 @@ public:
 
 private:
     joint_t load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int node,
-        std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs);
+        std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs,
+        glm::mat4 parent_transform);
     unsigned int find_key_frame(std::vector<key_frame_t>& key_frames, float time);
 };
 

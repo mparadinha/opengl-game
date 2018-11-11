@@ -32,7 +32,7 @@ struct joint_t {
     unsigned int id; // index into the final array of joint transforms
     // that are sent to the shader
     glm::mat4 transform; // transforms the joint from the bind pose, its default
-    // state, (i.e no animation applied) into the current pose. relative to parent
+    // state, (i.e no animation applied) into the current pose. in model space
     std::string name;
     glm::mat4 inverse_bind; // used by the animation system to calculate the
     // transform. it is in model space and in the default pose (hence the bind) 

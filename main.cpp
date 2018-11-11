@@ -122,9 +122,10 @@ int main() {
     animation_t* thota = new animation_t(loader.load_animation(test_file));
     thot->components[MESH] = thotm;
     thot->components[ANIMATION] = thota;
-    glm::vec3 p(0, 1, 0), s(0.5);
-    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({p, s, 0, -90, 0});
-    thot->components[RIGID_BODY] = new rigid_body_t({p, {0, 0, 0}, s, 0, -90, 0, 0, true});
+    glm::vec3 p(0, 0, 0), s(1);
+    float thot_angle = -90;
+    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({p, s, 0, thot_angle, 0});
+    thot->components[RIGID_BODY] = new rigid_body_t({p, {0, 0, 0}, s, 0, thot_angle, 0, 0, true});
     thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
     thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION;
     //thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR;

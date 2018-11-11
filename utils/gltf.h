@@ -197,6 +197,17 @@ struct uri_file_t {
     
         return vec;
     }
+
+    // this must be called using the same T that is defined by the accessor
+    template<typename T>
+    std::vector<T> read(gltf::file_t& file, uint32_t accessor_index) {
+        auto accessor = file.accessors[accessor_index];
+        auto buffer_view = file.buffer_views[accessor.buffer_view];
+        // TODO: if stride on buffer_view is not the same as number of bytes
+        // each accessor item uses then we need to pass them to read
+        return read<T>(accessor.byte_offset + buffer_view.byte_offset,
+            accessor.count);
+    }
 };
 
 } // end of gltf namespace

@@ -74,10 +74,12 @@ def main(args):
     accessor = json_file["accessors"][accessor_index]
 
     # print general info about accessor
-    for k in ["count", "min", "max", "type"]:
+    for k in ["count", "type", "byteOffset", "bufferView"]:
         if k in accessor: print(k, accessor[k])
 
-    if info_only: return
+    if info_only:
+        for k in ["min", "max"]: print(k, accessor.get(k, None))
+        return
 
     bin_buffer = GLTFBuffer(os.path.dirname(filepath), json_file["buffers"][0])
 

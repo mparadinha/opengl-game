@@ -25,7 +25,7 @@ void main() {
 
     mat4 skin_matrix = mat4(0.0);
     for(int i = 0; i < MAX_WEIGHTS; i++) {
-        skin_matrix = weights[i] * joint_transforms[joints[i]];
+        skin_matrix += weights[i] * joint_transforms[joints[i]];
     }
 
     gl_Position = projection * view * model * skin_matrix * vec4(position, 1.0);

@@ -101,16 +101,15 @@ animation_t Loader::load_animation(std::string filepath) {
     // load all the information for the joint_t tree
     unsigned int root_node = file.skins[0].joints[0];
     // get all the inverse bind matrices into a map
-    gltf::accessor_t accessor = file.accessors[file.skins[0].inverse_bind_matrices];
-    std::vector<glm::mat4> inv_binds = buffer.read<glm::mat4>(
-        file.buffer_views[accessor.buffer_view].byte_offset, accessor.count);
+    std::vector<glm::mat4> inv_binds = buffer.read<glm::mat4>(file,
+        file.skins[0].inverse_bind_matrices);
     // map is: node index -> pair(index into final array, inverse bind matrix)
     std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_binds;
     for(unsigned int i = 0; i < inv_binds.size(); i++) {
         joint_binds[file.skins[0].joints[i]] = {i, inv_binds[i]};
     }
     // called for the root node. its recursive and calls for each child
-    animation.root_joint = load_joint_tree(file.nodes, root_node, joint_binds);
+    animation.root_joint = load_joint_tree(file.nodes, root_node, joint_binds, glm::mat4(1));
 
     // TODO: support more than one animation per file
 
@@ -127,9 +126,7 @@ animation_t Loader::load_animation(std::string filepath) {
         gltf::sampler_t sampler = file.animations[0].samplers[channel.sampler];
 
         // load time
-        gltf::accessor_t t_access = file.accessors[sampler.input];
-        gltf::buffer_view_t t_buf_v = file.buffer_views[t_access.buffer_view];
-        float time = buffer.read<float>(t_buf_v.byte_offset, t_access.count)[0];
+        float time = buffer.read<float>(file, sampler.input)[0];
 
         unsigned int joint_anim_index = joint_binds[node].first;
         joint_animation_t& joint_anim = animation.joint_animations[joint_anim_index];
@@ -139,19 +136,16 @@ animation_t Loader::load_animation(std::string filepath) {
         if(time > duration) duration = time;
 
         // load and save the translation/rotation
-        gltf::accessor_t accessor = file.accessors[sampler.output];
-        gltf::buffer_view_t buffer_view = file.buffer_views[accessor.buffer_view];
         if(channel.target.path == "translation") {
-            glm::vec3 translation = buffer.read<glm::vec3>(buffer_view.byte_offset, 1)[0];
+            glm::vec3 translation = buffer.read<glm::vec3>(file, sampler.output)[0];
             joint_anim.key_frames[key_frame_index].joint_transform.translation = translation;
         }
         else if(channel.target.path == "rotation") {
-            glm::quat rotation = buffer.read<glm::quat>(buffer_view.byte_offset, 1)[0];
+            glm::quat rotation = buffer.read<glm::quat>(file, sampler.output)[0];
             joint_anim.key_frames[key_frame_index].joint_transform.rotation = rotation;
         }
     }
 
-    std::cout << "key frames: " << animation.joint_animations[0].key_frames.size() << std::endl;
     animation.joint_transforms.resize(joint_binds.size());
     for(unsigned int i = 0; i < joint_binds.size(); i++) {
         animation.joint_transforms[i] = glm::mat4(1);
@@ -170,15 +164,17 @@ unsigned int Loader::find_key_frame(std::vector<key_frame_t>& key_frames, float 
 }
 
 joint_t Loader::load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int node,
-    std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs) {
+    std::map<unsigned int, std::pair<unsigned int, glm::mat4>> joint_bind_pairs,
+    glm::mat4 parent_transform) {
 
     joint_t joint;
     joint.name = nodes[node].name;
     joint.id = joint_bind_pairs[node].first;
     joint.inverse_bind = joint_bind_pairs[node].second;
+    joint.transform = nodes[node].matrix * parent_transform;
 
     for(unsigned int child_node : nodes[node].children) {
-        joint_t child = load_joint_tree(nodes, child_node, joint_bind_pairs);
+        joint_t child = load_joint_tree(nodes, child_node, joint_bind_pairs, joint.transform);
         joint.children.push_back(child);
     }
 

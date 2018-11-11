@@ -27,6 +27,7 @@ void Animator::update_animations(float dt) {
     std::vector<Entity*> entities = e_pool.query(ANIMATION);
     for(auto e : entities) {
         animation_t* anim = (animation_t*) e->components[ANIMATION];
+        continue;
 
         anim->time = fmod(anim->time + dt, anim->duration);
         pose_t pose = build_pose(anim);
