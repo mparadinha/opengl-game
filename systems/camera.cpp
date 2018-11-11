@@ -17,9 +17,11 @@ CameraUpdater::CameraUpdater(MessageBus* msg_bus) : System(msg_bus) {
     std::cout << "initing camera updater...\n";
 
     // create camera and add to the special pool
-    pos_rot_scale_t* c_pos = new pos_rot_scale_t({glm::vec3(10, 20.5, 10), {1, 2.5, 1}, 45, -30, 0});
-    rigid_body_t* rb_c = new rigid_body_t({{10, 20.5, 10}, {0, 0, 0}, {1, 2.5, 1}, 0, 0, 0, 1 / 80.0, false, {0.25, 0.4}});
-    aabb_t* c_bv = new aabb_t({{10, 20.5, 10}, {1, 2.5, 1}});
+    //glm::vec3 pos(10, 20.5, 10), scale(1, 2.5, 1);
+    glm::vec3 pos(1.5, 2, 1.5), scale(1, 2.5, 1);
+    pos_rot_scale_t* c_pos = new pos_rot_scale_t({pos, scale, 45, 15, 0});
+    rigid_body_t* rb_c = new rigid_body_t({pos, {0, 0, 0}, scale, 0, 0, 0, 1 / 80.0, false, {0.25, 0.4}});
+    aabb_t* c_bv = new aabb_t({pos, scale});
     camera_t* c = new camera_t({glm::mat4(1), glm::perspective(glm::radians(60.0), 1.67, 0.1, 1000.0), 60});
     camera = new Entity;
     camera->components[POS_ROT_SCALE] = c_pos;

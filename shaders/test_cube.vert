@@ -2,6 +2,8 @@
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 norm;
+layout (location = 2) in ivec4 joints;
+layout (location = 3) in vec4 weights;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -19,5 +21,10 @@ void main() {
     frag_color = color;
 
     float diffuse = max(dot(norm, sun), 0.0);
-    frag_color = vec4((diffuse +ambient) * color.xyz, color.w);
+    if(color == vec4(1, 1, 1, 1)) {
+        frag_color = vec4(weights.xyw, 1);
+    }
+    else {
+        frag_color = vec4((diffuse + ambient) * color.xyz, color.w);
+    }
 }
