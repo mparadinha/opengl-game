@@ -32,6 +32,9 @@ void uri_file_t::seek(unsigned int offset) {
 
 file_t::file_t(const std::string& filepath) { 
     std::ifstream in(filepath);
+    if(!in) {
+        std::cerr << "could not open gltf file @ " << filepath << std::endl;
+    }
 
     // read whole file into a string for easier access
     std::string str;    
