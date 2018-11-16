@@ -125,26 +125,34 @@ animation_t Loader::load_animation(std::string filepath) {
 
         gltf::sampler_t sampler = file.animations[0].samplers[channel.sampler];
 
-        // load time
-        float time = buffer.read<float>(file, sampler.input)[0];
+        // load resources
+        std::vector<float> times = buffer.read<float>(file, sampler.input);
 
         unsigned int joint_anim_index = joint_binds[node].first;
         joint_animation_t& joint_anim = animation.joint_animations[joint_anim_index];
-        unsigned int key_frame_index = find_key_frame(joint_anim.key_frames, time);
 
-        joint_anim.key_frames[key_frame_index].time_stamp = time;
-        if(time > duration) duration = time;
+        for(uint32_t i = 0; i < times.size(); i++) {
+            float time = times[i];
 
-        // load and save the translation/rotation
-        if(channel.target.path == "translation") {
-            glm::vec3 translation = buffer.read<glm::vec3>(file, sampler.output)[0];
-            joint_anim.key_frames[key_frame_index].joint_transform.translation = translation;
-        }
-        else if(channel.target.path == "rotation") {
-            glm::quat rotation = buffer.read<glm::quat>(file, sampler.output)[0];
-            joint_anim.key_frames[key_frame_index].joint_transform.rotation = rotation;
+            // find the key frame for this time stamp
+            unsigned int key_frame_index = find_key_frame(joint_anim.key_frames, time);
+
+            joint_anim.key_frames[key_frame_index].time_stamp = time;
+            if(time > duration) duration = time;
+
+            // load and save the translation/rotation
+            if(channel.target.path == "translation") {
+                glm::vec3 translation = buffer.read<glm::vec3>(file, sampler.output)[i];
+                joint_anim.key_frames[key_frame_index].joint_transform.translation = translation;
+            }
+            else if(channel.target.path == "rotation") {
+                glm::quat rotation = buffer.read<glm::quat>(file, sampler.output)[i];
+                joint_anim.key_frames[key_frame_index].joint_transform.rotation = rotation;
+            }
         }
     }
+
+    animation.duration = duration;
 
     animation.joint_transforms.resize(joint_binds.size());
     for(unsigned int i = 0; i < joint_binds.size(); i++) {

@@ -95,6 +95,19 @@ unsigned int add_grid(Loader& loader, glm::vec3 pos, glm::vec3 scale, unsigned i
     return e_pool.add_entity(test);
 }
 
+unsigned int add_animated(Loader& loader, std::string path, glm::vec3 pos, glm::vec3 scale, glm::vec3 angles) {
+    Entity* thot = new Entity;
+    mesh_t* thotm = new mesh_t(loader.load_mesh(path));
+    animation_t* thota = new animation_t(loader.load_animation(path));
+    thot->components[MESH] = thotm;
+    thot->components[ANIMATION] = thota;
+    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({pos, scale, angles.x, angles.y, angles.z});
+    thot->components[RIGID_BODY] = new rigid_body_t({pos, {0, 0, 0}, scale, angles.x, angles.y, angles.z, 0, true});
+    thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
+    thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION;
+    return e_pool.add_entity(thot);
+}
+
 int main() {
     MessageBus msg_bus = MessageBus();
 
@@ -116,20 +129,11 @@ int main() {
     add_cube(loader, {20, 10, 20}, {10, 10, 10}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_grid(loader, {0, -1.89, 0}, {1, 1, 1}, 10, 10);
 
-    Entity* thot = new Entity;
-    std::string test_file = "res/RiggedSimple/RiggedSimple.gltf";
-    mesh_t* thotm = new mesh_t(loader.load_mesh(test_file));
-    animation_t* thota = new animation_t(loader.load_animation(test_file));
-    thot->components[MESH] = thotm;
-    thot->components[ANIMATION] = thota;
     glm::vec3 p(0, 0, 0), s(1);
     float thot_angle = -90;
-    thot->components[POS_ROT_SCALE] = new pos_rot_scale_t({p, s, 0, thot_angle, 0});
-    thot->components[RIGID_BODY] = new rigid_body_t({p, {0, 0, 0}, s, 0, thot_angle, 0, 0, true});
-    thot->components[SOLID_COLOR] = new solid_color_t({{1, 1, 1, 1}});
-    thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR | ANIMATION;
-    //thot->bitset = MESH | POS_ROT_SCALE | RIGID_BODY | SOLID_COLOR;
-    e_pool.add_entity(thot);
+    add_animated(loader, "/home/parada/repos/opengl-game/res/glTF-Sample-Models-master/2.0/CesiumMan/glTF/CesiumMan.gltf", p, s, {0, thot_angle, 0});
+    add_animated(loader, "/home/parada/repos/opengl-game/res/glTF-Sample-Models-master/2.0/Monster/glTF/Monster.gltf", p, glm::vec3(0.005), {0, thot_angle, 0});
+    add_animated(loader, "/home/parada/repos/opengl-game/res/thot_dab.gltf", {0, 0, 4}, s, {0, 0, 0});
 
     // special entities
     // add a simple cube mesh to the pool to draw bounding boxes later
