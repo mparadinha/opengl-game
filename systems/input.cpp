@@ -52,6 +52,10 @@ void Input::key_callback(int key, int scancode, int action, int mods) {
         send_msg({TOGGLE_BB});
     }
 
+    // toggle bones
+    if(key == GLFW_KEY_X && action == GLFW_RELEASE) {
+        send_msg({TOGGLE_BONES});
+    }
     if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         send_msg({JUMP});
     }

@@ -47,7 +47,7 @@ $(OBJDIR)/%.o: %.cpp
 all: $(EXECS)
 
 clean:
-	@rm -rf $(OBJDIR) $(EXECS)
+	rm -rf $(OBJDIR) $(EXECS)
 
 # This rebuilds everything if the Makefile was modified
 # http://stackoverflow.com/questions/3871444/making-all-rules-depend-on-the-makefile-itself/3892826#3892826

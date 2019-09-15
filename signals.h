@@ -13,6 +13,7 @@ enum {
     NEW_FRAME,
 
     TOGGLE_BB,
+    TOGGLE_BONES,
 
     CLEAN_UP
 };

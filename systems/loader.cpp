@@ -57,6 +57,11 @@ mesh_t Loader::load_mesh(std::string filepath) {
         load_vbo(file, buffer, attrs["WEIGHTS_0"], out_mesh.vbos, 3, 4);
     }
 
+    std::cout << "max position: (";
+    auto max_vec = file.accessors[attrs["POSITION"]].max;
+    for(auto f : max_vec) std::cout << f << ", ";
+    std::cout << "\n";
+
     // create, bind, and fill ebo
     gltf::accessor_t indices_accessor = file.accessors[primitive.indices];
     glGenBuffers(1, &out_mesh.ebo);
@@ -180,6 +185,12 @@ joint_t Loader::load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int no
     joint.id = joint_bind_pairs[node].first;
     joint.inverse_bind = joint_bind_pairs[node].second;
     joint.transform = nodes[node].matrix * parent_transform;
+
+    std::cout << joint.name << ":\n" << 
+        "\t inv_bind: " << glm::to_string(joint.inverse_bind[3]) << "\n" <<
+        "\t    nodes: " << glm::to_string(nodes[node].matrix[3]) << "\n" <<
+        "\t   parent: " << glm::to_string(parent_transform[3]) << "\n" <<
+        "\ttransform: " << glm::to_string(joint.transform[3]) << "\n";
 
     for(unsigned int child_node : nodes[node].children) {
         joint_t child = load_joint_tree(nodes, child_node, joint_bind_pairs, joint.transform);

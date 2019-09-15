@@ -51,6 +51,8 @@ struct animation_t {
     // pose. this is the array that the renderer should send to the shaders.
     // this informations is already on the joint tree, this is simply for convenience
     std::vector<glm::mat4> joint_transforms;
+
+    pose_t current_pose; // needed for debug bone drawing
 };
 
 #endif // include guard

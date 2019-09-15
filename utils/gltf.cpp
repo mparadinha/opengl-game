@@ -89,6 +89,8 @@ accessor_t::accessor_t(std::map<std::string, std::string>& pairs) {
     component_type = std::stoul(pairs["componentType"]);
     count = std::stoul(pairs["count"]);
     type = read_str(pairs["type"]);
+
+    if(pairs.count("max") != 0) { max = to_float_vec(pairs["max"]); }
 }
 
 primitive_t::primitive_t(std::map<std::string, std::string>& pairs) {

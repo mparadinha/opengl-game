@@ -34,6 +34,8 @@ void Animator::update_animations(float dt) {
         anim->time = fmod(anim->time + dt, anim->duration);
         pose_t pose = build_pose(anim);
         apply_pose(anim, anim->root_joint, glm::mat4(1), pose);
+
+        anim->current_pose = pose; // needed for debug bone drawing
     }
 }
 

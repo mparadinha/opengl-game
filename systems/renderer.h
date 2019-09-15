@@ -7,7 +7,9 @@
 #include "../message_bus.h"
 #include "../utils/shader.h"
 #include "../components/component_enum.h"
+#include "../components/mesh.h"
 #include "../components/camera.h"
+#include "../components/animation.h"
 
 class Renderer : public System {
 public:
@@ -24,7 +26,10 @@ public:
 private:
     std::map<std::string, Shader*> shaders;
 
+    // debug
     bool show_bounding_box = false;
+    bool show_bones = false;
+    mesh_t make_bone_mesh(animation_t* a);
 };
 
 void cleanup_meshes();

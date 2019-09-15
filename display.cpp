@@ -32,7 +32,7 @@ Display::Display(int w, int h, std::string title) {
     // we need to set the context being used to the one we just created
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(0); // prevent glfw from waiting between displaying frames
+    glfwSwapInterval(1); // prevent glfw from waiting between displaying frames
 
     // laod all the GL functions with glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

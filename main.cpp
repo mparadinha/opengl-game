@@ -111,7 +111,7 @@ unsigned int add_animated(Loader& loader, std::string path, glm::vec3 pos, glm::
 int main() {
     MessageBus msg_bus = MessageBus();
 
-    Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "TITLE");
+    Display screen = Display(WINDOW_WIDTH, WINDOW_HEIGHT, "i3floatme");
 
     // init systems
     Input input(screen.window, &msg_bus);
@@ -122,9 +122,9 @@ int main() {
     Animator animator(&msg_bus);
 
     // test entities
-    add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
-    add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0}, false, {0, 1, 0, 1});
-    add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0}, false, {1, 0, 0, 0.4});
+    //add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
+    //add_cube(loader, {10, 0, 0}, {1, 1, 1}, {-5, 0, 0}, false, {0, 1, 0, 1});
+    //add_cube(loader, {5, 20.5, 5}, {1, 2.5, 1}, {0, 0, 0}, false, {1, 0, 0, 0.4});
     add_cube(loader, {0, -2, 0}, {100, 0.1, 100}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_cube(loader, {20, 10, 20}, {10, 10, 10}, {0, 0, 0}, true, {0.2, 0.2, 0.2, 0.9});
     add_grid(loader, {0, -1.89, 0}, {1, 1, 1}, 10, 10);

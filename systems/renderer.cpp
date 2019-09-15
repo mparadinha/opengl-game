@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <glad.h>
+
 #include "renderer.h"
 #include "../signals.h"
 #include "../entity_pool.h"
@@ -46,6 +48,9 @@ void Renderer::handle_message(message_t msg) {
     case TOGGLE_BB:
         show_bounding_box = !show_bounding_box;
         break;
+    case TOGGLE_BONES:
+        show_bones = !show_bones;
+        break;
     case CLEAN_UP:
         cleanup_meshes();
     }
@@ -69,7 +74,17 @@ void Renderer::render_all() {
             animation_t* a = (animation_t*) e->components[ANIMATION];
             shaders["animated"]->use();
             shaders["animated"]->set_uniform("joint_transforms", (float*)a->joint_transforms.data(), a->joint_transforms.size());
+
             render(shaders["animated"], camera_info, e);
+            if(show_bones) {
+                auto saved_mesh_ptr = (mesh_t*) e->components[MESH];
+                e->components[MESH] = new mesh_t(make_bone_mesh(a));
+                glDisable(GL_DEPTH_TEST);
+                render(shaders["bounding_box"], camera_info, e);
+                glEnable(GL_DEPTH_TEST);
+                delete (mesh_t*) e->components[MESH];
+                e->components[MESH] = saved_mesh_ptr;
+            }
         }
         else {
             render(shaders["test_cube"], camera_info, e);
@@ -205,4 +220,45 @@ std::vector<Entity*> sorted_entities(glm::vec3 camera_pos) {
     }
 
     return entities;
+}
+
+void traverse_bone_tree(std::vector<unsigned int>* indices, std::vector<glm::vec3>* vert_pos, 
+        joint_t joint, animation_t* a, glm::vec3 parent_pos) {
+
+    indices->push_back(vert_pos->size());
+    vert_pos->push_back(parent_pos);
+    indices->push_back(vert_pos->size());
+    glm::mat4 tmp = a->joint_transforms[joint.id] * glm::inverse(joint.inverse_bind);
+    glm::vec3 pos = glm::vec3(tmp * glm::vec4(0, 0, 0, 1));
+    vert_pos->push_back(pos);
+
+    for(auto child : joint.children) traverse_bone_tree(indices, vert_pos, child, a, pos);
+}
+
+mesh_t Renderer::make_bone_mesh(animation_t* a) {
+    std::vector<unsigned int> indices = {};
+    std::vector<glm::vec3> vert_pos = {};
+    glm::vec3 root_pos = glm::vec3(a->root_joint.transform * glm::vec4(0, 0, 0, 1));
+
+    traverse_bone_tree(&indices, &vert_pos, a->root_joint, a, root_pos);
+
+    mesh_t mesh;
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao); 
+
+    glGenBuffers(1, &mesh.vbos[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vert_pos.size(), vert_pos.data(), GL_STATIC_DRAW);
+
+    glGenBuffers(1, &mesh.ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+
+    mesh.num_indices = indices.size();
+    mesh.index_data_type = GL_UNSIGNED_INT;
+    mesh.draw_mode = GL_LINES;
+
+    return mesh;
 }
