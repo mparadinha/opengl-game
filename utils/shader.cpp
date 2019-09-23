@@ -24,14 +24,14 @@ Shader::Shader(std::string filename, std::string dir) {
     glDeleteShader(v_shader);
     glDeleteShader(f_shader);
 
-    use(); // select the current program
+    //use(); // select the current program
 
     // because the diffuse and specular textures are always (at least so far)
     // we can set these here
     // TODO: kinda hardcoded, change it
     // tell the shader program what to what texture unit each sampler2D corresponds
-    set_uniform("diffuse", 0);
-    set_uniform("specular", 1);
+    //set_uniform("diffuse", 0);
+    //set_uniform("specular", 1);
 }
 
 Shader::~Shader() {

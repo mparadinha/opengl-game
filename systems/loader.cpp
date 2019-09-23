@@ -186,12 +186,6 @@ joint_t Loader::load_joint_tree(std::vector<gltf::node_t> nodes, unsigned int no
     joint.inverse_bind = joint_bind_pairs[node].second;
     joint.transform = nodes[node].matrix * parent_transform;
 
-    std::cout << joint.name << ":\n" << 
-        "\t inv_bind: " << glm::to_string(joint.inverse_bind[3]) << "\n" <<
-        "\t    nodes: " << glm::to_string(nodes[node].matrix[3]) << "\n" <<
-        "\t   parent: " << glm::to_string(parent_transform[3]) << "\n" <<
-        "\ttransform: " << glm::to_string(joint.transform[3]) << "\n";
-
     for(unsigned int child_node : nodes[node].children) {
         joint_t child = load_joint_tree(nodes, child_node, joint_bind_pairs, joint.transform);
         joint.children.push_back(child);

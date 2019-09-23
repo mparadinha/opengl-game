@@ -2,6 +2,8 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
+#include <cstdlib>
+#include <vector>
 
 #include <glad.h>
 
@@ -10,6 +12,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "include/stb_truetype.h"
 
 #include "display.h"
 #include "signals.h"
@@ -36,6 +40,10 @@
 #include "components/animation.h"
 
 #include "entity_pool_global.h"
+
+// tmp testing
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
@@ -108,6 +116,94 @@ unsigned int add_animated(Loader& loader, std::string path, glm::vec3 pos, glm::
     return e_pool.add_entity(thot);
 }
 
+void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt_bakedchar* cdata)
+{
+    Shader shader("text");
+    shader.use();
+
+    shader.set_uniform("tex", 0);
+
+    Entity* camera = e_pool.get_special(CAMERA);
+    camera_t* camera_info = (camera_t*) camera->components[CAMERA];
+    shader.set_uniform("view", camera_info->view);
+    shader.set_uniform("projection", camera_info->projection);
+
+    std::vector<float> data;
+    std::vector<float> texc;
+    std::vector<unsigned int> indices;
+    unsigned int cur = 0;
+    while (*text) {
+       if (*text >= 32 && *text < 128) {
+          stbtt_aligned_quad q;
+          //stbtt_GetBakedQuad(cdata, 512, 512, *text-32, &x, &y, &q, 1);
+          stbtt_GetBakedQuad(cdata, 512, 512, 0, &x, &y, &q, 2);
+          printf("(%f, %f), (%f, %f), (%f, %f), (%f, %f)\n",
+            q.x0, q.y0, q.x1, q.y1,
+            q.s0, q.t0, q.s1, q.t1);
+
+          //data.push_back(q.x0); data.push_back(q.y0); // top left
+          data.push_back(0.0f); data.push_back(0.0f);
+          texc.push_back(q.s0); texc.push_back(q.t1);
+
+          //data.push_back(q.x1); data.push_back(q.y0); // top right
+          data.push_back(1.0f); data.push_back(0.0f);
+          texc.push_back(q.s1); texc.push_back(q.t1);
+
+          //data.push_back(q.x1); data.push_back(q.y1); // bottom right
+          data.push_back(1.0f); data.push_back(1.0f);
+          texc.push_back(q.s1); texc.push_back(q.t0);
+
+          //data.push_back(q.x0); data.push_back(q.y1); // bottom left
+          data.push_back(0.0f); data.push_back(1.0f);
+          texc.push_back(q.s0); texc.push_back(q.t0);
+
+          indices.push_back(cur + 0);
+          indices.push_back(cur + 1);
+          indices.push_back(cur + 2);
+          indices.push_back(cur + 0);
+          indices.push_back(cur + 2);
+          indices.push_back(cur + 3);
+          cur += 4;
+
+          //glTexCoord2f(q.s0,q.t1); glVertex2f(q.x0,q.y0);
+          //glTexCoord2f(q.s1,q.t1); glVertex2f(q.x1,q.y0);
+          //glTexCoord2f(q.s1,q.t0); glVertex2f(q.x1,q.y1);
+          //glTexCoord2f(q.s0,q.t0); glVertex2f(q.x0,q.y1);
+       }
+       ++text;
+    }
+
+    // draw
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*) 0);
+    glEnableVertexAttribArray(0);
+    unsigned int vbo_texc;
+    glGenBuffers(1, &vbo_texc);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_texc);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texc.size(), texc.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*) 0);
+    glEnableVertexAttribArray(1);
+    unsigned int ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+
+    // assume orthographic projection with units = screen pixels, origin at top left
+    glBindTexture(GL_TEXTURE_2D, ftex);
+
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
+
+    printf("data: ");
+    for(auto d : data) std::cout << d << " ";
+    printf("\n");
+}
+
 int main() {
     MessageBus msg_bus = MessageBus();
 
@@ -120,6 +216,30 @@ int main() {
     Physics physics(&msg_bus);
     CameraUpdater camera_updater(&msg_bus);
     Animator animator(&msg_bus);
+
+    FILE* ttf_file = fopen("liberation-mono.ttf", "rb");
+    fseek(ttf_file, 0, SEEK_END);
+    long ttf_filesize = ftell(ttf_file);
+    unsigned char* data = (unsigned char*) malloc(ttf_filesize);
+    assert(data);
+    fseek(ttf_file, 0, SEEK_SET);
+    fread(data, ttf_filesize, 1, ttf_file);
+    fclose(ttf_file);
+    unsigned char* atlas = (unsigned char*) malloc(512 * 512);
+    assert(atlas);
+    stbtt_bakedchar cdata[96];
+    printf("BakeFontBitmap ret value: %d\n",
+        stbtt_BakeFontBitmap(data, 0, 40.0f, atlas, 512, 512, 32, 96, cdata));
+    unsigned int ftex;
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &ftex);
+    glBindTexture(GL_TEXTURE_2D, ftex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, atlas);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    printf("stbi_write_bmp ret val: %d\n",
+        stbi_write_bmp("atlas.bmp", 512, 512, 1, atlas));
 
     // test entities
     //add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
@@ -142,6 +262,7 @@ int main() {
     bb_cube->components[BB_CUBE] = test_cube;
     bb_cube->bitset = BB_CUBE;
     e_pool.add_special(bb_cube, BB_CUBE);
+
     // add skybox texture to special pool
     texture_t skybox_texture = loader.load_texture("res/skybox/skybox.jpg", GL_TEXTURE_CUBE_MAP);
     Entity _skybox; _skybox.components[SKYBOX] = &skybox_texture;
@@ -170,6 +291,8 @@ int main() {
         
         // draw entities
         renderer.render_all();
+
+        my_stbtt_print(0, 0, "a", ftex, cdata);
 
         msg_bus.process();
 

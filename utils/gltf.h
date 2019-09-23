@@ -178,8 +178,6 @@ struct uri_file_t {
 
     template<typename T = unsigned char> // default to reading bytes
     std::vector<T> read(unsigned int offset, unsigned int count, unsigned int stride = 0) {
-        std::cout << "read(" << offset << ", " << count << ")" << std::endl;
-    
         seek(offset); // set file pointer to the offset position
     
         T* data = new T[count];
