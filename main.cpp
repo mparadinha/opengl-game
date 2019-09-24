@@ -41,10 +41,6 @@
 
 #include "entity_pool_global.h"
 
-// tmp testing
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 static const unsigned int WINDOW_WIDTH = 1600;
 static const unsigned int WINDOW_HEIGHT = 900;
 
@@ -136,24 +132,20 @@ void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt
        if (*text >= 32 && *text < 128) {
           stbtt_aligned_quad q;
           //stbtt_GetBakedQuad(cdata, 512, 512, *text-32, &x, &y, &q, 1);
-          stbtt_GetBakedQuad(cdata, 512, 512, 0, &x, &y, &q, 2);
+          stbtt_GetBakedQuad(cdata, 512, 512, 6, &x, &y, &q, 1);
           printf("(%f, %f), (%f, %f), (%f, %f), (%f, %f)\n",
             q.x0, q.y0, q.x1, q.y1,
             q.s0, q.t0, q.s1, q.t1);
 
-          //data.push_back(q.x0); data.push_back(q.y0); // top left
           data.push_back(0.0f); data.push_back(0.0f);
           texc.push_back(q.s0); texc.push_back(q.t1);
 
-          //data.push_back(q.x1); data.push_back(q.y0); // top right
           data.push_back(1.0f); data.push_back(0.0f);
           texc.push_back(q.s1); texc.push_back(q.t1);
 
-          //data.push_back(q.x1); data.push_back(q.y1); // bottom right
           data.push_back(1.0f); data.push_back(1.0f);
           texc.push_back(q.s1); texc.push_back(q.t0);
 
-          //data.push_back(q.x0); data.push_back(q.y1); // bottom left
           data.push_back(0.0f); data.push_back(1.0f);
           texc.push_back(q.s0); texc.push_back(q.t0);
 
@@ -164,11 +156,6 @@ void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt
           indices.push_back(cur + 2);
           indices.push_back(cur + 3);
           cur += 4;
-
-          //glTexCoord2f(q.s0,q.t1); glVertex2f(q.x0,q.y0);
-          //glTexCoord2f(q.s1,q.t1); glVertex2f(q.x1,q.y0);
-          //glTexCoord2f(q.s1,q.t0); glVertex2f(q.x1,q.y1);
-          //glTexCoord2f(q.s0,q.t0); glVertex2f(q.x0,q.y1);
        }
        ++text;
     }
@@ -237,9 +224,18 @@ int main() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, atlas);
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
+    stbtt_aligned_quad q;
+    float x = 0, y = 0;
+    stbtt_GetBakedQuad(cdata, 512, 512, 1, &x, &y, &q, 1);
+    printf("(%f, %f), (%f, %f), (%f, %f), (%f, %f)\n",
+        q.x0, q.y0, q.x1, q.y1,
+        q.s0, q.t0, q.s1, q.t1);
 
-    printf("stbi_write_bmp ret val: %d\n",
-        stbi_write_bmp("atlas.bmp", 512, 512, 1, atlas));
+    printf("pixel coords on bitmap: (%f, %f), (%f, %f)\n",
+        q.s0 * 512, q.t0 * 512, q.s1 * 512, q.t1 * 512);
+
+    //return 0;
 
     // test entities
     //add_cube(loader, {0, 5, 0}, {1, 1.5, 1}, {0, 0, 0}, false, {0, 0, 1, 0.75});
