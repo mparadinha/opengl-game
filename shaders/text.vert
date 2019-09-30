@@ -10,6 +10,6 @@ out vec2 tex_pass;
 
 void main() {
     ////gl_Position = view * projection * vec4(vert_pos, 1, 1);
-    gl_Position = vec4(vert_pos, 0, 1);
+    gl_Position = vec4(vert_pos / 200, 0, 1);
     tex_pass = tex_coord;
 }

@@ -114,7 +114,7 @@ unsigned int add_animated(Loader& loader, std::string path, glm::vec3 pos, glm::
 
 void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt_bakedchar* cdata)
 {
-    Shader shader("text");
+    static Shader shader("text");
     shader.use();
 
     shader.set_uniform("tex", 0);
@@ -129,38 +129,42 @@ void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt
     std::vector<unsigned int> indices;
     unsigned int cur = 0;
     while (*text) {
-       if (*text >= 32 && *text < 128) {
-          stbtt_aligned_quad q;
-          //stbtt_GetBakedQuad(cdata, 512, 512, *text-32, &x, &y, &q, 1);
-          stbtt_GetBakedQuad(cdata, 512, 512, 6, &x, &y, &q, 1);
-          printf("(%f, %f), (%f, %f), (%f, %f), (%f, %f)\n",
-            q.x0, q.y0, q.x1, q.y1,
-            q.s0, q.t0, q.s1, q.t1);
+        if (*text >= 32 && *text < 128) {
+            //char c = *text > 96 ? *text - 0x20 : *text; // always use upper case
+            char c = *text;
 
-          data.push_back(0.0f); data.push_back(0.0f);
-          texc.push_back(q.s0); texc.push_back(q.t1);
+            stbtt_aligned_quad q;
+            stbtt_GetBakedQuad(cdata, 512, 512, c - 32, &x, &y, &q, 1);
+            printf("%c: (%f, %f), (%f, %f), (%f, %f), (%f, %f), (%f, %f)\n",
+                *text,
+                q.x0, q.y0, q.x1, q.y1,
+                q.s0, q.t0, q.s1, q.t1,
+                x, y);
 
-          data.push_back(1.0f); data.push_back(0.0f);
-          texc.push_back(q.s1); texc.push_back(q.t1);
+            data.push_back(q.x0); data.push_back(q.y0);
+            texc.push_back(q.s0); texc.push_back(q.t1);
 
-          data.push_back(1.0f); data.push_back(1.0f);
-          texc.push_back(q.s1); texc.push_back(q.t0);
+            data.push_back(q.x1); data.push_back(q.y0);
+            texc.push_back(q.s1); texc.push_back(q.t1);
 
-          data.push_back(0.0f); data.push_back(1.0f);
-          texc.push_back(q.s0); texc.push_back(q.t0);
+            data.push_back(q.x1); data.push_back(q.y1);
+            texc.push_back(q.s1); texc.push_back(q.t0);
 
-          indices.push_back(cur + 0);
-          indices.push_back(cur + 1);
-          indices.push_back(cur + 2);
-          indices.push_back(cur + 0);
-          indices.push_back(cur + 2);
-          indices.push_back(cur + 3);
-          cur += 4;
-       }
-       ++text;
+            data.push_back(q.x0); data.push_back(q.y1);
+            texc.push_back(q.s0); texc.push_back(q.t0);
+
+            indices.push_back(cur + 0);
+            indices.push_back(cur + 1);
+            indices.push_back(cur + 2);
+            indices.push_back(cur + 0);
+            indices.push_back(cur + 2);
+            indices.push_back(cur + 3);
+            cur += 4;
+        }
+        ++text;
     }
 
-    // draw
+    // upload to gpu
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -181,14 +185,9 @@ void my_stbtt_print(float x, float y, const char *text, unsigned int ftex, stbtt
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-    // assume orthographic projection with units = screen pixels, origin at top left
+    // draw
     glBindTexture(GL_TEXTURE_2D, ftex);
-
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
-
-    printf("data: ");
-    for(auto d : data) std::cout << d << " ";
-    printf("\n");
 }
 
 int main() {
@@ -288,7 +287,7 @@ int main() {
         // draw entities
         renderer.render_all();
 
-        my_stbtt_print(0, 0, "a", ftex, cdata);
+        my_stbtt_print(0, 0, "the quick brown", ftex, cdata);
 
         msg_bus.process();
 
